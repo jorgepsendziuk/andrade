@@ -1,0 +1,8 @@
+node_modules
+frontend/node_modules
+server/node_modules
+var
+.git
+*.log
+.DS_Store
+andradeisenes.WordPress.*.xml
