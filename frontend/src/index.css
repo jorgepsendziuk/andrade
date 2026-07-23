@@ -1,0 +1,173 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #eef6fb;
+  --color-brand-100: #d6ebf7;
+  --color-brand-200: #a8d4ef;
+  --color-brand-300: #6bb8e3;
+  --color-brand-400: #2d8fc9;
+  --color-brand-500: #0066b3;
+  --color-brand-600: #005691;
+  --color-brand-700: #004a80;
+  --color-brand-800: #003559;
+  --color-brand-900: #002540;
+  --color-accent: #2ecc71;
+  --color-accent-hover: #27ae60;
+  --color-accent-dark: #1e8449;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  @apply bg-white text-slate-700 antialiased;
+}
+
+::selection {
+  @apply bg-brand-500 text-white;
+}
+
+.section-title {
+  @apply text-2xl md:text-3xl font-bold text-brand-600 uppercase tracking-wide text-center mb-10;
+}
+
+.section-box {
+  @apply bg-brand-50 border border-brand-100 rounded-lg;
+}
+
+.cms-editable {
+  @apply relative transition-all duration-200;
+}
+
+.cms-editing .cms-editable:hover {
+  @apply outline-2 outline-dashed outline-brand-400 outline-offset-4 rounded-sm;
+}
+
+.cms-editing .cms-editable[data-editing="true"] {
+  @apply outline-2 outline-solid outline-brand-500 outline-offset-4;
+}
+
+.hero-gradient {
+  background: linear-gradient(180deg, #0066b3 0%, #4da3d9 45%, #ffffff 100%);
+}
+
+.carousel-dark {
+  background: linear-gradient(180deg, #003559 0%, #004a80 100%);
+}
+
+.btn-green {
+  @apply inline-flex items-center justify-center bg-accent hover:bg-accent-hover text-white font-bold uppercase tracking-wide px-6 py-3 rounded transition-colors shadow-md;
+}
+
+.btn-green-sm {
+  @apply inline-flex items-center justify-center bg-accent hover:bg-accent-hover text-white font-bold uppercase tracking-wide text-sm px-5 py-2.5 rounded transition-colors;
+}
+
+/* Mascote — translate3d (GPU) | ida c/ leve efeito | volta reta | z-index acima das colunas */
+@keyframes mascot-drive {
+  0%,
+  10% {
+    transform: translate3d(0, 0, 0);
+  }
+  /* volta — glide contínuo */
+  34% {
+    transform: translate3d(32%, 0, 0);
+  }
+  /* ida — glide contínuo */
+  50% {
+    transform: translate3d(0, 0, 0);
+  }
+  /* freada leve */
+  51% {
+    transform: translate3d(1.2%, 0, 0);
+  }
+  52%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes mascot-body {
+  0%,
+  34% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  /* ida — leve empinada */
+  40% {
+    transform: translate3d(0, -1px, 0) rotate(2deg);
+  }
+  46% {
+    transform: translate3d(0, -1.5px, 0) rotate(2.5deg);
+  }
+  49% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  /* freada suave */
+  50.5% {
+    transform: translate3d(0, 0, 0) rotate(-1.2deg);
+  }
+  51.5% {
+    transform: translate3d(0, 0, 0) rotate(-1.6deg);
+  }
+  52.5% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  53%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+}
+
+@keyframes mascot-shadow {
+  0%,
+  10%,
+  34%,
+  53%,
+  100% {
+    opacity: 0.1;
+    transform: translate3d(-50%, 0, 0) scaleX(0.78) scaleY(1);
+  }
+  46% {
+    opacity: 0.13;
+    transform: translate3d(-50%, 0, 0) scaleX(0.92) scaleY(0.95);
+  }
+  51% {
+    opacity: 0.11;
+    transform: translate3d(-50%, 0, 0) scaleX(0.85) scaleY(0.93);
+  }
+}
+
+.mascot-car {
+  z-index: 50;
+  animation: mascot-drive 10s linear infinite;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.mascot-body {
+  transform-origin: 78% 100%;
+  animation: mascot-body 10s linear infinite;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.mascot-stage {
+  overflow: visible;
+  z-index: 50;
+}
+
+.mascot-shadow {
+  animation: mascot-shadow 10s linear infinite;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mascot-car,
+  .mascot-body,
+  .mascot-shadow {
+    animation: none;
+  }
+}
