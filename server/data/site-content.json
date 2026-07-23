@@ -191,19 +191,6 @@
       }
     },
     {
-      "id": "consorcio",
-      "type": "consortium",
-      "enabled": true,
-      "order": 5,
-      "data": {
-        "title": "CONSÓRCIO NACIONAL VOLKSWAGEN",
-        "bannerImage": "/assets/consorcio/banner.jpg",
-        "carImage": "/assets/consorcio/car-rear.jpeg",
-        "certificate": "Certificado nº 5579920291031911",
-        "ctaLink": "#contato"
-      }
-    },
-    {
       "id": "clientes",
       "type": "testimonials",
       "enabled": true,

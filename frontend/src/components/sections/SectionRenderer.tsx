@@ -4,7 +4,6 @@ import { ServicesSection } from './ServicesSection';
 import { DeficienciesSection } from './DeficienciesSection';
 import { PurposeSection } from './PurposeSection';
 import { TestimonialsSection } from './TestimonialsSection';
-import { ConsortiumSection } from './ConsortiumSection';
 import { ContactSection } from './ContactSection';
 import { useCms } from '../../context/CmsContext';
 
@@ -15,7 +14,6 @@ const sectionComponents: Record<string, React.ComponentType> = {
   deficiencies: DeficienciesSection,
   purpose: PurposeSection,
   testimonials: TestimonialsSection,
-  consortium: ConsortiumSection,
   contact: ContactSection,
 };
 
