@@ -1,0 +1,170 @@
+<!--[main]-->
+<div class="card panel" style="width: 100%;  border: none;">
+    <div class="card-header panel-heading">
+        <div class="panel-title card-title">_t{Setup 2FA}</div>
+        <div class="header-actions" style="float:right">
+
+            <div class="btn btn-sm btn-default" style="margin-right:10px;" onclick="Template.closeRightPanel();">
+                <span>
+                    <i class="fas fa-times" style="padding-right:4px"></i>
+                    _t{Close}
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card-body panel-body" style="width: 100%;">
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" style="padding:10px; margin-top: -1px;" id="tab_0">
+                <div class="auth-container">
+                    <h4 class="mb-3">Autenticação em Dois Fatores</h4>
+                    
+                    
+                    <form class="form-horizontal" enctype="multipart/form-data" name="System2FAForm" id="System2FAForm" method="post" type="bootstrap">
+                        
+                        <!--[normal]-->
+
+                        <p class="text-muted mb-4">Selecione como deseja receber seu código de verificação:</p>
+
+                        <div class="method-option" data-method="email" style="cursor: pointer;">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" id="emailMethod" name="auth_method" value='email' class="custom-control-input">
+                                <label class="custom-control-label" for="emailMethod">
+                                    <strong>Email</strong>
+                                    <p class="text-muted mb-0 mt-1">Receba códigos de verificação no seu email</p>
+                                </label>
+                            </div>
+                        </div>
+                
+                        <div class="method-option" data-method="google" style="cursor: pointer;">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" id="googleMethod" name="auth_method" value='google_authenticator' class="custom-control-input">
+                                <label class="custom-control-label" for="googleMethod">
+                                    <strong>Google Authenticator</strong>
+                                    <p class="text-muted mb-0 mt-1">Use o aplicativo Google Authenticator</p>
+                                </label>
+                            </div>
+                        </div>
+                        <!--[/normal]-->
+
+                        <!--[editGoogle]-->
+                        
+                            <div class="current-method" id="activeMethod">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="badge badge-success">_t{Active}</span>
+                                        <span class="ml-2" style="font-size: 16px; color: #333;">Google Authenticator</span>
+                                    </div>
+                                    <a class="btn btn-danger btn-sm" id="disableBtn" generator="adianti" href="index.php?class=System2FAForm&method=onDisable2FA&type=google_authenticator&static=1">_t{Disable}</a>
+                                </div>
+                            </div>
+
+                        <!--[/editGoogle]-->
+
+                        <!--[editEmail]-->
+                        
+                         <div class="current-method" id="activeMethod">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge badge-success">_t{Active}</span>
+                                    <span class="ml-2" style="font-size: 16px; color: #333;">Código de verificação por email</span>
+                                </div>
+                                <a class="btn btn-danger btn-sm" id="disableBtn" generator="adianti" href="index.php?class=System2FAForm&method=onDisable2FA&type=email&static=1">_t{Disable}</a>
+                            </div>
+                        </div>
+
+                        <!--[/editEmail]-->
+
+                        <!--[edit]-->
+                            <p class="text-muted mb-4">Alterar método de 2FA:</p>
+
+                            <div class="method-option" data-method="email" style="cursor: pointer; {$displayEmail}">
+                                <div class="custom-control custom-radio">
+                                    <input type="radio" id="emailMethod" name="auth_method" value='email' class="custom-control-input">
+                                    <label class="custom-control-label" for="emailMethod">
+                                        <strong>Email</strong>
+                                        <p class="text-muted mb-0 mt-1">Receba códigos de verificação no seu email</p>
+                                    </label>
+                                </div>
+                            </div>
+                    
+                            <div class="method-option" data-method="google" style="cursor: pointer; {$displayGoogle}">
+                                <div class="custom-control custom-radio">
+                                    <input type="radio" id="googleMethod"  name="auth_method" value='google_authenticator' class="custom-control-input">
+                                    <label class="custom-control-label" for="googleMethod">
+                                        <strong>Google Authenticator</strong>
+                                        <p class="text-muted mb-0 mt-1">Use o aplicativo Google Authenticator</p>
+                                    </label>
+                                </div>
+                            </div>
+                        <!--[/edit]-->
+
+                    </form>
+                    
+                    <hr class="mt-4">
+                    <div class="mt-4">
+                        {$btnContinue}
+                    </div>
+                </div>
+            
+
+                <script>
+                    $(document).ready(function() {
+                        $('.method-option').click(function() {
+                            const $radio = $(this).find('input[type="radio"]');
+                            $radio.prop('checked', true);
+                            
+                            $('.method-option').removeClass('selected');
+                            $(this).addClass('selected');
+                            
+                            $('#continueBtn').prop('disabled', false);
+                        });
+                    });
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .method-option {
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 15px;
+        cursor: pointer;
+    }
+
+    .method-option *{
+        cursor: pointer;
+    }
+
+    .method-option:hover {
+        background-color: #f8f9fa;
+        cursor: pointer;
+    }
+
+    .method-option.selected {
+        border-color: #007bff;
+        background-color: #f0f7ff;
+    }
+    .status-badge {
+        font-size: 12px;
+        padding: 3px 8px;
+        border-radius: 12px;
+        margin-left: 8px;
+    }
+
+    .divider {
+        margin: 25px 0;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .current-method {
+        background-color: #e9ecef;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+</style>
+<!--[/main]-->

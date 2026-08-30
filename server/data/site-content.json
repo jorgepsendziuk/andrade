@@ -1,193 +1,462 @@
 {
   "site": {
     "title": "Andrade Isenções",
-    "description": "Pessoas com deficiência: Assessoria especializada nos processos para compra de carro zero km PCD",
+    "description": "Assessoria especializada para pessoas com deficiência na compra de veículos 0 km com os benefícios legais disponíveis.",
     "logo": "/assets/logo/logo-header.png",
     "logoFull": "/assets/logo/logo-full.png",
     "phone": "65 99984-4212",
     "whatsapp": "5565999844212",
     "email": "comercial@andradeisencoes.com.br",
     "hours": "Seg - Sex 9h às 18h",
-    "address": "Av. Fernando Corrêa da Costa, 1917 - Centro Sul, Cuiabá - MT",
-    "googleReviewsUrl": "https://g.page/r/andradeisencoes/review",
-    "copyright": "© 2019 Andrade Isenções"
+    "address": "Av. Fernando Corrêa da Costa, 1899 - Jd. das Américas, Galeria Itália Center - Cuiabá/MT - CEP 78060-600",
+    "googleReviewsUrl": "https://maps.app.goo.gl/334gwCfDPaFuRTC7A?g_st=iw",
+    "copyright": "© 2019 Andrade Isenções® — Todos os direitos reservados"
   },
   "navigation": [
-    { "id": "nav-inicio", "label": "INÍCIO", "href": "#inicio", "type": "anchor" },
-    { "id": "nav-quem-somos", "label": "QUEM SOMOS", "href": "#quem-somos", "type": "anchor" },
-    { "id": "nav-servicos", "label": "SERVIÇOS", "href": "#servicos", "type": "anchor" },
-    { "id": "nav-deficiencias", "label": "DEFICIÊNCIAS", "href": "#deficiencias", "type": "anchor" },
-    { "id": "nav-contato", "label": "CONTATO", "href": "#contato", "type": "anchor" },
+    {
+      "id": "nav-inicio",
+      "label": "Início",
+      "href": "#inicio",
+      "type": "anchor"
+    },
+    {
+      "id": "nav-direito",
+      "label": "Tenho Direito?",
+      "href": "#tenho-direito",
+      "type": "anchor"
+    },
+    {
+      "id": "nav-isencoes",
+      "label": "Isenções PCD",
+      "href": "#servicos",
+      "type": "anchor"
+    },
+    {
+      "id": "nav-carros",
+      "label": "Carros PCD",
+      "href": "#carros",
+      "type": "anchor"
+    },
+    {
+      "id": "nav-como",
+      "label": "Como Funciona",
+      "href": "#como-funciona",
+      "type": "anchor"
+    },
+    {
+      "id": "nav-duvidas",
+      "label": "Dúvidas",
+      "href": "#simulador",
+      "type": "anchor"
+    },
+    {
+      "id": "nav-sobre",
+      "label": "Sobre Nós",
+      "href": "#sobre",
+      "type": "anchor"
+    },
     {
       "id": "nav-fale",
-      "label": "FALE CONOSCO",
+      "label": "Falar com Especialista",
       "href": "#contato",
       "type": "anchor",
       "highlight": true
     },
     {
-      "id": "nav-login",
-      "label": "LOGIN",
-      "type": "dropdown",
-      "children": [
-        { "id": "nav-sistema", "label": "SISTEMA", "href": "https://sistema.andradeisencoes.com.br", "type": "external" },
-        { "id": "nav-email", "label": "E-MAIL", "href": "https://mail.andradeisencoes.com.br", "type": "external" },
-        { "id": "nav-admin", "label": "ADMINISTRAÇÃO DO SITE", "href": "/admin", "type": "internal" }
-      ]
+      "id": "nav-entrar",
+      "label": "Portal",
+      "href": "/entrar",
+      "type": "internal"
     }
   ],
+  "footer": {
+    "description": "Assessoria especializada para pessoas com deficiência na compra de veículos 0 km com os benefícios legais disponíveis.",
+    "social": [
+      {
+        "id": "ig",
+        "label": "Instagram",
+        "url": "https://www.instagram.com/andradeconsultoriae",
+        "icon": "instagram"
+      },
+      {
+        "id": "wa",
+        "label": "WhatsApp",
+        "url": "https://wa.me/5565999844212",
+        "icon": "whatsapp"
+      }
+    ],
+    "columns": [
+      {
+        "id": "inst",
+        "title": "Institucional",
+        "links": [
+          {
+            "id": "i1",
+            "label": "Quem somos",
+            "href": "/#sobre"
+          },
+          {
+            "id": "i2",
+            "label": "Nossa história",
+            "href": "/#sobre"
+          },
+          {
+            "id": "i3",
+            "label": "Contato",
+            "href": "/#contato"
+          }
+        ]
+      },
+      {
+        "id": "pcd",
+        "title": "PCD",
+        "links": [
+          {
+            "id": "p1",
+            "label": "Tenho direito?",
+            "href": "/#tenho-direito"
+          },
+          {
+            "id": "p2",
+            "label": "Isenções",
+            "href": "/#servicos"
+          },
+          {
+            "id": "p3",
+            "label": "Documentação",
+            "href": "/guia/documentos-necessarios-carro-pcd"
+          },
+          {
+            "id": "p4",
+            "label": "Como funciona",
+            "href": "/#como-funciona"
+          }
+        ]
+      },
+      {
+        "id": "content",
+        "title": "Conteúdo",
+        "links": [
+          {
+            "id": "c1",
+            "label": "Guia PCD",
+            "href": "/guia"
+          },
+          {
+            "id": "c2",
+            "label": "Dúvidas frequentes",
+            "href": "/guia"
+          },
+          {
+            "id": "c3",
+            "label": "Autismo e PCD",
+            "href": "/isencao-pcd/autismo"
+          },
+          {
+            "id": "c4",
+            "label": "Visão monocular",
+            "href": "/isencao-pcd/visao-monocular"
+          }
+        ]
+      }
+    ]
+  },
   "sections": [
     {
-      "id": "hero",
-      "type": "hero",
+      "id": "hero-commercial",
+      "type": "hero-commercial",
       "enabled": true,
       "order": 0,
       "data": {
-        "mosaic": {
-          "mascot": "/assets/hero/mascot-car-transparent.png",
-          "g1Banner": "/assets/hero/g1-banner.jpg",
-          "g1Link": "https://g1.globo.com/mt/mato-grosso/especial-publicitario/andrade-consultoria-e-isencoes/noticia/2025/01/16/escritorio-de-mt-facilita-o-direito-a-mobilidade-para-publico-pcd.ghtml",
-          "pescumaVideoId": "FIujKYei9AE",
-          "pescumaPreviewGif": "/assets/hero/pescuma-preview.gif",
-          "institutionalVideoId": "SJkRT3ctIDc",
-          "sonhosSlides": [
-            "/assets/hero/sonhos/photo-1.jpg",
-            "/assets/hero/sonhos/photo-2.jpg",
-            "/assets/hero/sonhos/photo-3.jpg"
-          ],
-          "sonhosTitle": "Sonhos realizados",
-          "sonhosSubtitle": "Mais de 1000 famílias já realizaram o sonho do carro novo com isenções e grandes descontos.",
-          "ctaText": "Fale conosco!",
-          "ctaLink": "#contato"
-        },
-        "carouselSlides": [
-          "/assets/hero/carousel-1.jpeg",
-          "/assets/hero/carousel-2.jpg",
-          "/assets/hero/carousel-3.jpg",
-          "/assets/hero/carousel-4.jpg",
-          "/assets/hero/carousel-5.jpg"
-        ]
+        "eyebrow": "Pessoas com deficiência",
+        "headline": "Seu carro novo começa aqui.",
+        "subheadline": "Assessoria especializada para pessoas com deficiência na compra de veículos 0 km com os benefícios legais disponíveis.",
+        "tagline": "Atendimento personalizado do primeiro passo até a escolha do seu veículo.",
+        "insert": "Mais mobilidade, mais liberdade!",
+        "image": "https://storage.googleapis.com/andrade-media/media/assets/hero/slider-hd/slide-1.webp",
+        "backgroundSlides": [
+          "https://storage.googleapis.com/andrade-media/media/assets/hero/slider-hd/slide-1.webp",
+          "https://storage.googleapis.com/andrade-media/media/assets/hero/slider-hd/slide-2.webp",
+          "https://storage.googleapis.com/andrade-media/media/assets/hero/slider-hd/slide-3.webp",
+          "https://storage.googleapis.com/andrade-media/media/assets/hero/slider-hd/slide-4.webp",
+          "https://storage.googleapis.com/andrade-media/media/assets/hero/slider-hd/slide-5.webp"
+        ],
+        "primaryCta": "Quero saber se tenho direito",
+        "primaryCtaLink": "#tenho-direito",
+        "secondaryCta": "Falar com especialista",
+        "secondaryCtaLink": "#contato"
       }
     },
     {
-      "id": "quem-somos",
-      "type": "about",
-      "enabled": true,
+      "id": "trust-bar",
+      "type": "trust-bar",
+      "enabled": false,
       "order": 1,
       "data": {
-        "title": "QUEM SOMOS",
-        "cards": [
+        "items": [
           {
-            "id": "missao",
-            "heading": "Missão",
-            "text": "Nossa missão é ser a maior empresa de assessoria PCD do Brasil oferecendo serviços de alta qualidade e agilidade, excelência no atendimento, acessibilidade, amor pela causa ajudando as pessoas com deficiência a realizar seu sonhos com o melhor custo benefício"
+            "id": "t1",
+            "value": "+3.000",
+            "label": "Famílias atendidas"
           },
           {
-            "id": "visao",
-            "heading": "Visão",
-            "text": "Ser referência no mercado que atuamos oferecendo serviços com qualidade e excelência no atendimento."
+            "id": "t2",
+            "value": "+300",
+            "label": "Avaliações no Google"
           },
           {
-            "id": "valores",
-            "heading": "Valores",
-            "text": "Ética, Responsabilidade Social, Acessibilidade e a busca incessante por um mundo mais justo"
+            "id": "t3",
+            "value": "",
+            "label": "Atendimento\nespecializado"
+          },
+          {
+            "id": "t4",
+            "value": "",
+            "label": "Acompanhamento completo\ndo início ao fim"
           }
-        ],
-        "historyTitle": "Nossa História",
-        "historyParagraphs": [
-          "Luiz Carlos Ferreira de Andrade Junior, fundador e CEO da Andrade Consultoria e Isenções, é formado em Administração de Empresas pela UFMT e possui MBAs em Gestão Comercial e Inteligência de Mercado, Neurociência e Desempenho e Gestão do Agronegócio pelo IPOG. Atualmente, está cursando o Técnico em Despachante Documentalista, com especializações em diversas áreas de despacho, como Detran, Imobiliário, Previdenciário, Ambiental e Náutico. Com 30 anos de experiência comercial, ele foca em oferecer um atendimento que realmente impacte, valorizando acessibilidade, sustentabilidade e responsabilidade social.",
-          "Desde a fundação da Andrade Consultoria, em outubro de 2019, Luiz busca atender o público PCD com um modelo exclusivo, proporcionando experiências marcantes. A abordagem da empresa é personalizada: cada cliente encontra uma solução adaptada às suas necessidades, pois acredita-se que o atendimento é um aprendizado contínuo.",
-          "A Andrade Consultoria também atua como Correspondente Bancário através de Certificado nº 5579920291031911 como Representante Autorizado do Consórcio Nacional Volkswagen para pessoas físicas, jurídicas, motoristas de aplicativo, taxistas, produtores rurais e grandes frotistas.",
-          "Mais recentemente, a empresa abraçou um projeto voltado para a sustentabilidade, com o objetivo de contribuir para a preservação do planeta, beneficiando as atuais e futuras gerações."
-        ],
-        "officeSlides": [
-          "/assets/about/WhatsApp-Image-2024-07-31-at-13.14.17.jpeg",
-          "/assets/about/WhatsApp-Image-2024-07-31-at-13.16.41-1.jpeg",
-          "/assets/about/WhatsApp-Image-2024-07-31-at-13.16.41.jpeg",
-          "/assets/about/WhatsApp-Image-2024-07-31-at-14.06.00.jpeg"
         ]
       }
     },
     {
-      "id": "servicos",
-      "type": "services",
-      "enabled": true,
+      "id": "quick-path",
+      "type": "quick-path",
+      "enabled": false,
       "order": 2,
       "data": {
-        "title": "ASSESSORIA NOS PROCESSOS DE:",
-        "items": [
-          { "id": "ipi", "title": "ISENÇÃO DE IPI & IOF" },
-          { "id": "icms", "title": "ISENÇÃO DE ICMS" },
-          { "id": "ipva", "title": "ISENÇÃO DE IPVA" },
-          { "id": "rodizio", "title": "RODÍZIO E CARTÃO" }
+        "title": "Você pode estar mais perto do seu carro novo do que imagina.",
+        "steps": [
+          {
+            "id": "s1",
+            "number": "01",
+            "title": "Descubra se você tem direito",
+            "description": "Análise personalizada do seu caso com nossa equipe especializada."
+          },
+          {
+            "id": "s2",
+            "number": "02",
+            "title": "Entenda quais benefícios se aplicam",
+            "description": "Orientação sobre IPI, ICMS, IPVA e demais isenções disponíveis."
+          },
+          {
+            "id": "s3",
+            "number": "03",
+            "title": "Conte com nossa assessoria",
+            "description": "Acompanhamento completo em cada etapa do processo."
+          }
         ],
-        "description": "Com anos de experiência e uma missão clara de promover acesso e inclusão, a Andrade Consultoria e Isenções é especializada no atendimento ao público PCD, oferecendo um serviço humanizado, ágil e transparente. Nossa equipe é formada por profissionais comprometidos em prestar um atendimento de excelência, com empatia e dedicação em cada etapa do processo.\n\nSabemos que a informação sobre os direitos de isenção para aquisição de veículos zero quilômetro com desconto para PCD é escassa e pouco divulgada. Por isso, nosso trabalho é levar até você o conhecimento e o suporte necessários para conquistar esse direito, sem complicações.\n\nNa Andrade, Você receberá Assessoria completa, desde informações de quais limitações se enquadram, Junta Médica agendando, na abertura do processo de forma correta, acompanhamento na perícia por um profissional de nossa empresa, Receita Federal, Secretaria de Fazenda de Mato Grosso, Secretaria da Fazenda de São Paulo para solicitar as Isenções de IPI, ICMS respectivamente. Temos acesso a todas as Concessionárias do Estado oferecendo serviços de cotações de valores dos veículos, agendamento de teste drive. Também auxiliamos em todo o processo de adaptação veicular, quando necessário, encaminhando nossos clientes para empresas credenciadas pelo INMETRO.\n\nCom cadastro nos principais órgãos competentes, garantimos soluções mais rápidas e eficientes, e nosso índice de sucesso nos processos protocolados é alto. Conte conosco para uma consultoria completa, desde a escolha do veículo até a obtenção dos benefícios que você merece.\n\nSomos também Representantes do Consórcio Nacional Volkswagen oferecendo soluções de Crédito sem juros e sem complicações para auxiliar você na realização do seu sonho.",
-        "highlight": "Não há barreiras ou limites para quem acredita em seus sonhos!"
+        "ctaText": "Verificar minha situação",
+        "ctaLink": "#simulador"
       }
     },
     {
-      "id": "deficiencias",
-      "type": "deficiencies",
+      "id": "tenho-direito",
+      "type": "tenho-direito",
       "enabled": true,
       "order": 3,
       "data": {
-        "title": "DEFICIÊNCIAS FAVORECIDAS",
-        "backgroundImage": "/assets/hero/road-bg.jpg",
-        "columns": [
-          [
-            "Alguns tipos de câncer",
-            "Amputação",
-            "Artrite Reumatóide",
-            "Artrodese",
-            "Artrogripose",
-            "Ausência de Membros",
-            "Autismo",
-            "AVC (Acidente Vascular Cerebral)",
-            "AVE (Acidente Vascular Encefálico)",
-            "Cardiopatia grave",
-            "Doenças Degenerativas",
-            "Deficiência Visual"
-          ],
-          [
-            "Deficiência Auditiva Unilateral e Bilateral",
-            "Deficiência Mental Severa Grave",
-            "Doenças Neurológicas",
-            "DORT (Distúrbio Osteomuscular Relacionado ao Trabalho)",
-            "Encurtamento de Membros",
-            "Esclerose Múltipla",
-            "Escoliose Acentuada",
-            "Espondilite Anquilosante",
-            "Hemiparesia",
-            "Hemiplegia",
-            "LER (Lesão Por Esforço Repetitivo)",
-            "Linfomas"
-          ],
-          [
-            "Manguito Rotador",
-            "Mastectomia (Retirada da Mama)",
-            "Membros com Deformidades (Congênitas ou Adquiridas)",
-            "Renal Crônico (Fístula)",
-            "Síndrome de Deficiência Imunológica (HIV)",
-            "Síndrome do Túnel do Carpo (crônica com sequelas)",
-            "Talidomida",
-            "Tendinite Crônica",
-            "Tetraparesia",
-            "Visão Monocular"
-          ]
+        "title": "Tenho direito a comprar um carro PCD?",
+        "subtitle": "Cada caso possui características específicas. Nossa equipe analisa sua situação e orienta você sobre os benefícios aplicáveis.",
+        "ctaText": "Analisar meu caso",
+        "ctaLink": "#simulador",
+        "cards": [
+          {
+            "id": "c1",
+            "label": "Hérnia de disco",
+            "slug": "hernia-de-disco",
+            "icon": "hernia-de-disco"
+          },
+          {
+            "id": "c2",
+            "label": "Condromalácia patelar",
+            "slug": "condromalacia-patelar",
+            "icon": "condromalacia-patelar"
+          },
+          {
+            "id": "c3",
+            "label": "Fibromialgia",
+            "slug": "fibromialgia",
+            "icon": "fibromialgia"
+          },
+          {
+            "id": "c4",
+            "label": "Câncer de mama",
+            "slug": "mastectomia",
+            "icon": "mastectomia"
+          },
+          {
+            "id": "c5",
+            "label": "Artrodese",
+            "slug": "artrodese",
+            "icon": "artrodese"
+          },
+          {
+            "id": "c6",
+            "label": "Artrite reumatóide",
+            "slug": "artrite-reumatoide",
+            "icon": "artrite-reumatoide"
+          },
+          {
+            "id": "c7",
+            "label": "Túnel do carpo",
+            "slug": "tunel-do-carpo",
+            "icon": "tunel-do-carpo"
+          },
+          {
+            "id": "c8",
+            "label": "Visão Monocular",
+            "slug": "visao-monocular",
+            "icon": "visao-monocular"
+          },
+          {
+            "id": "c9",
+            "label": "Deficiência Auditiva",
+            "slug": "deficiencia-auditiva",
+            "icon": "deficiencia-auditiva"
+          },
+          {
+            "id": "c10",
+            "label": "Autismo",
+            "slug": "autismo",
+            "icon": "autismo"
+          },
+          {
+            "id": "c11",
+            "label": "Amputação",
+            "slug": "amputacao",
+            "icon": "amputacao"
+          },
+          {
+            "id": "c12",
+            "label": "AVC",
+            "slug": "avc",
+            "icon": "avc"
+          },
+          {
+            "id": "c13",
+            "label": "Deficiência Visual",
+            "slug": "deficiencia-visual",
+            "icon": "deficiencia-visual"
+          },
+          {
+            "id": "c14",
+            "label": "Esclerose Múltipla",
+            "slug": "esclerose-multipla",
+            "icon": "esclerose-multipla"
+          },
+          {
+            "id": "c15",
+            "label": "Doenças Neurológicas",
+            "slug": "doencas-neurologicas",
+            "icon": "doencas-neurologicas"
+          },
+          {
+            "id": "c16",
+            "label": "Outras Condições",
+            "slug": "outras-condicoes",
+            "icon": "outras"
+          }
         ]
       }
     },
     {
-      "id": "proposito",
-      "type": "purpose",
+      "id": "como-funciona",
+      "type": "como-funciona",
       "enabled": true,
       "order": 4,
       "data": {
-        "title": "PROPÓSITO",
-        "paragraphs": [
-          "Somos uma assessoria especializada em ajudar pessoas com deficiência (PCD) a adquirirem veículos zero km com os benefícios legais disponíveis. Nosso propósito é garantir que cada cliente conheça seus direitos e compreenda as condições de saúde que podem garantir esse benefício, permitindo a compra de um carro com grandes descontos. Acreditamos que todos merecem o direito de ir e vir com dignidade, contribuindo também para a sustentabilidade.",
-          "Mais do que vender carros, promovemos um atendimento humanizado, que deveria ser parte essencial de toda pessoa e organização. Nosso objetivo é criar um ambiente amigável, feliz e próspero, onde o respeito e o acolhimento são pilares fundamentais."
-        ]
+        "title": "Do primeiro passo ao carro novo",
+        "subtitle": "Acompanhamos você em cada etapa do processo",
+        "backgroundImage": "https://storage.googleapis.com/andrade-media/media/assets/hero/road-bg.jpg",
+        "steps": [
+          {
+            "id": "p1",
+            "number": "01",
+            "title": "Análise",
+            "description": "Entendemos seu caso."
+          },
+          {
+            "id": "p2",
+            "number": "02",
+            "title": "Documentação",
+            "description": "Orientamos sobre os documentos necessários."
+          },
+          {
+            "id": "p3",
+            "number": "03",
+            "title": "Isenções",
+            "description": "Acompanhamos os processos aplicáveis."
+          },
+          {
+            "id": "p4",
+            "number": "04",
+            "title": "Escolha do carro",
+            "description": "Ajudamos a encontrar a melhor opção."
+          },
+          {
+            "id": "p5",
+            "number": "05",
+            "title": "Carro novo!",
+            "description": "Você realiza seu sonho."
+          }
+        ],
+        "ctaText": "Quero começar",
+        "ctaLink": "/iniciar"
+      }
+    },
+    {
+      "id": "carros",
+      "type": "carros",
+      "enabled": true,
+      "order": 5,
+      "data": {
+        "title": "Qual carro você está sonhando em ter?",
+        "subtitle": "Condições especiais para você! Consulte os modelos disponíveis.",
+        "brands": [
+          {
+            "id": "b1",
+            "name": "Volkswagen",
+            "logo": "/assets/brands/volkswagen.svg"
+          },
+          {
+            "id": "b2",
+            "name": "Chevrolet",
+            "logo": "/assets/brands/chevrolet.svg"
+          },
+          {
+            "id": "b3",
+            "name": "Fiat",
+            "logo": "/assets/brands/fiat.svg"
+          },
+          {
+            "id": "b4",
+            "name": "Jeep",
+            "logo": "/assets/brands/jeep.svg"
+          },
+          {
+            "id": "b5",
+            "name": "Toyota",
+            "logo": "/assets/brands/toyota.svg"
+          },
+          {
+            "id": "b6",
+            "name": "Hyundai",
+            "logo": "/assets/brands/hyundai.svg"
+          },
+          {
+            "id": "b7",
+            "name": "Renault",
+            "logo": "/assets/brands/renault.svg"
+          },
+          {
+            "id": "b8",
+            "name": "Ford",
+            "logo": "/assets/brands/ford.svg"
+          }
+        ],
+        "promoTitle": "Condições especiais para você!",
+        "promoText": "Consulte os modelos disponíveis com benefícios PCD.",
+        "promoImage": "https://storage.googleapis.com/andrade-media/media/assets/hero/sonhos/photo-3.webp",
+        "ctaText": "Saber mais"
       }
     },
     {
@@ -196,30 +465,259 @@
       "enabled": true,
       "order": 6,
       "data": {
-        "title": "DEPOIMENTOS DE CLIENTES",
-        "description": "Clique aqui para ver as mais de 285 avaliações de pessoas reais no Google sobre a Andrade Isenções",
-        "reviewsUrl": "https://g.page/r/andradeisencoes/review",
-        "slides": [
-          "/assets/testimonials/dep0.jpg",
-          "/assets/testimonials/dep1.jpg",
-          "/assets/testimonials/dep2.jpg",
-          "/assets/testimonials/dep3.jpg",
-          "/assets/testimonials/dep4.jpg",
-          "/assets/testimonials/dep5.jpg",
-          "/assets/testimonials/dep7.jpg"
+        "title": "Sonhos que viraram conquistas",
+        "description": "Avaliações reais de quem já realizou o sonho do carro novo com a Andrade",
+        "reviewsUrl": "https://maps.app.goo.gl/334gwCfDPaFuRTC7A?g_st=iw",
+        "reviewCount": "+300",
+        "guiaTitle": "Guia PCD",
+        "guiaText": "Tire suas dúvidas sobre isenções, documentos e direitos.",
+        "guiaLink": "/guia",
+        "featuredReviews": [
+          {
+            "id": "r1",
+            "name": "Juliana S.",
+            "location": "Cuiabá - MT",
+            "text": "Atendimento impecável do início ao fim. A equipe foi muito atenciosa e me ajudou em cada etapa do processo de isenção. Recomendo de olhos fechados!",
+            "rating": 5,
+            "photo": "https://storage.googleapis.com/andrade-media/media/assets/hero/sonhos/photo-1.webp"
+          },
+          {
+            "id": "r2",
+            "name": "Carlos M.",
+            "location": "Várzea Grande - MT",
+            "text": "Profissionais competentes e humanos. Realizei o sonho do carro novo com todas as isenções. Processo transparente e sem complicações.",
+            "rating": 5,
+            "photo": "https://storage.googleapis.com/andrade-media/media/assets/hero/sonhos/photo-2.webp"
+          },
+          {
+            "id": "r3",
+            "name": "Fernanda R.",
+            "location": "Sinop - MT",
+            "text": "Excelente assessoria PCD! Me orientaram sobre todos os documentos e acompanharam a perícia. Muito obrigada pela dedicação.",
+            "rating": 5,
+            "photo": "https://storage.googleapis.com/andrade-media/media/assets/hero/sonhos/photo-3.webp"
+          }
         ]
+      }
+    },
+    {
+      "id": "simulador",
+      "type": "simulador",
+      "enabled": true,
+      "order": 7,
+      "data": {
+        "title": "Descubra o seu caminho para o carro PCD",
+        "subtitle": "Responda algumas perguntas e receba uma orientação personalizada.",
+        "questions": [
+          {
+            "id": "cidade",
+            "question": "Qual sua cidade?",
+            "options": []
+          },
+          {
+            "id": "condicao",
+            "question": "Qual sua condição?",
+            "options": [
+              "Autismo",
+              "Amputação",
+              "AVC",
+              "Visão Monocular",
+              "Deficiência Visual",
+              "Deficiência Auditiva",
+              "Esclerose Múltipla",
+              "Hérnia de disco",
+              "Fibromialgia",
+              "Outra condição"
+            ]
+          },
+          {
+            "id": "cnh",
+            "question": "Você possui CNH?",
+            "options": [
+              "Sim",
+              "Não",
+              "Estou em processo"
+            ]
+          },
+          {
+            "id": "laudo",
+            "question": "Já possui laudo médico?",
+            "options": [
+              "Sim",
+              "Não",
+              "Estou providenciando"
+            ]
+          },
+          {
+            "id": "veiculo",
+            "question": "Qual veículo pretende comprar?",
+            "options": [
+              "Hatch",
+              "Sedan",
+              "SUV",
+              "Ainda não decidi"
+            ]
+          }
+        ],
+        "resultTitle": "Seu caso precisa de uma análise especializada",
+        "resultText": "Com base nas suas respostas, nossa equipe pode orientar você sobre os benefícios aplicáveis ao seu caso. Entre em contato para uma análise gratuita ou inicie seu processo online.",
+        "ctaText": "Falar com um especialista",
+        "processCtaText": "Iniciar processo",
+        "processCtaLink": "/iniciar"
+      }
+    },
+    {
+      "id": "media",
+      "type": "media",
+      "enabled": true,
+      "order": 8,
+      "data": {
+        "title": "Andrade na mídia",
+        "subtitle": "Acompanhe nossa presença na imprensa e conheça mais sobre nosso trabalho.",
+        "mosaic": {
+          "mascot": "https://storage.googleapis.com/andrade-media/media/assets/hero/mascot-car-transparent.png",
+          "g1Banner": "https://storage.googleapis.com/andrade-media/media/assets/hero/g1-banner.jpg",
+          "g1Link": "https://g1.globo.com/mt/mato-grosso/especial-publicitario/andrade-consultoria-e-isencoes/noticia/2025/01/16/escritorio-de-mt-facilita-o-direito-a-mobilidade-para-publico-pcd.ghtml",
+          "pescumaVideoId": "FIujKYei9AE",
+          "pescumaPreviewGif": "https://storage.googleapis.com/andrade-media/media/assets/hero/pescuma-preview.gif"
+        }
+      }
+    },
+    {
+      "id": "quem-somos",
+      "type": "about",
+      "enabled": true,
+      "order": 9,
+      "data": {
+        "title": "",
+        "quote": "Nossa missão é tornar o processo mais simples para quem precisa.",
+        "founderName": "Luiz Carlos Ferreira de Andrade Junior — Fundador e CEO",
+        "founderImage": "https://storage.googleapis.com/andrade-media/media/assets/about/WhatsApp-Image-2024-07-31-at-13.14.17.jpeg",
+        "officeSlides": [
+          "https://storage.googleapis.com/andrade-media/media/assets/about/WhatsApp-Image-2024-07-31-at-13.14.17.jpeg",
+          "https://storage.googleapis.com/andrade-media/media/assets/about/WhatsApp-Image-2024-07-31-at-13.16.41-1.jpeg",
+          "https://storage.googleapis.com/andrade-media/media/assets/about/WhatsApp-Image-2024-07-31-at-13.16.41.jpeg",
+          "https://storage.googleapis.com/andrade-media/media/assets/about/WhatsApp-Image-2024-07-31-at-14.06.00.jpeg"
+        ],
+        "historyLinkText": "Conheça nossa história",
+        "historyTitle": "Nossa História",
+        "showFullHistory": true,
+        "historyParagraphs": [
+          "Luiz Carlos Ferreira de Andrade Junior, fundador e CEO da Andrade Consultoria e Isenções, é formado em Administração de Empresas pela UFMT e possui MBAs em Gestão Comercial e Inteligência de Mercado. Com 30 anos de experiência comercial, ele foca em oferecer um atendimento que realmente impacte, valorizando acessibilidade, sustentabilidade e responsabilidade social.",
+          "Desde a fundação da Andrade Consultoria, em outubro de 2019, Luiz busca atender o público PCD com um modelo exclusivo, proporcionando experiências marcantes. A abordagem da empresa é personalizada: cada cliente encontra uma solução adaptada às suas necessidades.",
+          "A Andrade Consultoria também atua como Correspondente Bancário e Representante Autorizado do Consórcio Nacional Volkswagen para pessoas físicas, jurídicas e produtores rurais."
+        ]
+      }
+    },
+    {
+      "id": "servicos",
+      "type": "services",
+      "enabled": true,
+      "order": 10,
+      "data": {
+        "title": "Assessoria nos processos de:",
+        "items": [
+          {
+            "id": "ipi",
+            "title": "Isenção de IPI & IOF"
+          },
+          {
+            "id": "icms",
+            "title": "Isenção de ICMS"
+          },
+          {
+            "id": "ipva",
+            "title": "Isenção de IPVA"
+          },
+          {
+            "id": "rodizio",
+            "title": "Rodízio e Cartão"
+          }
+        ],
+        "description": "Somos uma assessoria especializada em ajudar pessoas com deficiência (PCD) a adquirirem veículos zero km com os benefícios legais disponíveis. Nossa equipe é formada por profissionais comprometidos em prestar um atendimento de excelência, com empatia e dedicação em cada etapa do processo.\n\nNa Andrade, você receberá assessoria completa: desde informações sobre quais limitações se enquadram, agendamento de Junta Médica, abertura do processo, acompanhamento na perícia, Receita Federal e Secretarias de Fazenda para solicitar as isenções de IPI e ICMS. Temos acesso a concessionárias do Estado para cotações e test drive.",
+        "highlight": "Não há barreiras ou limites para quem acredita em seus sonhos!"
+      }
+    },
+    {
+      "id": "instagram",
+      "type": "instagram",
+      "enabled": false,
+      "order": 11,
+      "data": {
+        "title": "Acompanhe nosso dia a dia",
+        "subtitle": "Histórias, dicas e novidades sobre assessoria PCD em Mato Grosso.",
+        "username": "andradeconsultoriae",
+        "profileUrl": "https://www.instagram.com/andradeconsultoriae"
+      }
+    },
+    {
+      "id": "info-pcd",
+      "type": "info-pcd",
+      "enabled": false,
+      "order": 12,
+      "data": {
+        "title": "Informações e benefícios PCD",
+        "subtitle": "Tudo o que você precisa saber sobre seus direitos na compra do veículo.",
+        "slides": [
+          "https://storage.googleapis.com/andrade-media/media/assets/hero/carousel-1.jpeg",
+          "https://storage.googleapis.com/andrade-media/media/assets/hero/carousel-2.jpg",
+          "https://storage.googleapis.com/andrade-media/media/assets/hero/carousel-3.jpg",
+          "https://storage.googleapis.com/andrade-media/media/assets/hero/carousel-4.jpg",
+          "https://storage.googleapis.com/andrade-media/media/assets/hero/carousel-5.jpg"
+        ]
+      }
+    },
+    {
+      "id": "final-cta",
+      "type": "final-cta",
+      "enabled": true,
+      "order": 13,
+      "data": {
+        "title": "Não sabe por onde começar?",
+        "subtitle": "É justamente para isso que estamos aqui. Atendimento rápido e personalizado.",
+        "ctaText": "Falar com um especialista",
+        "ctaSubtext": "Atendimento rápido e personalizado via WhatsApp",
+        "backgroundImage": "https://storage.googleapis.com/andrade-media/media/assets/hero/road-bg.jpg"
       }
     },
     {
       "id": "contato",
       "type": "contact",
       "enabled": true,
-      "order": 7,
+      "order": 14,
       "data": {
-        "title": "CONTATO E LOCALIZAÇÃO",
+        "title": "Contato e Localização",
         "formEnabled": true,
-        "mapEmbed": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3826.234!2d-56.0975!3d-15.6014!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x939da3e3e3e3e3e3%3A0x0!2zMTXCsDM2JzA1LjAiUyA1NsKwMDUnNTAuOSJX!5e0!3m2!1spt-BR!2sbr!4v1710000000000!5m2!1spt-BR!2sbr"
+        "mapUrl": "https://maps.app.goo.gl/334gwCfDPaFuRTC7A?g_st=iw",
+        "mapEmbed": "https://maps.google.com/maps?q=Av.+Fernando+Correa+da+Costa,+1899,+Galeria+Italia+Center,+Cuiab%C3%A1+-+MT,+78060-600&hl=pt&z=17&output=embed"
       }
+    },
+    {
+      "id": "hero",
+      "type": "hero",
+      "enabled": false,
+      "order": 99,
+      "data": {}
+    },
+    {
+      "id": "deficiencias",
+      "type": "deficiencies",
+      "enabled": false,
+      "order": 100,
+      "data": {
+        "title": "DEFICIÊNCIAS FAVORECIDAS",
+        "backgroundImage": "https://storage.googleapis.com/andrade-media/media/assets/hero/road-bg.jpg",
+        "columns": [
+          []
+        ]
+      }
+    },
+    {
+      "id": "proposito",
+      "type": "purpose",
+      "enabled": false,
+      "order": 101,
+      "data": {}
     }
   ]
 }

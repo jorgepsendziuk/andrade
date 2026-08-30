@@ -21,14 +21,29 @@ export interface SiteInfo {
   copyright: string;
 }
 
-export interface HeroSlide {
+export interface FooterLink {
+  id: string;
+  label: string;
+  href: string;
+}
+
+export interface FooterColumn {
   id: string;
   title: string;
-  subtitle: string;
-  videoId?: string;
-  backgroundImage?: string;
-  ctaText?: string;
-  ctaLink?: string;
+  links: FooterLink[];
+}
+
+export interface FooterSocial {
+  id: string;
+  label: string;
+  url: string;
+  icon: string;
+}
+
+export interface SiteFooter {
+  description: string;
+  columns: FooterColumn[];
+  social: FooterSocial[];
 }
 
 export interface AboutCard {
@@ -40,13 +55,6 @@ export interface AboutCard {
 export interface ServiceItem {
   id: string;
   title: string;
-  icon: string;
-}
-
-export interface SocialLink {
-  id: string;
-  label: string;
-  url: string;
   icon: string;
 }
 
@@ -65,6 +73,7 @@ export interface SiteSection {
 export interface SiteContent {
   site: SiteInfo;
   navigation: NavItem[];
+  footer?: SiteFooter;
   sections: SiteSection[];
 }
 
@@ -72,4 +81,27 @@ export interface User {
   id: string;
   username: string;
   name: string;
+}
+
+export interface ConditionPage {
+  slug: string;
+  title: string;
+  metaDescription: string;
+  icon: string;
+  whoCan: string;
+  benefits: string[];
+  documents: string[];
+  howItWorks: string[];
+  faq: Array<{ question: string; answer: string }>;
+  allConditions?: string[];
+}
+
+export interface GuiaArticle {
+  slug: string;
+  title: string;
+  metaDescription: string;
+  excerpt: string;
+  content: string[];
+  relatedConditions?: string[];
+  publishedAt: string;
 }

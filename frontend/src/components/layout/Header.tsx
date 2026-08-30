@@ -1,39 +1,21 @@
-import { useState, useEffect } from 'react';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Menu, X, MessageCircle, User } from 'lucide-react';
 import { useCms } from '../../context/CmsContext';
-import type { NavItem } from '../../types/site';
-
-function NavDropdown({ item }: { item: NavItem }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="relative" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      <button className="flex items-center gap-1 text-xs font-semibold tracking-wider text-brand-700 hover:text-brand-500 uppercase">
-        {item.label}
-        <ChevronDown size={12} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
-      </button>
-      {open && item.children && (
-        <div className="absolute top-full right-0 bg-white shadow-xl rounded py-2 min-w-[180px] border border-slate-100 z-50">
-          {item.children.map((child) => (
-            <a
-              key={child.id}
-              href={child.href}
-              target={child.type === 'external' ? '_blank' : undefined}
-              rel={child.type === 'external' ? 'noopener noreferrer' : undefined}
-              className="block px-4 py-2 text-xs text-slate-600 hover:bg-brand-50 hover:text-brand-600 uppercase tracking-wide"
-            >
-              {child.label}
-            </a>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { AccessibilityControl } from '../a11y/AccessibilityControl';
+import { BrandLogo } from '../ui/BrandLogo';
 
 export function Header() {
   const { content } = useCms();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+  const isHome = location.pathname === '/';
+  const mobileMenuId = 'mobile-nav-menu';
+
+  useFocusTrap(mobileMenuRef, mobileOpen);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -41,62 +23,147 @@ export function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [mobileOpen]);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
   if (!content) return null;
   const { site, navigation } = content;
 
   const mainNav = navigation.filter((n) => n.type === 'anchor' && !n.highlight);
   const ctaNav = navigation.find((n) => n.highlight);
-  const loginNav = navigation.find((n) => n.type === 'dropdown');
+  const enterNav = navigation.find((n) => n.id === 'nav-entrar' || n.id === 'nav-login');
+
+  const navHref = (href: string) => (isHome ? href : `/${href}`);
+
+  const enterHref = enterNav?.href || '/entrar';
+  const isEnterPage =
+    location.pathname === '/entrar' ||
+    location.pathname.startsWith('/portal') ||
+    location.pathname.startsWith('/admin') ||
+    location.pathname === '/conta';
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-shadow ${scrolled ? 'shadow-md' : ''} bg-white border-b border-slate-100`}>
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16 md:h-[72px]">
-          <a href="#inicio" className="flex-shrink-0 py-2">
-            <img src={site.logo} alt={site.title} className="h-10 md:h-12 w-auto object-contain" />
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-shadow ${scrolled ? 'shadow-md' : ''} bg-white border-b border-brand-100`}
+    >
+      <div className="max-w-6xl mx-auto px-3 md:px-4">
+        <div className="flex items-center justify-between h-14 md:h-16 gap-2">
+          <a href={isHome ? '#inicio' : '/'} className="flex-shrink-0" aria-label={`${site.title} — ir para o início`}>
+            <BrandLogo
+              src={site.logo}
+              alt=""
+              imgClassName="h-8 md:h-10 w-auto object-contain"
+              markClassName="text-brand-600"
+            />
           </a>
 
-          <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
+          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 flex-1 justify-center min-w-0" aria-label="Menu principal">
             {mainNav.map((item) => (
               <a
                 key={item.id}
-                href={item.href}
-                className="text-xs font-semibold tracking-wider text-brand-700 hover:text-brand-500 uppercase transition-colors"
+                href={navHref(item.href!)}
+                className="text-[10px] xl:text-[11px] font-semibold text-brand-700 hover:text-accent whitespace-nowrap px-1.5 xl:px-2 py-1 rounded transition-colors"
               >
                 {item.label}
               </a>
             ))}
-            {loginNav && <NavDropdown item={loginNav} />}
           </nav>
 
-          <div className="hidden lg:block">
+          <div className="hidden lg:flex items-center gap-1.5 flex-shrink-0">
+            <AccessibilityControl variant="header" />
+            <Link
+              to={enterHref}
+              className={`flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-2 rounded-lg transition-colors ${
+                isEnterPage
+                  ? 'bg-brand-100 text-brand-700'
+                  : 'text-brand-700 hover:text-brand-500 hover:bg-brand-50'
+              }`}
+            >
+              <User size={16} aria-hidden />
+              {enterNav?.label || 'Entrar'}
+            </Link>
             {ctaNav && (
-              <a href={ctaNav.href} className="btn-green-sm text-xs">
-                {ctaNav.label}
+              <a
+                href={`https://wa.me/${site.whatsapp}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary-sm !py-2 !px-2.5 xl:!px-4 !text-[10px] xl:!text-xs whitespace-nowrap"
+              >
+                <MessageCircle size={15} className="flex-shrink-0" aria-hidden />
+                <span className="hidden xl:inline">{ctaNav.label}</span>
+                <span className="xl:hidden">WhatsApp</span>
               </a>
             )}
           </div>
 
-          <button className="lg:hidden p-2 text-brand-700" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu">
-            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
+          <div className="flex lg:hidden items-center gap-1 flex-shrink-0">
+            <AccessibilityControl variant="header" />
+            <Link
+              to={enterHref}
+              className="p-2 text-brand-700"
+              aria-label={enterNav?.label || 'Entrar'}
+            >
+              <User size={20} aria-hidden />
+            </Link>
+            <button
+              type="button"
+              className="p-2 text-brand-700"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-expanded={mobileOpen}
+              aria-controls={mobileMenuId}
+              aria-label={mobileOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação'}
+            >
+              {mobileOpen ? <X size={22} aria-hidden /> : <Menu size={22} aria-hidden />}
+            </button>
+          </div>
         </div>
       </div>
 
       {mobileOpen && (
-        <div className="lg:hidden bg-white border-t border-slate-100 py-4 px-4 space-y-3">
+        <div
+          ref={mobileMenuRef}
+          id={mobileMenuId}
+          className="lg:hidden bg-white border-t border-brand-100 py-3 px-4 space-y-1 max-h-[70vh] overflow-y-auto"
+          role="navigation"
+          aria-label="Menu mobile"
+        >
           {mainNav.map((item) => (
             <a
               key={item.id}
-              href={item.href}
+              href={navHref(item.href!)}
               onClick={() => setMobileOpen(false)}
-              className="block text-sm font-semibold text-brand-700 uppercase tracking-wide"
+              className="block text-sm font-semibold text-brand-700 py-2"
             >
               {item.label}
             </a>
           ))}
+          <Link
+            to={enterHref}
+            onClick={() => setMobileOpen(false)}
+            className="flex items-center gap-2 text-sm font-semibold text-brand-600 py-2"
+          >
+            <User size={16} aria-hidden />
+            {enterNav?.label || 'Entrar'}
+          </Link>
           {ctaNav && (
-            <a href={ctaNav.href} onClick={() => setMobileOpen(false)} className="btn-green-sm w-full text-center">
+            <a
+              href={`https://wa.me/${site.whatsapp}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setMobileOpen(false)}
+              className="btn-primary-sm w-full justify-center mt-2"
+            >
+              <MessageCircle size={16} aria-hidden />
               {ctaNav.label}
             </a>
           )}

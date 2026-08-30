@@ -1,0 +1,169 @@
+<!--[main]-->
+<div class="card panel" style="width: 100%;  border: none;">
+    <div class="card-header panel-heading">
+        <div class="panel-title card-title">_t{Setup 2FA}</div>
+        <div class="header-actions" style="float:right">
+
+            <div class="btn btn-sm btn-default" style="margin-right:10px;" onclick="Template.closeRightPanel();">
+                <span>
+                    <i class="fas fa-times" style="padding-right:4px"></i>
+                    _t{Close}
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card-body panel-body" style="width: 100%;">
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" style="padding:10px; margin-top: -1px;" id="tab_0">
+                <div class="auth-container">
+                    <h4 class="mb-3">_t{Configure Email Authentication}</h4>
+                    <form class="form-horizontal" enctype="multipart/form-data" name="System2FAEmailForm" id="System2FAEmailForm" method="post" type="bootstrap">
+                        <!-- Passo 1 -->
+                        <div class="step-box">
+                            <div class="mb-2">
+                                <span class="step-number">1</span>
+                                <strong>_t{Confirm your email}</strong>
+                            </div>
+                            <p class="text-muted">_t{You will receive verification codes at this email:}</p>
+                            <div class="email-display">
+                                <strong id="userEmail">{$email}</strong>
+                            </div>
+                        </div>
+                
+                        <!-- Passo 2 -->
+                        <div class="step-box">
+                            <div class="mb-2">
+                                <span class="step-number">2</span>
+                                <strong>Verificar email</strong>
+                            </div>
+                            <p class="text-muted">Enviaremos um código de teste para confirmar a configuração</p>
+                            <a 
+                                href="index.php?class=System2FAEmailForm&method=onSendCode&register_state=false&static=1" 
+                                generator="adianti" 
+                                id="sendCodeBtn" 
+                                class="btn btn-outline-primary btn-block">
+                                Enviar código de verificação
+                            </a>
+                        </div>
+                
+                        <!-- Passo 3 - Inicialmente oculto -->
+                        <div class="step-box" id="verificationStep" style="display: none;">
+                            <div class="mb-2">
+                                <span class="step-number">3</span>
+                                <strong>_t{Enter the code}</strong>
+                            </div>
+                            
+                            <div class="form-group tformrow row">
+                                <div class="col-sm-12 fb-field-container" style="min-height: 26px">
+                                <div
+                                    class="fb-inline-field-container"
+                                    style="display: inherit; vertical-align: top"
+                                >
+                                    <small class="subtitle text-center">
+                                    _t{Enter the 6-digit code sent to your email}
+                                    </small>
+                                </div>
+                                </div>
+                            </div>
+                            <div class="form-group tformrow row">
+                                <div class="col-sm-12 fb-field-container" style="min-height: 26px">
+                                <div
+                                    class="fb-inline-field-container"
+                                    style="display: inherit; vertical-align: top"
+                                >
+                                    <div
+                                    class="d-flex justify-content-center mb-2"
+                                    id="two-factor-container"
+                                    >
+                                        <input class="tfield" widget="tentry" type="text" maxlength="1" name="number1" id ="number1" value=""/>
+                                        <input class="tfield" widget="tentry" type="text" maxlength="1" name="number2" value=""/>
+                                        <input class="tfield" widget="tentry" type="text" maxlength="1" name="number3" value=""/>
+                                        <input class="tfield" widget="tentry" type="text" maxlength="1" name="number4" value=""/>
+                                        <input class="tfield" widget="tentry" type="text" maxlength="1" name="number5" value=""/>
+                                        <input class="tfield" widget="tentry" type="text" maxlength="1" name="number6" value=""/>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                            <div class="form-group tformrow row">
+                                <div class="col-sm-12 fb-field-container" style="min-height: 26px">
+                                <div
+                                    class="fb-inline-field-container"
+                                    style="display: inherit; vertical-align: top"
+                                >
+                                    <p class="text-center mb-0">
+                                    _t{Haven't received the code?}<a
+                                        class="ttd btn btn-link"
+                                        href="index.php?class=System2FAEmailForm&method=onSendCode&register_state=false&static=1"
+                                        generator="adianti"
+                                        id="resend-link"
+                                        >_t{Resend code}</a
+                                    >
+                                    </p>
+                                </div>
+                                </div>
+                            </div>
+                            <div class="form-group tformrow row" style="display: none">
+                                <div class="col-sm-12 fb-field-container" style="min-height: 26px">
+                                <div
+                                    class="fb-inline-field-container"
+                                    style="display: inherit; vertical-align: top"
+                                    wrapped-widget="thidden"
+                                >
+                                    <input
+                                    class="form-control tfield"
+                                    widget="thidden"
+                                    id="email_code"
+                                    name="email_code"
+                                    type="hidden"
+                                    />
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <hr>
+            
+                    <div class="d-flex justify-content-between mt-4">
+                        {$btnVerify}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    System.initTwoFactorEmailForm();
+</script>
+
+<style>
+    .step-box {
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .step-number {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        background-color: #007bff;
+        color: white;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 24px;
+        margin-right: 8px;
+        font-size: 14px;
+    }
+
+    .email-display {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+    }
+</style>
+<!--[/main]-->

@@ -13,3 +13,9 @@ var/
 andradeisenes.WordPress.*.xml
 
 .vercel
+.firebase/
+
+# Notas internas / stakeholder (não versionar)
+server/data/contacts.json
+server/data/admin-users.json
+

@@ -1,0 +1,16 @@
+SELECT setval('arquivo_id_seq', coalesce(max(id),0) + 1, false) FROM arquivo;
+SELECT setval('arquivo_tipo_id_seq', coalesce(max(id),0) + 1, false) FROM arquivo_tipo;
+SELECT setval('carro_id_seq', coalesce(max(id),0) + 1, false) FROM carro;
+SELECT setval('carro_marca_id_seq', coalesce(max(id),0) + 1, false) FROM carro_marca;
+SELECT setval('carro_modelo_id_seq', coalesce(max(id),0) + 1, false) FROM carro_modelo;
+SELECT setval('cliente_id_seq', coalesce(max(id),0) + 1, false) FROM cliente;
+SELECT setval('condutor_id_seq', coalesce(max(id),0) + 1, false) FROM condutor;
+SELECT setval('condutor_autorizado_id_seq', coalesce(max(id),0) + 1, false) FROM condutor_autorizado;
+SELECT setval('contrato_id_seq', coalesce(max(id),0) + 1, false) FROM contrato;
+SELECT setval('estado_id_seq', coalesce(max(id),0) + 1, false) FROM estado;
+SELECT setval('isencao_ipva_id_seq', coalesce(max(id),0) + 1, false) FROM isencao_ipva;
+SELECT setval('municipio_id_seq', coalesce(max(id),0) + 1, false) FROM municipio;
+SELECT setval('pagamento_arquivos_id_seq', coalesce(max(id),0) + 1, false) FROM pagamento_arquivos;
+SELECT setval('pagamento_status_id_seq', coalesce(max(id),0) + 1, false) FROM pagamento_status;
+SELECT setval('pagamento_tipo_id_seq', coalesce(max(id),0) + 1, false) FROM pagamento_tipo;
+SELECT setval('representante_legal_id_seq', coalesce(max(id),0) + 1, false) FROM representante_legal;

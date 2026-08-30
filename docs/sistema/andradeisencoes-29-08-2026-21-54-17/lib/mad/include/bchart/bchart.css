@@ -1,0 +1,363 @@
+.ultra-bar-chart[data-count-field-group="1"] .c3-tooltip td > span {
+    display: none !important;
+}
+
+.c3-legend-item-tile {
+    stroke-width: 3;
+}
+
+.chart-subtitle {
+    margin: 0px 0 0 0px;
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 400;
+}
+
+svg {
+    overflow: visible !important;
+}
+
+.c3-axis path {
+    stroke: #cbd5e1;
+    stroke-width: 1px;
+}
+
+.c3-axis line {
+    stroke: #cbd5e1;
+    stroke-width: 1px;
+}
+
+.c3-axis-x path {
+    stroke: #94a3b8;
+    stroke-width: 2px;
+}
+
+.c3-axis-x line {
+    stroke: #94a3b8;
+    stroke-width: 1.5px;
+    stroke-opacity: 0.8;
+}
+
+.c3-axis text {
+    fill: #1e293b;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.c3-axis-x text {
+    fill: #1e293b;
+    font-size: 11px;
+}
+
+.c3-axis-x-label, .c3-axis-y-label {
+    fill: #1e293b;
+    font-size: 13px;
+}
+
+.c3-grid line {
+    stroke: #cbd5e1;
+    stroke-width: 1px;
+    stroke-opacity: 0.7;
+}
+
+.c3-xgrid line {
+    stroke: #94a3b8;
+    stroke-width: 1px;
+    stroke-dasharray: 2,2;
+    stroke-opacity: 0.8;
+}
+
+.c3-ygrid line {
+    stroke: #cbd5e1;
+    stroke-width: 1px;
+    stroke-dasharray: 3,2;
+    stroke-opacity: 0.7;
+}
+
+.c3-legend-item {
+    font-size: 12px;
+    fill: #1e293b;
+    font-weight: 500;
+}
+
+.c3-legend-item-hidden {
+    opacity: 0.3;
+}
+
+.c3-legend-background {
+    fill: #ffffff;
+    stroke: #e2e8f0;
+    stroke-width: 1px;
+    rx: 4px;
+    ry: 4px;
+}
+
+.c3-tooltip-container {
+    z-index: 10;
+}
+
+.c3-tooltip {
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: #ffffff;
+    empty-cells: show;
+    opacity: 1;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+}
+
+.c3-tooltip th {
+    background-color: #2563eb;
+    font-size: 12px;
+    padding: 10px 14px;
+    text-align: left;
+    color: white;
+    border: none;
+}
+
+.c3-tooltip td {
+    font-size: 12px;
+    padding: 10px 14px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.c3-tooltip td > span {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 8px;
+    border-radius: 4px;
+}
+
+.c3-tooltip td.name {
+    font-weight: 500;
+}
+
+.c3-tooltip td.value {
+    text-align: right;
+}
+
+.c3-tooltip tr:last-child td {
+    border-bottom: none;
+}
+
+.ultra-line-chart .c3-line {
+    stroke-width: 3px;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+
+.ultra-line-chart .c3-circle {
+    r: 5;
+    stroke-width: 2px;
+    stroke: #ffffff;
+    fill-opacity: 1;
+    transition: all 0.2s ease;
+}
+
+.ultra-line-chart .c3-area {
+    opacity: 0.07;
+    stroke-width: 0;
+}
+
+.ultra-line-chart .c3-target:hover .c3-line {
+    stroke-width: 4px;
+}
+
+.ultra-line-chart .c3-circle._expanded_ {
+    r: 7;
+    stroke-width: 2.5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+.ultra-bar-chart .c3-chart-bars .c3-shape {
+    rx: 5px;
+    ry: 5px;
+    stroke-width: 3px !important;
+    transition: all 0.3s ease;
+}
+
+.ultra-bar-chart .c3-chart-bar:hover .c3-shape {
+    filter: brightness(1.1);
+}
+
+svg {
+    shape-rendering: auto !important;
+}
+
+.c3-chart-arcs .c3-chart-arc path {
+    opacity: 0.7 !important;
+}
+
+.ultra-pie-chart .c3-arc:hover,
+.ultra-donut-chart .c3-arc:hover {
+    transform: scale(1.03);
+}
+
+.ultra-pie-chart .c3-chart-arc text,
+.ultra-donut-chart .c3-chart-arc text {
+    fill: white;
+    font-size: 12px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.ultra-donut-chart .c3-chart-arcs-title {
+    font-size: 16px;
+    font-weight: 600;
+    fill: #1e293b;
+}
+
+.chart-container {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 24px;
+}
+
+.chart-container:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: translateY(-2px);
+}
+
+.chart-container .panel-default{
+    margin-bottom: 0px !important;
+    border: 0px !important;
+}
+
+.chart-title{
+    flex-wrap: wrap;
+}
+
+.chart-title .card-title, .chart-title .chart-subtitle{
+    width: 100%;
+}
+
+.chart-title {
+    padding: 6px 24px;
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #e2e8f0;
+    margin-left: -20px;
+    margin-right: -20px;
+}
+
+.chart-title .card-title{
+    margin-bottom: 0px;
+}
+
+.chart-header{
+    padding-top: 0px;
+}
+
+.chart-body {
+    padding: 10px;
+}
+
+.bindicator-card {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1rem;
+    transition: all .3s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    position: relative;
+    min-width: 200px;
+    margin-bottom: 20px;
+}
+
+ .bindicator-card:hover {
+    box-shadow: 0 1px 3px rgba(60, 64, 67, 0.08);
+}
+
+ .bindicator-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.bindicator-card-icon-container {
+    min-width: 32px;
+    height: 32px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.75rem;
+}
+
+.bindicator-card-icon {
+    font-size: 0.875rem;
+    color: #5f6368;
+}
+
+ .bindicator-card-title {
+    font-size: 0.75rem;
+    color: #5f6368;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+ .bindicator-card-value {
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: #202124;
+    margin-bottom: 0.5rem;
+}
+
+ .bindicator-card-trend {
+    display: flex;
+    align-items: center;
+    font-size: 0.8125rem;
+    margin-right: 0.5rem;
+}
+
+.bindicator-card-progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+.bindicator-card-progress-bar {
+    height: 6px;
+    background: #e8eaed;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.bindicator-card-meta-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.bindicator-card-meta-label {
+    font-size: 0.75rem;
+    color: #5f6368;
+}
+
+.bindicator-card-meta-value {
+    font-size: 0.8125rem;
+    color: #202124;
+    font-weight: 500;
+}
+
+.bindicator-card-trend {
+    display: flex;
+    align-items: center;
+    font-size: 0.75rem;
+}

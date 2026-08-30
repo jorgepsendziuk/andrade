@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /portal
+Disallow: /admin
+Disallow: /conta
+Disallow: /entrar
+Disallow: /api/
+
+Sitemap: https://andradeisencoes.com.br/sitemap.xml

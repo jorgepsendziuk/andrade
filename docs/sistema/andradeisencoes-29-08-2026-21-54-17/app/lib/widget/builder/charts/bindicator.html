@@ -1,0 +1,87 @@
+<!--[main]-->
+<!--[horizontal]-->
+<div class="info-box" style="background-color: {$contentColor};height: {$height};width: {$width}; {$actionCursor}" {$action}>
+  <!--[horizontal-icon]-->
+  <span class="info-box-icon" style="background-color: {$backgroundIconColor};height: {$height};line-height: {$height};">
+    {$icon}
+  </span>
+  <!--[/horizontal-icon]-->
+  <div class="info-box-content" style="flex: 1;padding: 5px 10px;height: {$height};margin-left: {$marginContent}; text-align: {$alignLayout};" >
+    <span class="info-box-text" style="{$style}" title="{$title}" >{$title}</span>
+    <span class="info-box-number" style="font-weight: normal;word-wrap: initial;text-overflow: ellipsis; width: 100%;white-space: nowrap; overflow: hidden;{$styleValue}" >{$data}</span>
+    <!--[horizontal-progress]-->
+    <div class="progress">
+      <div class="progress-bar" style="width: {$value}%;background-color: {$targetColor};"></div>
+    </div>
+    <span class="progress-description" style="line-height: 1;{$styles}">
+      {$description}
+    </span>
+    <!--[/horizontal-progress]-->
+    <!--[horizontal-description]-->
+    <span style="line-height: 1;{$styles}">
+      {$description}
+    </span>
+    <!--[/horizontal-description]-->
+  </div>
+</div>
+<!--[/horizontal]-->
+
+<!--[vertical]-->
+<div class="info-box" style="background-color: {$contentColor};height: {$height};width: {$width};text-align: {$alignLayout}; {$actionCursor}" {$action}>
+<div class="info-box-content" style="flex: 1;padding: 10px;height: {$height};margin-left: 0;display: flex;flex-direction: column;justify-content: space-around;" >
+  <span class="info-box-text" style="{$style}" title="{$title}" >
+    <!--[vertical-icon]-->
+      {$icon}
+    <!--[/vertical-icon]-->
+    {$title}
+    </span>
+  <span class="info-box-number" style="font-weight: normal;word-wrap: initial;text-overflow: ellipsis; width: 100%;white-space: nowrap; overflow: hidden;{$styleValue}" >{$data}</span>
+  <!--[vertical-progress]-->
+  <div class="progress">
+    <div class="progress-bar" style="width: {$value}%;background-color: {$targetColor};"></div>
+  </div>
+  <span class="progress-description" style="line-height: 1;{$styles}">
+    {$description}
+  </span>
+  <!--[/vertical-progress]-->
+  <!--[vertical-description]-->
+  <span style="line-height: 1;{$styles}">
+    {$description}
+  </span>
+  <!--[/vertical-description]-->
+</div>
+</div>
+<!--[/vertical]-->
+
+<!--[flat-horizontal]-->
+<div class="bindicator-card" style="background-color: {$contentColor};width: {$width};text-align: {$alignLayout}; {$actionCursor}" {$action}>
+<div class="bindicator-card-header">
+
+  <!--[flat-horizontal-icon]-->
+    <div class="bindicator-card-icon-container" style="background-color: {$backgroundIconColor};">
+        {$icon}
+    </div>
+  <!--[/flat-horizontal-icon]-->
+    <div class="bindicator-card-title" style="{$style}" title="{$title}">{$title}</div>
+</div>
+<div class="bindicator-card-value" style="{$styleValue}">{$data}</div>
+<!--[flat-horizontal-progress]--> 
+<div class="bindicator-card-meta-container">
+    <span class="bindicator-card-meta-label" style="{$styles}">{$description}</span>
+    <span class="bindicator-card-meta-value"></span>
+</div>
+<div class="bindicator-card-progress-bar">
+    <div class="bindicator-card-progress-fill" style="width: {$value}%;background-color: {$targetColor};"></div>
+</div>
+<!--[/flat-horizontal-progress]-->
+<div class="bindicator-card-trend">
+  <!--[flat-horizontal-description]-->
+  <span style="{$styles}">
+    {$description}
+  </span>
+  <!--[/flat-horizontal-description]-->
+</div>
+</div>
+<!--[/flat-horizontal]-->
+
+<!--[/main]-->

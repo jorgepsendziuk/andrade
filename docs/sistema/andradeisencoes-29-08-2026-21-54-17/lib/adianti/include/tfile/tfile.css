@@ -1,0 +1,57 @@
+.tfile_row_wrapper
+{
+    margin-top:1px;
+}
+
+.tfile_link_wrapper
+{
+    float:left;
+    padding:4px;
+    margin-top:1px;
+    overflow:auto;
+}
+
+.tfile_del_icon
+{
+    cursor: pointer;
+    float:left; 
+    padding:4px;
+}
+
+.tfile_row_2
+{
+    float:left;
+    width:100%;
+    overflow:auto;
+    margin-top:2px;
+}
+
+.tfile_dropzone{
+    cursor: pointer;
+    position: relative;
+    width: 100%;
+    border: 2px dashed #e2e8f0;
+    text-align: center;
+    padding: 20px;
+    border-radius: 6px;
+}
+
+.tfile_dropzone_icon{
+    font-size: 46px;
+    color: #9ca3af;
+}
+
+.tfile_dropzone_message{
+    margin-top: 15px;
+}
+
+.tfile_dropzone:hover{
+    border-color: #3b82f6;
+    background-color: #eff6ff;
+}
+
+.tfile_dropzone_info .alert {
+    max-width: 350px;
+    margin: auto;
+    margin-top: 15px;
+}

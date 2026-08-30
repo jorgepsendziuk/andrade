@@ -1,0 +1,46 @@
+{
+  "hosting": [
+    {
+      "site": "smart-tractor-257319",
+      "public": "hosting/public",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "rewrites": [
+        {
+          "source": "**",
+          "run": {
+            "serviceId": "andrade-isencoes",
+            "region": "southamerica-east1"
+          }
+        }
+      ],
+      "headers": [
+        {
+          "source": "**/*.@(js|css|woff2|webp|jpg|jpeg|png|svg|ico)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=31536000, immutable"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "site": "andrade-email",
+      "public": "hosting/email",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "redirects": [
+        {
+          "source": "/",
+          "destination": "https://sso.godaddy.com/?app=email&realm=pass",
+          "type": 302
+        },
+        {
+          "source": "**",
+          "destination": "https://sso.godaddy.com/?app=email&realm=pass",
+          "type": 302
+        }
+      ]
+    }
+  ]
+}

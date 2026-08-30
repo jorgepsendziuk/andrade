@@ -1,0 +1,171 @@
+<!--[main]-->
+<div class="card panel" style="width: 100%;  border: none;">
+    <div class="card-header panel-heading">
+        <div class="panel-title card-title">_t{Setup 2FA}</div>
+        <div class="header-actions" style="float:right">
+
+            <div class="btn btn-sm btn-default" style="margin-right:10px;" onclick="Template.closeRightPanel();">
+                <span>
+                    <i class="fas fa-times" style="padding-right:4px"></i>
+                    _t{Close}
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card-body panel-body" style="width: 100%;">
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" style="padding:10px; margin-top: -1px;" id="tab_0">
+                <div class="auth-container">
+                    <h4 class="mb-3">Configurar Google Authenticator</h4>
+                    <form class="form-horizontal" enctype="multipart/form-data" name="System2FAGoogleForm" id="System2FAGoogleForm" method="post" type="bootstrap">
+                       
+                        <!-- Passo 1 -->
+                        <div class="step-box">
+                            <div class="mb-2">
+                                <span class="step-number">1</span>
+                                <strong>_t{Install the app}</strong>
+                            </div>
+                            <div class="store-badges">
+                                <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" 
+                                target="_blank" 
+                                class="btn btn-outline-secondary btn-sm">
+                                    Android
+                                </a>
+                                <a href="https://apps.apple.com/br/app/google-authenticator/id388497605" 
+                                target="_blank" 
+                                class="btn btn-outline-secondary btn-sm">
+                                    iPhone
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Passo 2 -->
+                        <div class="step-box">
+                            <div class="mb-2">
+                                <span class="step-number">2</span>
+                                <strong>_t{Scan the QR Code}</strong>
+                            </div>
+                            <div class="qr-container">
+                                <div id="qrcode">
+                                    {$qrCode}
+                                </div>
+                            </div>
+                            <p class="small text-muted text-center mb-2">_t{Or enter the code manually:}</p>
+                            <div class="secret-key" id="secretKey">
+                                {$secret}
+                                <input type="hidden" name="secret" value="{$secret}"/> 
+                            </div>
+                        </div>
+
+                        <!-- Passo 3 -->
+                        <div class="step-box">
+                            <div class="mb-2">
+                                <span class="step-number">3</span>
+                                <strong>_t{Check the configuration}</strong>
+                            </div>
+                            <div class="form-group tformrow row">
+                                <div class="col-sm-12 fb-field-container" style="min-height: 26px">
+                                <div
+                                    class="fb-inline-field-container"
+                                    style="display: inherit; vertical-align: top"
+                                >
+                                    <small class="subtitle text-center">
+                                    _t{Enter the code shown in Google Authenticator}
+                                    </small>
+                                </div>
+                                </div>
+                            </div>
+                            <div class="form-group tformrow row">
+                                <div class="col-sm-12 fb-field-container" style="min-height: 26px">
+                                <div
+                                    class="fb-inline-field-container"
+                                    style="display: inherit; vertical-align: top"
+                                >
+                                    <div
+                                    class="d-flex justify-content-center mb-2"
+                                    id="two-factor-container"
+                                    >
+                                        <input class="tfield" widget="tentry" type="text" maxlength="1" name="number1" id ="number1" value=""/>
+                                        <input class="tfield" widget="tentry" type="text" maxlength="1" name="number2" value=""/>
+                                        <input class="tfield" widget="tentry" type="text" maxlength="1" name="number3" value=""/>
+                                        <input class="tfield" widget="tentry" type="text" maxlength="1" name="number4" value=""/>
+                                        <input class="tfield" widget="tentry" type="text" maxlength="1" name="number5" value=""/>
+                                        <input class="tfield" widget="tentry" type="text" maxlength="1" name="number6" value=""/>
+                                    </div>
+                                    <input
+                                        class="form-control tfield"
+                                        widget="thidden"
+                                        id="google_code"
+                                        name="google_code"
+                                        type="hidden"
+                                        />
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                    <hr>
+            
+                    <div class="d-flex justify-content-between mt-4">
+                        {$btnVerify}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    System.initTwoFactorGoogleForm();
+</script>
+
+<style>
+   .step-box {
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .step-number {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        background-color: #007bff;
+        color: white;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 24px;
+        margin-right: 8px;
+        font-size: 14px;
+    }
+
+    .qr-container {
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .secret-key {
+        font-family: monospace;
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 4px;
+        text-align: center;
+        margin: 10px 0;
+        font-size: 16px;
+        letter-spacing: 2px;
+    }
+
+    .store-badges {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .store-badges a {
+        flex: 1;
+    }
+</style>
+<!--[/main]-->

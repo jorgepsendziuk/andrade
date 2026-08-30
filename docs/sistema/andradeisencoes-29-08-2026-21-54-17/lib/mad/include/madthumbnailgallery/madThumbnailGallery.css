@@ -1,0 +1,334 @@
+
+
+/* MADThumbnailGallery - Estilos com prefixo mad-thumbnail-gallery */
+
+/* Container principal da galeria */
+.mad-thumbnail-gallery {
+    align-items: flex-start;
+    min-height: 50px;
+}
+
+.mad-thumbnail-gallery:empty::after {
+    content: 'Nenhum arquivo encontrado';
+    color: #6c757d;
+    font-style: italic;
+    font-size: 14px;
+    text-align: center;
+    width: 100%;
+    padding: 20px;
+}
+
+/* Item individual da galeria */
+.mad-thumbnail-gallery__item {
+    position: relative;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    overflow: hidden;
+    display: inline-block;
+    margin: 0;
+    text-align: center;
+    animation: madThumbnailItemEnter 0.3s ease;
+}
+
+/* Efeito hover nos itens */
+.mad-thumbnail-gallery__item--hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Link de download */
+.mad-thumbnail-gallery__link {
+    display: block;
+    color: inherit !important;
+    text-decoration: none !important;
+}
+
+.mad-thumbnail-gallery__link:hover {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+/* Container de miniatura (imagens) */
+.mad-thumbnail-gallery__thumbnail {
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    padding: 4px;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    margin-bottom: 4px;
+}
+
+.mad-thumbnail-gallery__item--hover:hover .mad-thumbnail-gallery__thumbnail {
+    border-color: #007bff;
+    background: #f0f8ff;
+    transform: scale(1.02);
+}
+
+/* Imagem dentro da miniatura */
+.mad-thumbnail-gallery__image {
+    max-width: 100%;
+    object-fit: cover;
+    border-radius: 3px;
+    transition: opacity 0.3s ease;
+}
+
+.mad-thumbnail-gallery__image:not([src]),
+.mad-thumbnail-gallery__image[src=""] {
+    opacity: 0;
+}
+
+/* Loading pattern para imagens */
+.mad-thumbnail-gallery__thumbnail.mad-thumbnail-gallery__thumbnail--loading {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: madThumbnailShimmer 1.5s infinite;
+}
+
+.mad-thumbnail-gallery__thumbnail::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, 
+        #f8f9fa 25%, transparent 25%), 
+        linear-gradient(-45deg, #f8f9fa 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #f8f9fa 75%), 
+        linear-gradient(-45deg, transparent 75%, #f8f9fa 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+/* Container de ícone (documentos) */
+.mad-thumbnail-gallery__icon {
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    padding: 12px;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    margin-bottom: 4px;
+}
+
+.mad-thumbnail-gallery__item--hover:hover .mad-thumbnail-gallery__icon {
+    border-color: #007bff;
+    background: #f0f8ff;
+    transform: scale(1.02);
+}
+
+/* Elemento do ícone */
+.mad-thumbnail-gallery__icon-element {
+    font-size: 2.5rem;
+    transition: all 0.2s ease;
+}
+
+.mad-thumbnail-gallery__item--hover:hover .mad-thumbnail-gallery__icon-element {
+    transform: scale(1.1);
+}
+
+/* Nome do arquivo */
+.mad-thumbnail-gallery__filename {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 2px 4px;
+    transition: color 0.2s ease;
+    word-break: break-word;
+    hyphens: auto;
+    color: #495057;
+    margin-top: 2px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.mad-thumbnail-gallery__item--hover:hover .mad-thumbnail-gallery__filename {
+    color: #007bff !important;
+}
+
+/* Tooltip personalizado */
+.mad-thumbnail-gallery__link[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.9);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    z-index: 1000;
+    pointer-events: none;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    animation: madThumbnailTooltipFadeIn 0.2s ease;
+}
+
+.mad-thumbnail-gallery__link[title]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-bottom-color: rgba(0,0,0,0.9);
+    z-index: 1001;
+    pointer-events: none;
+    animation: madThumbnailTooltipFadeIn 0.2s ease;
+}
+
+/* Animações */
+@keyframes madThumbnailItemEnter {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes madThumbnailShimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+@keyframes madThumbnailTooltipFadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateX(-50%) translateY(5px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateX(-50%) translateY(0); 
+    }
+}
+
+/* Responsividade para tablets */
+@media (max-width: 768px) {
+    .mad-thumbnail-gallery {
+        justify-content: center;
+    }
+    
+    .mad-thumbnail-gallery__item {
+        width: 100px !important;
+    }
+    
+    .mad-thumbnail-gallery__thumbnail,
+    .mad-thumbnail-gallery__icon {
+        height: 70px !important;
+    }
+    
+    .mad-thumbnail-gallery__icon-element {
+        font-size: 2rem !important;
+    }
+    
+    .mad-thumbnail-gallery__filename {
+        font-size: 11px !important;
+    }
+    
+    .mad-thumbnail-gallery__image {
+        max-height: 62px !important;
+    }
+}
+
+/* Responsividade para smartphones */
+@media (max-width: 480px) {
+    .mad-thumbnail-gallery__item {
+        width: 80px !important;
+    }
+    
+    .mad-thumbnail-gallery__thumbnail,
+    .mad-thumbnail-gallery__icon {
+        height: 60px !important;
+        padding: 8px;
+    }
+    
+    .mad-thumbnail-gallery__icon-element {
+        font-size: 1.8rem !important;
+    }
+    
+    .mad-thumbnail-gallery__filename {
+        font-size: 10px !important;
+    }
+    
+    .mad-thumbnail-gallery__image {
+        max-height: 52px !important;
+    }
+    
+    .mad-thumbnail-gallery__link[title]:hover::after {
+        font-size: 10px !important;
+        padding: 4px 8px;
+        max-width: 150px;
+    }
+}
+
+
+/* Estados especiais para diferentes tipos de arquivo */
+.mad-thumbnail-gallery__icon--pdf {
+    border-left: 4px solid #dc3545;
+}
+
+.mad-thumbnail-gallery__icon--word {
+    border-left: 4px solid #007bff;
+}
+
+.mad-thumbnail-gallery__icon--excel {
+    border-left: 4px solid #28a745;
+}
+
+.mad-thumbnail-gallery__icon--powerpoint {
+    border-left: 4px solid #ffc107;
+}
+
+.mad-thumbnail-gallery__icon--image {
+    border-left: 4px solid #17a2b8;
+}
+
+.mad-thumbnail-gallery__icon--archive {
+    border-left: 4px solid #6c757d;
+}
+
+.mad-thumbnail-gallery__icon--code {
+    border-left: 4px solid #6f42c1;
+}
+
+/* Efeitos de foco para acessibilidade */
+.mad-thumbnail-gallery__link:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.mad-thumbnail-gallery__link:focus .mad-thumbnail-gallery__thumbnail,
+.mad-thumbnail-gallery__link:focus .mad-thumbnail-gallery__icon {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+/* Print styles */
+@media print {
+    .mad-thumbnail-gallery__item--hover:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .mad-thumbnail-gallery__link[title]:hover::after,
+    .mad-thumbnail-gallery__link[title]:hover::before {
+        display: none;
+    }
+}

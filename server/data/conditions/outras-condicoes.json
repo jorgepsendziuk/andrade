@@ -1,0 +1,92 @@
+{
+  "slug": "outras-condicoes",
+  "title": "Isenção PCD — Outras Condições",
+  "metaDescription": "Lista completa de enfermidades que podem dar direito à isenção PCD na compra de veículo zero km. Assessoria Andrade Isenções em Cuiabá-MT.",
+  "icon": "outras-condicoes",
+  "whoCan": "Diversas condições de saúde podem dar direito aos benefícios PCD. Confira a lista completa abaixo e entre em contato para análise do seu caso.",
+  "benefits": [
+    "Isenção de IPI e IOF na compra de veículo zero km",
+    "Isenção de ICMS (conforme legislação estadual)",
+    "Isenção de IPVA (conforme legislação estadual)",
+    "Possibilidade de isenção de rodízio e cartão especial"
+  ],
+  "documents": [
+    "Laudo médico com CID da condição",
+    "Documentos pessoais (RG, CPF, comprovante de residência)",
+    "CNH (quando aplicável)",
+    "Documentação veicular e nota fiscal do veículo"
+  ],
+  "howItWorks": [
+    "Entre em contato conosco para uma análise inicial gratuita do seu caso.",
+    "Orientamos sobre a documentação médica necessária e agendamos perícia se preciso.",
+    "Acompanhamos todo o processo de isenções nos órgãos competentes.",
+    "Auxiliamos na escolha do veículo e nas negociações com concessionárias.",
+    "Você realiza o sonho do carro novo com os benefícios legais aplicáveis."
+  ],
+  "allConditions": [
+    "Câncer",
+    "Deficiência física",
+    "Autismo",
+    "AVC",
+    "Hemiparesia",
+    "Distúrbios do equilíbrio",
+    "Paralisia de Erb",
+    "Contratura muscular",
+    "Amputação",
+    "Artrodese",
+    "Artrite reumatóide",
+    "Nascer sem um braço ou perna",
+    "Síndrome do túnel do carpo",
+    "LER/DORT",
+    "Condromalácia patelar",
+    "Paresia ou paralisia cerebral",
+    "Paralisia facial de Bell",
+    "ELA",
+    "Poliomielite",
+    "Discinesia ou Discromatopsia",
+    "Miopatias",
+    "Hérnia de disco",
+    "Restrição ao movimento",
+    "Limitação dos movimentos",
+    "Reumatismo",
+    "Osteogenese",
+    "Monoparesia",
+    "Monoplegia",
+    "Esclerose múltipla",
+    "Paraparesia",
+    "Paraplegia",
+    "Parkinson",
+    "Tetraparesia",
+    "Tetraplegia",
+    "Vascular cerebral",
+    "Sífilis",
+    "Deficiência auditiva",
+    "Deficiência visual",
+    "Visão monocular",
+    "Amaurose",
+    "Achondroplasia",
+    "Artrose",
+    "Distúrbios circulatórios",
+    "Adactilia",
+    "Tendinite",
+    "Mastectomia",
+    "Fibromialgia",
+    "Deficiência intelectual",
+    "Otite crônica purulenta",
+    "Síndrome tóxico"
+  ],
+  "faq": [
+    {
+      "question": "Minha condição está na lista. Tenho direito?",
+      "answer": "Cada caso é único. A presença na lista indica possibilidade de enquadramento, mas é necessária avaliação médica e análise individualizada."
+    },
+    {
+      "question": "Quanto tempo demora o processo?",
+      "answer": "O prazo varia conforme a complexidade do caso e os órgãos envolvidos. Nossa equipe acompanha cada etapa para agilizar ao máximo."
+    },
+    {
+      "question": "Preciso de laudo médico?",
+      "answer": "Sim, o laudo médico com CID é um dos documentos fundamentais para comprovar a condição e solicitar os benefícios."
+    }
+  ]
+}

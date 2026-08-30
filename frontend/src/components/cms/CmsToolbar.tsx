@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useCms } from '../../context/CmsContext';
 import {
   Save,
@@ -8,6 +9,7 @@ import {
   GripVertical,
   EyeOff,
   Loader2,
+  Inbox,
 } from 'lucide-react';
 import {
   DndContext,
@@ -116,6 +118,14 @@ export function CmsToolbar() {
         )}
 
         <div className="flex items-center gap-2 bg-slate-900 text-white rounded-full shadow-2xl px-2 py-2">
+          <Link
+            to="/portal/inicio"
+            className="flex items-center gap-2 px-3 py-2 rounded-full text-sm hover:bg-slate-800"
+            title="Painel admin"
+          >
+            <Inbox size={16} />
+            Painel
+          </Link>
           <button
             onClick={() => setIsEditing(!isEditing)}
             className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
@@ -135,7 +145,7 @@ export function CmsToolbar() {
                 Seções
               </button>
               <button
-                onClick={save}
+                onClick={() => void save()}
                 disabled={!hasChanges || isSaving}
                 className="flex items-center gap-2 px-4 py-2 rounded-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-sm font-medium"
               >

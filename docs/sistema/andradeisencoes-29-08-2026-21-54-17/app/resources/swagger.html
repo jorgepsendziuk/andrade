@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SWAGGER - API Documentation</title>
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@4/swagger-ui.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+        }
+        .header {
+            background-color: #1b1b1b;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: normal;
+        }
+        .swagger-ui .info {
+            margin: 20px 0;
+        }
+        .swagger-ui {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>API Documentation</h1>
+    </div>
+    
+    <div id="swagger-ui"></div>
+    
+    <script src="https://unpkg.com/swagger-ui-dist@4/swagger-ui-bundle.js"></script>
+    <script>
+        // Generate the OpenAPI specification from the PHP-generated data
+        const apiData = {$apiData};
+        
+        // Convert to OpenAPI format
+        const openApiSpec = {
+            openapi: '3.0.0',
+            info: apiData.info,
+            servers: [
+                {
+                    url: window.location.href.replace('/api/docs', ''),
+                    description: 'API Server'
+                }
+            ],
+            // Configuração de segurança global
+            security: [
+                { "apiKeyAuth": [] }
+            ],
+            paths: {},
+            components: {
+                schemas: {},
+                securitySchemes: {
+                    bearerAuth: {
+                        type: 'http',
+                        scheme: 'bearer',
+                        bearerFormat: 'JWT'
+                    },
+                    apiKeyAuth: {
+                        type: 'apiKey',
+                        in: 'header',
+                        name: 'Authorization',
+                        description: 'Formato: Basic sua-chave-api'
+                    }
+                }
+            }
+        };
+        
+        // Convert paths
+        for (const [path, methods] of Object.entries(apiData.paths)) {
+            openApiSpec.paths[path] = {};
+            
+            for (const [httpMethod, operation] of Object.entries(methods)) {
+                const openApiOperation = {
+                    summary: operation.summary,
+                    description: operation.description,
+                    tags: operation.tags,
+                    parameters: operation.parameters || [],
+                    responses: {}
+                };
+                
+                // Add security if middleware includes auth
+                if (operation.middleware && operation.middleware.includes('auth')) {
+                    openApiOperation.security = [{ bearerAuth: [] }];
+                }
+                
+                // Add request body if present
+                if (operation.requestBody) {
+                    let schema = {};
+                    
+                    if (operation.requestBody.main) {
+                        schema = {
+                            type: 'object',
+                            properties: operation.requestBody.main,
+                            required: []
+                        };
+                        
+                        // Extract required fields
+                        for (const [field, config] of Object.entries(operation.requestBody.main)) {
+                            if (config.required) {
+                                schema.required.push(field);
+                                delete config.required;
+                            }
+                        }
+                        
+                        // If details exist, add them
+                        if (operation.requestBody.details) {
+                            const detailProperty = apiData.controllers[operation.tags[0]]?.detailProperty || 'details';
+                            schema.properties[detailProperty] = operation.requestBody.details;
+                        }
+                    }
+                    
+                    openApiOperation.requestBody = {
+                        required: true,
+                        content: {
+                            'application/json': {
+                                schema: schema
+                            }
+                        }
+                    };
+                }
+                
+                // Add responses
+                for (const [code, response] of Object.entries(operation.responses)) {
+                    openApiOperation.responses[code] = {
+                        description: response.description
+                    };
+                    
+                    if (response.schema) {
+                        openApiOperation.responses[code].content = {
+                            'application/json': {
+                                schema: response.schema
+                            }
+                        };
+                    }
+                }
+                
+                openApiSpec.paths[path][httpMethod] = openApiOperation;
+            }
+        }
+
+        // Initialize Swagger UI
+        window.onload = function() {
+            const ui = SwaggerUIBundle({
+                spec: openApiSpec,
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIBundle.SwaggerUIStandalonePreset
+                ],
+                requestInterceptor: (req) => {
+                    // Debug: mostrar a requisição no console
+                    console.log('Requisição antes do processamento:', JSON.stringify(req));
+                    
+                    // Garantir que o objeto headers existe
+                    req.headers = req.headers || {};
+                    
+                    // Pegar o token do localStorage (salvo quando o usuário usa o Authorize)
+                    const authData = JSON.parse(localStorage.getItem('swagger-ui.apiKeyAuth') || '{}');
+                    const apiKey = authData.value || '';
+                    
+                    if (apiKey) {
+                        // Adicionar o prefixo Basic se necessário
+                        if (!apiKey.startsWith('Basic ')) {
+                            req.headers['Authorization'] = 'Basic ' + apiKey;
+                        } else {
+                            req.headers['Authorization'] = apiKey;
+                        }
+                    }
+                    
+                    // Debug: mostrar a requisição final
+                    console.log('Requisição após processamento:', JSON.stringify(req));
+                    console.log('Headers enviados:', JSON.stringify(req.headers));
+                    
+                    return req;
+                },
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+                docExpansion: "list",
+                filter: true,
+                defaultModelsExpandDepth: 1,
+                defaultModelExpandDepth: 1,
+                showExtensions: true,
+                showCommonExtensions: true,
+                tryItOutEnabled: true,
+                displayRequestDuration: true,
+                persistAuthorization: true
+            });
+        };
+    </script>
+</body>
+</html>

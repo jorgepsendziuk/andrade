@@ -1,0 +1,35 @@
+body.mad-table-fullscreen {
+  overflow: hidden !important;
+}
+
+
+/* Expande o container da tabela em fullscreen */
+body.mad-table-fullscreen .mad-table-fullscreen-container {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 2147483647 !important; /* Valor máximo do z-index */
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  background: white !important;
+  transform: none !important;
+}
+
+body.mad-table-fullscreen .mad-table-wrapper{
+    transform: none !important;
+}
+/* Iframe dentro do container em fullscreen */
+body.mad-table-fullscreen .mad-table-fullscreen-container iframe {
+  width: 100vw !important;
+  height: 100vh !important;
+  border-radius: 0 !important;
+  border: none !important;
+}
+
+/* Remove transições durante fullscreen para melhor performance */
+body.mad-table-fullscreen * {
+  transition: none !important;
+}

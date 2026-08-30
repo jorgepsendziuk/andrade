@@ -1,0 +1,50 @@
+.b-info-card {
+    /* background: #f8fafc; */
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: block;
+  }
+
+  .b-info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+  }
+
+  .b-info-card:hover .b-info-card-icon{
+    background-color: #cee3ff;
+  }
+
+  .b-info-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .b-info-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background-color: #e8f2ff;
+    color: #3b82f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  .b-info-card-title {
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  .b-info-card-content {
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.6;
+  }

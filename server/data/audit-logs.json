@@ -1,0 +1,13 @@
+[
+  {
+    "id": "e3e65276-57ea-41fe-a946-f12d4c27d8f6",
+    "action": "consent",
+    "resourceType": "client",
+    "resourceId": "0868f1aa-40ba-4100-9fde-b54f1de11491",
+    "userId": "0868f1aa-40ba-4100-9fde-b54f1de11491",
+    "userRole": "cliente",
+    "userEmail": "teste-wizard@example.com",
+    "ip": "::1",
+    "createdAt": "2026-08-30T01:15:56.134Z"
+  }
+]

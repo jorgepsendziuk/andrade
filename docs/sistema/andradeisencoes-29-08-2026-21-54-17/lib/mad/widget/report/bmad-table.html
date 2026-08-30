@@ -1,0 +1,97 @@
+<!--[main]-->
+<!--[data]-->
+
+<style>#{$container_id} {width: {$width};}</style>
+
+<div id="{$container_id}" class="{$class} chart-container mad-table-wrapper" style="width: {$width}; ">
+    <!--[panel]-->
+    <div class="panel panel-default chart-header mad-table-panel" style="padding: 0px;">
+        <!--[header]-->
+        <div class="panel-heading chart-title mad-table-header" style="margin-bottom:0px; margin:0px; padding:15px;">
+            <div class="card-title mad-table-title">{$title}
+                <!--[subtitle]-->
+                <p class="chart-subtitle mad-table-subtitle">{$subtitle}</p>
+                <!--[/subtitle]-->
+            </div>
+        </div>
+        <!--[/header]-->
+        <div class="panel-body no-padding chart-body mad-table-body" style="padding:0px;">
+            <div id="{$container_id}-container" class="mad-table-container" style="margin-left: -10px;margin-right: -10px;margin-bottom: -10px;margin-top: -7px;">
+                <iframe style="width: 100%; height: {$height}; overflow: auto;" scrolling="yes" id="{$container_id}_iframe" src="https://manager.madbuilder.com.br/mad-table"></iframe>
+            </div>
+        </div>
+    </div>
+    <!--[/panel]-->
+    <!--[nopanel]-->
+        <div id="{$container_id}-container" class="mad-table-container">
+            <iframe id="{$container_id}_iframe" src="https://manager.madbuilder.com.br/mad-table"></iframe>
+        </div>
+    <!--[/nopanel]-->
+</div>
+
+<script>
+
+    $('#{$container_id}_iframe').on('load', function() {
+        
+        const iframe = this;
+        // Enviar mensagem para o iframe usando postMessage
+        iframe.contentWindow.postMessage({
+            action: 'initTable',
+            options: {
+                data: {$data_json},
+                config: {$config_json}
+            }
+        }, '*');
+    });
+
+    window.addEventListener('message', (event) => {
+    
+    if (event.data.type === 'mad-table-fullscreen') {
+        
+        // Para encontrar qual iframe específico enviou a mensagem:
+        const iframes = document.querySelectorAll('iframe');
+        
+        if (event.data.fullscreen) {
+        
+            iframes.forEach((iframe, index) => {
+                if (iframe.contentWindow === event.source) {
+                    
+                    $(iframe).closest('.mad-table-container').addClass('mad-table-fullscreen-container');
+                    $('body').addClass('mad-table-fullscreen');
+
+                }
+            });
+        
+        } else {
+        
+            iframes.forEach((iframe, index) => {
+                if (iframe.contentWindow === event.source) {
+                    
+                    $(iframe).closest('.mad-table-container').removeClass('mad-table-fullscreen-container');
+                    $('body').removeClass('mad-table-fullscreen');
+
+                }
+            });
+        }
+    }
+    });
+
+</script>
+
+<!--[/data]-->
+<!--[no-data]-->
+<div id="{$container_id}" class="{$class} mad-table-wrapper" style="width: {$width};">
+    <div class="panel panel-default">
+        <div class="panel-body no-padding" style="margin: auto;padding: 25px !important;text-align: center;">
+            <div><b>{$title}</b></div>
+            {$label}
+        </div>
+    </div>
+</div>
+<!--[/no-data]-->
+
+
+
+
+
+<!--[/main]-->

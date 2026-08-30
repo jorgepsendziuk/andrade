@@ -5,6 +5,7 @@
   "installCommand": "npm install && npm install --prefix frontend && npm install --prefix server",
   "framework": null,
   "rewrites": [
+    { "source": "/sitemap.xml", "destination": "/api" },
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],

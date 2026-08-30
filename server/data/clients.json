@@ -1,0 +1,52 @@
+[
+  {
+    "id": "0868f1aa-40ba-4100-9fde-b54f1de11491",
+    "email": "teste-wizard@example.com",
+    "name": "Teste Wizard",
+    "passwordHash": "$2b$10$LwXpamzoNSCBCW9375bVhODKhMvIiYFxkGGiltxwGrfxLxswyWRZW",
+    "cpf": "52998224725",
+    "phone": "65999999999",
+    "cidade": "Cuiabá",
+    "uf": "MT",
+    "representante": null,
+    "lgpdConsentAt": "2026-08-30T01:15:56.055Z",
+    "termsConsentAt": "2026-08-30T01:15:56.055Z",
+    "active": true,
+    "createdAt": "2026-08-30T01:15:56.058Z",
+    "updatedAt": "2026-08-30T01:15:56.058Z"
+  },
+  {
+    "id": "f07b2ba4-8a78-4f82-9e3e-3c9147e8d240",
+    "email": "marisol.teste@andradeisencoes.com.br",
+    "name": "Marisol Aparecida Ferreira",
+    "passwordHash": "$2b$10$PHegrhPh9hIDUWrV9sNzM.L0kVo3Qp9RqiMFdUqHjlT1J16rey8Ua",
+    "cpf": "12345678909",
+    "rg": "1.234.567",
+    "rgEstado": "MT",
+    "rgOrgaoEmissor": "SSP",
+    "rgDataEmissao": "2015-03-10",
+    "phone": "(65) 99912-3456",
+    "endereco": "Av. Fernando Corrêa da Costa",
+    "numero": "1899",
+    "complemento": "Apto 302",
+    "bairro": "Jardim das Américas",
+    "cep": "78060-600",
+    "cidade": "Cuiabá",
+    "uf": "MT",
+    "representante": {
+      "nome": "João Ferreira Santos",
+      "cpf": "98765432100",
+      "rg": "2.345.678",
+      "rgOrgaoEmissor": "SSP",
+      "rgEstado": "MT",
+      "telefone": "(65) 99887-7665"
+    },
+    "genero": "F",
+    "lgpdConsentAt": "2026-08-30T18:02:22.878Z",
+    "termsConsentAt": "2026-08-30T18:02:22.879Z",
+    "active": true,
+    "storageSlug": "marisol-aparecida-ferreira-12345678909",
+    "createdAt": "2026-08-30T18:02:22.879Z",
+    "updatedAt": "2026-08-30T18:02:22.879Z"
+  }
+]

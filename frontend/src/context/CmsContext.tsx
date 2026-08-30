@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import type { SiteContent, SiteSection } from '../types/site';
-import { fetchContent, saveContent, getToken, setToken, login as apiLogin } from '../lib/api';
+import { fetchContent, saveContent, getToken, setToken, login as apiLogin, fetchMe } from '../lib/api';
 
 interface CmsContextValue {
   content: SiteContent | null;
@@ -12,10 +12,11 @@ interface CmsContextValue {
   setIsEditing: (v: boolean) => void;
   updateSection: (sectionId: string, data: Record<string, unknown>) => void;
   updateSite: (data: Partial<SiteContent['site']>) => void;
+  updateFooter: (data: Partial<NonNullable<SiteContent['footer']>>) => void;
   reorderSections: (sections: SiteSection[]) => void;
   toggleSection: (sectionId: string) => void;
-  save: () => Promise<void>;
-  login: (username: string, password: string) => Promise<void>;
+  save: (payload?: SiteContent) => Promise<void>;
+  login: (email: string, password: string) => Promise<{ role?: string }>;
   logout: () => void;
   getSection: (id: string) => SiteSection | undefined;
 }
@@ -26,7 +27,7 @@ export function CmsProvider({ children }: { children: ReactNode }) {
   const [content, setContent] = useState<SiteContent | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(!!getToken());
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
@@ -35,6 +36,19 @@ export function CmsProvider({ children }: { children: ReactNode }) {
       .then(setContent)
       .catch(console.error)
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    const token = getToken();
+    if (!token) return;
+    fetchMe()
+      .then((user) => {
+        if (user.role !== 'cliente') setIsAuthenticated(true);
+      })
+      .catch(() => {
+        setToken(null);
+        setIsAuthenticated(false);
+      });
   }, []);
 
   const updateContent = useCallback((updater: (prev: SiteContent) => SiteContent) => {
@@ -62,6 +76,13 @@ export function CmsProvider({ children }: { children: ReactNode }) {
     }));
   }, [updateContent]);
 
+  const updateFooter = useCallback((data: Partial<NonNullable<SiteContent['footer']>>) => {
+    updateContent((prev) => ({
+      ...prev,
+      footer: { ...(prev.footer ?? { description: '', columns: [], social: [] }), ...data },
+    }));
+  }, [updateContent]);
+
   const reorderSections = useCallback((sections: SiteSection[]) => {
     updateContent((prev) => ({
       ...prev,
@@ -78,23 +99,27 @@ export function CmsProvider({ children }: { children: ReactNode }) {
     }));
   }, [updateContent]);
 
-  const save = useCallback(async () => {
+  const save = useCallback(async (payload?: SiteContent) => {
     const token = getToken();
-    if (!token || !content) return;
+    const toSave = payload ?? content;
+    if (!token || !toSave) return;
     setIsSaving(true);
     try {
-      await saveContent(content, token);
+      await saveContent(toSave, token);
+      if (payload) setContent(payload);
       setHasChanges(false);
     } finally {
       setIsSaving(false);
     }
   }, [content]);
 
-  const login = useCallback(async (username: string, password: string) => {
-    const { token } = await apiLogin(username, password);
+  const login = useCallback(async (email: string, password: string) => {
+    const { token, user } = await apiLogin(email, password);
     setToken(token);
-    setIsAuthenticated(true);
-    setIsEditing(true);
+    if (user.role !== 'cliente') {
+      setIsAuthenticated(true);
+    }
+    return user;
   }, []);
 
   const logout = useCallback(() => {
@@ -122,6 +147,7 @@ export function CmsProvider({ children }: { children: ReactNode }) {
         setIsEditing,
         updateSection,
         updateSite,
+        updateFooter,
         reorderSections,
         toggleSection,
         save,

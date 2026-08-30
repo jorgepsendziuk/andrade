@@ -1,0 +1,88 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Solicitação de Cancelamento de ICMS</title><style>
+  @page { size: A4; margin: 1.6cm 2cm 2cm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Georgia', 'Times New Roman', Times, serif;
+    font-size: 11.5pt;
+    line-height: 1.55;
+    color: #111;
+    margin: 0;
+    padding: 0;
+    background: #f0f4f8;
+  }
+  .print-toolbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: 0.65rem 1.25rem;
+    background: linear-gradient(135deg, #0b2a4a 0%, #155a85 100%);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(11,42,74,0.35);
+  }
+  .print-toolbar-title { font-family: system-ui, sans-serif; font-size: 0.95rem; font-weight: 600; }
+  .print-toolbar-sub { font-size: 0.75rem; opacity: 0.85; margin-top: 0.1rem; }
+  .print-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.65rem 1.4rem; min-height: 44px;
+    font-family: system-ui, sans-serif; font-size: 0.95rem; font-weight: 700;
+    color: #0b2a4a; background: #fff; border: none; border-radius: 8px;
+    cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .print-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.2); }
+  .print-btn svg { width: 20px; height: 20px; }
+  .page { max-width: 18cm; margin: 4.5rem auto 2rem; padding: 2rem 2.2rem; background: #fff; box-shadow: 0 2px 24px rgba(0,0,0,0.08); }
+  .letterhead { display: flex; gap: 1rem; align-items: center; padding-bottom: 1rem; border-bottom: 2px solid #155a85; margin-bottom: 1.5rem; }
+  .letterhead img { height: 52px; width: auto; }
+  .letterhead-text { flex: 1; }
+  .letterhead-text .razao { font-size: 10pt; font-weight: 700; color: #0b2a4a; text-transform: uppercase; letter-spacing: 0.02em; }
+  .letterhead-text .fantasia { font-size: 13pt; font-weight: 700; color: #155a85; margin: 0.15rem 0; }
+  .letterhead-text .meta { font-size: 8.5pt; color: #555; line-height: 1.4; font-family: system-ui, sans-serif; }
+  .header-gov { text-align: center; margin-bottom: 1.5rem; }
+  .header-gov img { width: 70px; height: auto; margin-bottom: 0.5rem; }
+  .header-gov p { font-size: 8pt; color: #666; line-height: 1.45; margin: 0; font-family: Arial, sans-serif; }
+  .doc-title { text-align: center; margin: 0 0 0.35rem; font-size: 14pt; font-weight: 700; color: #0b2a4a; letter-spacing: 0.03em; text-transform: uppercase; }
+  .doc-subtitle { text-align: center; font-size: 10pt; color: #555; margin: 0 0 1.5rem; font-style: italic; }
+  .doc-ref { text-align: right; font-size: 9pt; color: #666; margin-bottom: 1rem; font-family: system-ui, sans-serif; }
+  h2.section { font-size: 11pt; color: #155a85; margin: 1.25rem 0 0.5rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  .center { text-align: center; }
+  .justify { text-align: justify; text-indent: 2em; }
+  .no-indent { text-indent: 0; }
+  .sig { margin-top: 2.5rem; text-align: center; page-break-inside: avoid; }
+  .sig-line { border-top: 1px solid #333; width: 70%; margin: 0 auto 0.4rem; padding-top: 0.25rem; }
+  .sig small { font-size: 9pt; color: #555; }
+  .data-table { width: 100%; border-collapse: collapse; margin: 0.75rem 0 1rem; font-size: 10pt; }
+  .data-table th, .data-table td { border: 1px solid #ccc; padding: 0.35rem 0.5rem; text-align: left; vertical-align: top; }
+  .data-table th { background: #eef4fa; color: #0b2a4a; font-weight: 600; width: 32%; }
+  .data-table.payments th { width: auto; font-size: 9pt; }
+  .data-table.payments td { font-size: 9pt; }
+  .footer-doc { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid #ddd; text-align: center; font-size: 8.5pt; color: #888; font-family: system-ui, sans-serif; }
+  @media print {
+    body { background: #fff; }
+    .no-print { display: none !important; }
+    .page { margin: 0; padding: 0; box-shadow: none; max-width: none; }
+  }
+</style></head><body>
+    <div class="no-print print-toolbar">
+    <div>
+      <div class="print-toolbar-title">Solicitação de Cancelamento de ICMS</div>
+      <div class="print-toolbar-sub">Cliente: Marisol Aparecida Ferreira</div>
+    </div>
+    <button type="button" class="print-btn" onclick="window.print()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      Imprimir / Salvar PDF
+    </button>
+  </div>
+    <div class="page"><div class="header-gov">
+    <img src="https://andradeisencoes.com.br/sistema/brasao_mt.jpg" alt="Brasão do Estado de Mato Grosso" />
+    <p>GOVERNO DO ESTADO DE MATO GROSSO<br>
+    SECRETARIA DE ESTADO DE FAZENDA<br>
+    SECRETARIA ADJUNTA DA RECEITA PÚBLICA<br>
+    SUPERINTENDÊNCIA DE INFORMAÇÕES SOBRE OUTRAS RECEITAS</p>
+  </div>
+        <h1 class="doc-title" style="font-size:12pt">Solicitação de Cancelamento de Isenção de ICMS</h1>
+        <p class="justify no-indent">À Secretaria de Estado de Fazenda de Mato Grosso — SEFAZ/MT</p>
+        <p class="justify"><strong>ANDRADE CONSULTORIA E ISENCOES LTDA - EPP</strong>, CNPJ 35.456.484/0001-62, com sede em Av. Fernando Corrêa da Costa, 1899 — Jd. das Américas, Galeria Itália Center — Cuiabá/MT — CEP 78060-600, na qualidade de procuradora de <strong>Marisol Aparecida Ferreira</strong>, CPF 123.456.789-09, solicita o <strong>CANCELAMENTO</strong> da autorização de isenção de ICMS anteriormente concedida, para fins de atualização do teto e novo pedido de reconhecimento.</p>
+        <p class="justify"><strong>Motivo:</strong> atualização de valor/teto do veículo a ser adquirido (Volkswagen T-Cross Comfortline 1.0 TSI 2026).</p>
+        <p class="center" style="margin-top:1.5rem">Cuiabá, 30 de agosto de 2026.</p>
+        <div class="sig"><div class="sig-line"></div><strong>ANDRADE CONSULTORIA E ISENCOES LTDA - EPP</strong><br><small>CNPJ 35.456.484/0001-62 · Procuradora</small></div><div class="footer-doc">Andrade Isenções · Cuiabá/MT · CNPJ 35.456.484/0001-62</div></div>
+  </body></html>

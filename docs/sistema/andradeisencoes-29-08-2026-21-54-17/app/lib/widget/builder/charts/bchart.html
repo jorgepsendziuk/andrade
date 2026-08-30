@@ -1,0 +1,149 @@
+<!--[main]-->
+<!--[data]-->
+<style>#{$name}-container.c3 svg {width: {$width};height: {$height};}</style>
+
+<div id="{$name}" class="{$class} chart-container" style="width: {$width};" >
+    <!--[panel]-->
+    <div class="panel panel-default chart-header" >
+        <!--[header]-->
+        <div class="panel-heading chart-title">
+            <div class="card-title card-title">{$title}
+                <!--[subtitle]-->
+                <p class="chart-subtitle">{$subtitle}</p>
+                <!--[/subtitle]-->
+            </div>
+            
+        </div>
+        
+        <!--[/header]-->
+        <div class="panel-body no-padding chart-body">
+            <div id="{$name}-container" data-count-field-group="{$countFieldGroup}" class="ultra-{$type}-chart"  style="width: {$width};height: {$height};" ></div>
+        </div>
+    </div>
+    <!--[/panel]-->
+    <!--[nopanel]-->
+        <div id="{$name}-container" data-count-field-group="{$countFieldGroup}" class="ultra-{$type}-chart"  style="width: {$width};height: {$height};" ></div>
+    <!--[/nopanel]-->
+</div>
+<script>
+    (() => {
+        if($('a[data-toggle="tab"]').length > 0 && $('a[data-toggle="tab"]:not([dispatch-resize="true"])'))
+        {
+            $('a[data-toggle="tab"]').attr('dispatch-resize', 'true');
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                setTimeout(() => {
+                    window.dispatchEvent(new Event('resize'));
+                }, 100);
+            });
+        }
+
+        const colors = {$colors|raw};
+        const tooltipFormats = {$tooltipFormats|raw};
+
+        const changeColor = function (inColor, data, x){
+            return (colors[data.index]?.fill ?? inColor);
+        };
+        
+        const abbreviateValues = (v) => {
+            if (v >= 1_000_000_000) {
+                return (v / 1_000_000_000).toFixed(0) + 'B';
+            } else if (v >= 1_000_000) {
+                return (v / 1_000_000).toFixed(0) + 'M';
+            } else if (v >= 1_000) {
+                return (v / 1_000).toFixed(0) + 'K';
+            }
+            return v;  
+        };
+        const defaultFormatFunction = (v, y, c) => { if(v == null) { return null; } return '{$prefix}'+number_format(v, '{$precision}', '{$decimalSeparator}', '{$thousandSeparator}')+'{$sufix}'};
+
+        if (! c3) { __adianti_error("Error", "C3 not found"); }
+        
+        function applyUltraStyles(chart) {
+            // Estilizar barras - com borda escura e preenchimento claro
+            if ('bar' == '{$type}') {
+                let barData = chart.data();
+                
+                let multiples = barData.length > 1;
+                barData = barData.length == 1 ?  barData[0].values : barData;
+                
+                barData.forEach(function(series, i) {
+                    if (i < colors.length) {
+                        const borderColor = colors[i].stroke;
+
+                        const seriesId = String(series.id).replace(/\s+/g, '-');
+                        let el;
+                        if(multiples){
+                            el = d3.select(chart.element).selectAll(`[class*="c3-target-${seriesId}"] .c3-shape`).nodes();
+                        }else{
+                            el = d3.select(chart.element).selectAll(`[class*="c3-target-${seriesId}"] .c3-shape`).nodes()[i];
+                        }
+                        
+                        let text;
+                        $(el).css({'stroke': borderColor,'stroke-width': '1px'});
+                        if(multiples){
+                            text = d3.select(chart.element).selectAll(`[class*="c3-texts-${seriesId}"] .c3-text`).nodes();
+                        }else{
+                            text = d3.select(chart.element).selectAll(`[class*="c3-texts-${seriesId}"] .c3-text`).nodes()[i];
+                        }
+
+                        $(text).css({'fill': borderColor});
+                    }
+                });
+            }
+            
+            // // Estilizar áreas para melhor visualização
+            if ('area' == '{$type}') {
+                const areaData = chart.data();
+                
+                // Melhorar a opacidade das áreas para tornar a visualização mais agradável
+                d3.select(chart.element)
+                    .selectAll('.c3-area')
+                    .style('opacity', '0.2')
+                    .style('stroke-width', '1px');
+                
+                // Realçar as linhas no topo de cada área
+                areaData.forEach(function(series, i) {
+                    if (i < colors.length) {
+                        const borderColor = colors[i + 8].stroke;
+                        const seriesId = String(series.id).replace(/\s+/g, '-');
+                        
+                        d3.select(chart.element)
+                            .selectAll(`[class*="c3-target-${seriesId}"] .c3-line`)
+                            .style('stroke', borderColor)
+                            .style('stroke-width', '3px');
+                            
+                        // Realçar os pontos
+                        d3.select(chart.element)
+                            .selectAll(`[class*="c3-target-${seriesId}"] .c3-circle`)
+                            .style('stroke', borderColor)
+                            .style('stroke-width', '2px')
+                            .style('fill', '#ffffff');
+                    }
+                });
+            }   
+        }
+
+        var chart = c3.generate(
+            {onrendered: (x) => {
+                setTimeout(() => applyUltraStyles(chart), 200);
+            },...{$options|raw}}
+        );
+
+        $('.c3-shape.c3-circle').each(function(index, element){
+            $(element).css('fill', $(element).css('color') );
+        });
+    })();
+</script>
+<!--[/data]-->
+<!--[no-data]-->
+<div id="{$name}" class={$class} style="width: {$width};height: {$height};">
+    <div class="panel panel-default" >
+        <div class="panel-body no-padding" style="margin: auto;padding: 25px !important;text-align: center;">
+            <div><b>{$title}</b></div>
+            {$label}
+        </div>
+    </div>
+    
+</div>
+<!--[/no-data]-->
+<!--[/main]-->

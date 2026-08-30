@@ -1,0 +1,11 @@
+{
+  "slug": "hernia-de-disco",
+  "title": "Isenção PCD — Hérnia de Disco",
+  "metaDescription": "Saiba se você com hérnia de disco tem direito à isenção PCD na compra de veículo zero km. Assessoria Andrade Isenções em Cuiabá-MT.",
+  "icon": "hernia-de-disco",
+  "whoCan": "Pessoas com hérnia de disco que cause limitação permanente de mobilidade podem ter direito aos benefícios na compra de veículo PCD.",
+  "benefits": ["Isenção de IPI e IOF na compra de veículo zero km", "Isenção de ICMS (conforme legislação estadual)", "Isenção de IPVA (conforme legislação estadual)", "Possibilidade de isenção de rodízio e cartão especial"],
+  "documents": ["Laudo médico com CID da condição", "Documentos pessoais (RG, CPF, comprovante de residência)", "CNH (quando aplicável)", "Documentação veicular e nota fiscal do veículo"],
+  "howItWorks": ["Entre em contato conosco para uma análise inicial gratuita do seu caso.", "Orientamos sobre a documentação médica necessária e agendamos perícia se preciso.", "Acompanhamos todo o processo de isenções nos órgãos competentes.", "Auxiliamos na escolha do veículo e nas negociações com concessionárias.", "Você realiza o sonho do carro novo com os benefícios legais aplicáveis."],
+  "faq": [{"question": "Hérnia de disco dá direito a carro PCD?", "answer": "Cada caso é único. A condição pode se enquadrar nos critérios legais, mas é necessária avaliação médica e análise individualizada."}, {"question": "Quanto tempo demora o processo?", "answer": "O prazo varia conforme a complexidade do caso e os órgãos envolvidos."}, {"question": "Preciso de laudo médico?", "answer": "Sim, o laudo médico com CID é fundamental para comprovar a condição."}]
+}
