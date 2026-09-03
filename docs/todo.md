@@ -31,3 +31,8 @@ vamos criar o sistema ai dentro dessa parte de gestao, com dados no servico de a
 pdoeriamos implantar uma navegacao nesses buckets pra navegar nos arquivos como pastas ou algo assim 
 
 identificar os dados e aplicar lgpd, termos de uso, cookies no site e sistema, mapeamento de dados, politica de privacidade, seguranca, etc.. 
+
+
+
+
+

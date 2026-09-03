@@ -83,6 +83,10 @@ export function registerPortalRoutes(app: Express) {
       if (!name?.trim() || !cpf?.trim()) {
         return res.status(400).json({ error: 'Informe nome e CPF.' });
       }
+      const cpfDigits = cpf.replace(/\D/g, '');
+      if (cpfDigits.length !== 11) {
+        return res.status(400).json({ error: 'CPF inválido. Informe os 11 dígitos.' });
+      }
 
       let representante: LegalRepresentative | null = null;
       if (hasRepresentante === 'true' || hasRepresentante === '1') {

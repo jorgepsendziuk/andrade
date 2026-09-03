@@ -13,6 +13,7 @@ interface CmsContextValue {
   updateSection: (sectionId: string, data: Record<string, unknown>) => void;
   updateSite: (data: Partial<SiteContent['site']>) => void;
   updateFooter: (data: Partial<NonNullable<SiteContent['footer']>>) => void;
+  updateNavigation: (navigation: SiteContent['navigation']) => void;
   reorderSections: (sections: SiteSection[]) => void;
   toggleSection: (sectionId: string) => void;
   save: (payload?: SiteContent) => Promise<void>;
@@ -83,6 +84,10 @@ export function CmsProvider({ children }: { children: ReactNode }) {
     }));
   }, [updateContent]);
 
+  const updateNavigation = useCallback((navigation: SiteContent['navigation']) => {
+    updateContent((prev) => ({ ...prev, navigation }));
+  }, [updateContent]);
+
   const reorderSections = useCallback((sections: SiteSection[]) => {
     updateContent((prev) => ({
       ...prev,
@@ -148,6 +153,7 @@ export function CmsProvider({ children }: { children: ReactNode }) {
         updateSection,
         updateSite,
         updateFooter,
+        updateNavigation,
         reorderSections,
         toggleSection,
         save,

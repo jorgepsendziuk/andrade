@@ -1,24 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { X } from 'lucide-react';
+import { loadGoogleTags } from '../../lib/google-analytics';
 
 const CONSENT_KEY = 'andrade_cookie_consent';
-
-function loadGa4() {
-  const gaId = import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined;
-  if (!gaId || typeof window === 'undefined') return;
-
-  const script = document.createElement('script');
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
-  document.head.appendChild(script);
-  window.dataLayer = window.dataLayer || [];
-  function gtag(...args: unknown[]) {
-    window.dataLayer!.push(args);
-  }
-  gtag('js', new Date());
-  gtag('config', gaId);
-}
 
 export function CookieBanner() {
   const [visible, setVisible] = useState(false);
@@ -28,14 +13,14 @@ export function CookieBanner() {
     if (!consent) {
       setVisible(true);
     } else if (consent === 'analytics') {
-      loadGa4();
+      loadGoogleTags();
     }
   }, []);
 
   const accept = (type: 'essential' | 'analytics') => {
     localStorage.setItem(CONSENT_KEY, type);
     setVisible(false);
-    if (type === 'analytics') loadGa4();
+    if (type === 'analytics') loadGoogleTags();
   };
 
   if (!visible) return null;
@@ -46,7 +31,8 @@ export function CookieBanner() {
         <div className="flex-1 text-sm text-slate-600 mb-4 md:mb-0">
           <p className="font-semibold text-brand-800 mb-1">Cookies e privacidade</p>
           <p>
-            Usamos cookies essenciais para o funcionamento do site e, com seu consentimento, cookies analíticos (Google Analytics).
+            Usamos cookies essenciais para o funcionamento do site e, com seu consentimento, cookies analíticos
+            (Google Analytics e medição de campanhas Google Ads).
             Saiba mais na{' '}
             <Link to="/cookies" className="text-brand-600 underline">Política de Cookies</Link> e{' '}
             <Link to="/privacidade" className="text-brand-600 underline">Privacidade</Link>.

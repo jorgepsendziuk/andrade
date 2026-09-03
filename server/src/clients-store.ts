@@ -97,6 +97,7 @@ export async function createClient(input: {
 }): Promise<ClientPublic> {
   const email = input.email.trim().toLowerCase();
   const cpf = input.cpf.replace(/\D/g, '');
+  if (cpf.length !== 11) throw new Error('CPF inválido. Informe os 11 dígitos.');
 
   const existingEmail = await findClientByEmail(email);
   if (existingEmail) throw new Error('E-mail já cadastrado.');

@@ -41,7 +41,7 @@ export function ConditionPage() {
       }),
       buildBreadcrumbSchema([
         { name: 'Início', path: '/' },
-        { name: 'Isenção PCD', path: '/#tenho-direito' },
+        { name: 'Isenção PCD', path: '/#condicoes' },
         { name: condition.title },
       ]),
       buildFaqSchema(condition.faq),

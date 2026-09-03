@@ -30,7 +30,7 @@ export function CookiesPage() {
           <Info size={20} className="text-accent shrink-0 mt-0.5" aria-hidden />
           <p>
             Usamos cookies <strong>essenciais</strong> para o funcionamento do site e, apenas com seu consentimento,
-            cookies <strong>analíticos</strong> (Google Analytics) para entender como o site é utilizado e melhorar
+            cookies <strong>analíticos</strong> (Google Analytics e medição de campanhas Google Ads) para entender como o site é utilizado e melhorar
             nossos serviços.
           </p>
         </>
@@ -93,9 +93,10 @@ export function CookiesPage() {
       <section id="analiticos">
         <h2>Cookies analíticos</h2>
         <p>
-          Utilizamos o <strong>Google Analytics 4</strong> para medir visitas, páginas mais acessadas e origem do
-          tráfego. Esses cookies <strong>só são ativados após você clicar em &quot;Aceitar&quot;</strong> no banner de
-          cookies exibido na primeira visita. Se recusar, o Analytics não será carregado.
+          Utilizamos o <strong>Google Analytics 4</strong> e o <strong>Google Ads</strong> para medir visitas, páginas mais acessadas,
+          origem do tráfego e conversões de campanhas (como cliques no WhatsApp e envio do formulário de contato). Esses cookies{' '}
+          <strong>só são ativados após você clicar em &quot;Aceitar&quot;</strong> no banner de cookies exibido na primeira visita.
+          Se recusar, o Analytics e o acompanhamento de anúncios não serão carregados.
         </p>
         <p>
           Os dados coletados pelo Google são tratados de forma agregada. Para mais informações, consulte a{' '}

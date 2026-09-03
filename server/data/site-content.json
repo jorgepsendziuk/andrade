@@ -20,21 +20,9 @@
       "type": "anchor"
     },
     {
-      "id": "nav-direito",
-      "label": "Tenho Direito?",
-      "href": "#tenho-direito",
-      "type": "anchor"
-    },
-    {
-      "id": "nav-isencoes",
-      "label": "Isenções PCD",
-      "href": "#servicos",
-      "type": "anchor"
-    },
-    {
-      "id": "nav-carros",
-      "label": "Carros PCD",
-      "href": "#carros",
+      "id": "nav-analise",
+      "label": "Análise PCD",
+      "href": "#analise-premium",
       "type": "anchor"
     },
     {
@@ -44,29 +32,29 @@
       "type": "anchor"
     },
     {
-      "id": "nav-duvidas",
-      "label": "Dúvidas",
-      "href": "#simulador",
+      "id": "nav-condicoes",
+      "label": "Condições",
+      "href": "#condicoes",
       "type": "anchor"
     },
     {
-      "id": "nav-sobre",
-      "label": "Sobre Nós",
-      "href": "#sobre",
-      "type": "anchor"
+      "id": "nav-guia",
+      "label": "Guia",
+      "href": "/guia",
+      "type": "internal"
     },
     {
-      "id": "nav-fale",
-      "label": "Falar com Especialista",
-      "href": "#contato",
-      "type": "anchor",
-      "highlight": true
-    },
-    {
-      "id": "nav-entrar",
+      "id": "nav-portal",
       "label": "Portal",
       "href": "/entrar",
       "type": "internal"
+    },
+    {
+      "id": "nav-fale",
+      "label": "Contato",
+      "href": "#contato",
+      "type": "anchor",
+      "highlight": true
     }
   ],
   "footer": {
@@ -93,12 +81,12 @@
           {
             "id": "i1",
             "label": "Quem somos",
-            "href": "/#sobre"
+            "href": "/quem-somos"
           },
           {
             "id": "i2",
             "label": "Nossa história",
-            "href": "/#sobre"
+            "href": "/quem-somos"
           },
           {
             "id": "i3",
@@ -113,18 +101,18 @@
         "links": [
           {
             "id": "p1",
-            "label": "Tenho direito?",
-            "href": "/#tenho-direito"
+            "label": "Análise PCD",
+            "href": "/#analise-premium"
           },
           {
             "id": "p2",
-            "label": "Isenções",
+            "label": "Benefícios",
             "href": "/#servicos"
           },
           {
             "id": "p3",
-            "label": "Documentação",
-            "href": "/guia/documentos-necessarios-carro-pcd"
+            "label": "Condições",
+            "href": "/#condicoes"
           },
           {
             "id": "p4",
@@ -145,17 +133,17 @@
           {
             "id": "c2",
             "label": "Dúvidas frequentes",
-            "href": "/guia"
+            "href": "/#faq"
           },
           {
             "id": "c3",
-            "label": "Autismo e PCD",
-            "href": "/isencao-pcd/autismo"
+            "label": "ICMS em MT",
+            "href": "/guia/isencao-icms-mato-grosso"
           },
           {
             "id": "c4",
-            "label": "Visão monocular",
-            "href": "/isencao-pcd/visao-monocular"
+            "label": "IPVA em MT",
+            "href": "/guia/isencao-ipva-mato-grosso"
           }
         ]
       }
@@ -168,10 +156,10 @@
       "enabled": true,
       "order": 0,
       "data": {
-        "eyebrow": "Pessoas com deficiência",
-        "headline": "Seu carro novo começa aqui.",
-        "subheadline": "Assessoria especializada para pessoas com deficiência na compra de veículos 0 km com os benefícios legais disponíveis.",
-        "tagline": "Atendimento personalizado do primeiro passo até a escolha do seu veículo.",
+        "eyebrow": "Assessoria PCD em Mato Grosso",
+        "headline": "Carro PCD em Mato Grosso: Isenção de IPI, ICMS e IPVA",
+        "subheadline": "Análise PCD personalizada e assessoria completa para pessoas com deficiência na compra de carro 0 km, com orientação em cada etapa do processo.",
+        "tagline": "",
         "insert": "Mais mobilidade, mais liberdade!",
         "image": "https://storage.googleapis.com/andrade-media/media/assets/hero/slider-hd/slide-1.webp",
         "backgroundSlides": [
@@ -181,10 +169,16 @@
           "https://storage.googleapis.com/andrade-media/media/assets/hero/slider-hd/slide-4.webp",
           "https://storage.googleapis.com/andrade-media/media/assets/hero/slider-hd/slide-5.webp"
         ],
-        "primaryCta": "Quero saber se tenho direito",
-        "primaryCtaLink": "#tenho-direito",
-        "secondaryCta": "Falar com especialista",
-        "secondaryCtaLink": "#contato"
+        "primaryCta": "Fazer análise PCD",
+        "primaryCtaLink": "/iniciar",
+        "secondaryCta": "Como funciona",
+        "secondaryCtaLink": "#como-funciona",
+        "trustPills": [
+          "Análise individual",
+          "Atendimento especializado",
+          "Acompanhamento do processo",
+          "Transparência"
+        ]
       }
     },
     {
@@ -252,106 +246,100 @@
       "id": "tenho-direito",
       "type": "tenho-direito",
       "enabled": true,
-      "order": 3,
+      "order": 8,
       "data": {
-        "title": "Tenho direito a comprar um carro PCD?",
-        "subtitle": "Cada caso possui características específicas. Nossa equipe analisa sua situação e orienta você sobre os benefícios aplicáveis.",
-        "ctaText": "Analisar meu caso",
-        "ctaLink": "#simulador",
+        "title": "Doenças e condições",
+        "subtitle": "Conheça algumas condições que podem ser analisadas para fins de enquadramento PCD. Cada caso é avaliado individualmente.",
+        "ctaText": "Ver todas as condições",
+        "ctaLink": "/guia",
         "cards": [
           {
             "id": "c1",
-            "label": "Hérnia de disco",
-            "slug": "hernia-de-disco",
-            "icon": "hernia-de-disco"
+            "label": "Deficiência Física",
+            "slug": "outras-condicoes",
+            "icon": "deficiencia-fisica"
           },
           {
             "id": "c2",
-            "label": "Condromalácia patelar",
-            "slug": "condromalacia-patelar",
-            "icon": "condromalacia-patelar"
-          },
-          {
-            "id": "c3",
-            "label": "Fibromialgia",
-            "slug": "fibromialgia",
-            "icon": "fibromialgia"
-          },
-          {
-            "id": "c4",
-            "label": "Câncer de mama",
-            "slug": "mastectomia",
-            "icon": "mastectomia"
-          },
-          {
-            "id": "c5",
-            "label": "Artrodese",
-            "slug": "artrodese",
-            "icon": "artrodese"
-          },
-          {
-            "id": "c6",
-            "label": "Artrite reumatóide",
-            "slug": "artrite-reumatoide",
-            "icon": "artrite-reumatoide"
-          },
-          {
-            "id": "c7",
-            "label": "Túnel do carpo",
-            "slug": "tunel-do-carpo",
-            "icon": "tunel-do-carpo"
-          },
-          {
-            "id": "c8",
-            "label": "Visão Monocular",
-            "slug": "visao-monocular",
-            "icon": "visao-monocular"
-          },
-          {
-            "id": "c9",
-            "label": "Deficiência Auditiva",
-            "slug": "deficiencia-auditiva",
-            "icon": "deficiencia-auditiva"
-          },
-          {
-            "id": "c10",
-            "label": "Autismo",
-            "slug": "autismo",
-            "icon": "autismo"
-          },
-          {
-            "id": "c11",
-            "label": "Amputação",
-            "slug": "amputacao",
-            "icon": "amputacao"
-          },
-          {
-            "id": "c12",
-            "label": "AVC",
-            "slug": "avc",
-            "icon": "avc"
-          },
-          {
-            "id": "c13",
             "label": "Deficiência Visual",
             "slug": "deficiencia-visual",
             "icon": "deficiencia-visual"
           },
           {
-            "id": "c14",
+            "id": "c3",
+            "label": "Visão Monocular",
+            "slug": "visao-monocular",
+            "icon": "visao-monocular"
+          },
+          {
+            "id": "c4",
+            "label": "Autismo",
+            "slug": "autismo",
+            "icon": "autismo"
+          },
+          {
+            "id": "c5",
+            "label": "Deficiência Auditiva",
+            "slug": "deficiencia-auditiva",
+            "icon": "deficiencia-auditiva"
+          },
+          {
+            "id": "c6",
+            "label": "AVC",
+            "slug": "avc",
+            "icon": "avc"
+          },
+          {
+            "id": "c7",
             "label": "Esclerose Múltipla",
             "slug": "esclerose-multipla",
             "icon": "esclerose-multipla"
           },
           {
-            "id": "c15",
-            "label": "Doenças Neurológicas",
-            "slug": "doencas-neurologicas",
-            "icon": "doencas-neurologicas"
+            "id": "c8",
+            "label": "Hérnia de Disco",
+            "slug": "hernia-de-disco",
+            "icon": "hernia-de-disco"
           },
           {
-            "id": "c16",
-            "label": "Outras Condições",
+            "id": "c9",
+            "label": "Fibromialgia",
+            "slug": "fibromialgia",
+            "icon": "fibromialgia"
+          },
+          {
+            "id": "c10",
+            "label": "Amputação",
+            "slug": "amputacao",
+            "icon": "amputacao"
+          },
+          {
+            "id": "c11",
+            "label": "Artrodese",
+            "slug": "artrodese",
+            "icon": "artrodese"
+          },
+          {
+            "id": "c12",
+            "label": "Artrite Reumatoide",
+            "slug": "artrite-reumatoide",
+            "icon": "artrite-reumatoide"
+          },
+          {
+            "id": "c13",
+            "label": "Túnel do Carpo",
+            "slug": "tunel-do-carpo",
+            "icon": "tunel-do-carpo"
+          },
+          {
+            "id": "c14",
+            "label": "Câncer de Mama",
+            "slug": "mastectomia",
+            "icon": "mastectomia"
+          },
+          {
+            "id": "c15",
+            "label": "Outras condições",
             "slug": "outras-condicoes",
             "icon": "outras"
           }
@@ -364,49 +352,67 @@
       "enabled": true,
       "order": 4,
       "data": {
-        "title": "Do primeiro passo ao carro novo",
-        "subtitle": "Acompanhamos você em cada etapa do processo",
+        "title": "Seu processo PCD em etapas",
+        "subtitle": "Acompanhamos você em cada fase do processo",
         "backgroundImage": "https://storage.googleapis.com/andrade-media/media/assets/hero/road-bg.jpg",
         "steps": [
           {
             "id": "p1",
             "number": "01",
-            "title": "Análise",
-            "description": "Entendemos seu caso."
+            "title": "Análise inicial",
+            "description": "Entendemos sua condição e seu objetivo."
           },
           {
             "id": "p2",
             "number": "02",
-            "title": "Documentação",
-            "description": "Orientamos sobre os documentos necessários."
+            "title": "Análise dos documentos",
+            "description": "Verificamos laudos, exames e documentação necessária."
           },
           {
             "id": "p3",
             "number": "03",
-            "title": "Isenções",
-            "description": "Acompanhamos os processos aplicáveis."
+            "title": "Avaliação do enquadramento",
+            "description": "Identificamos quais benefícios podem ser aplicáveis."
           },
           {
             "id": "p4",
             "number": "04",
-            "title": "Escolha do carro",
-            "description": "Ajudamos a encontrar a melhor opção."
+            "title": "Perícias e laudos",
+            "description": "Orientamos sobre os procedimentos necessários."
           },
           {
             "id": "p5",
             "number": "05",
-            "title": "Carro novo!",
-            "description": "Você realiza seu sonho."
+            "title": "Solicitação das isenções",
+            "description": "Acompanhamos os requerimentos perante os órgãos competentes."
+          },
+          {
+            "id": "p6",
+            "number": "06",
+            "title": "Escolha do veículo",
+            "description": "Orientamos sobre as possibilidades de aquisição."
+          },
+          {
+            "id": "p7",
+            "number": "07",
+            "title": "Faturamento",
+            "description": "Acompanhamos as etapas necessárias para a compra."
+          },
+          {
+            "id": "p8",
+            "number": "08",
+            "title": "Entrega do veículo",
+            "description": "Orientação até a conclusão do processo."
           }
         ],
-        "ctaText": "Quero começar",
+        "ctaText": "Fazer análise PCD",
         "ctaLink": "/iniciar"
       }
     },
     {
       "id": "carros",
       "type": "carros",
-      "enabled": true,
+      "enabled": false,
       "order": 5,
       "data": {
         "title": "Qual carro você está sonhando em ter?",
@@ -463,15 +469,13 @@
       "id": "clientes",
       "type": "testimonials",
       "enabled": true,
-      "order": 6,
+      "order": 7,
       "data": {
-        "title": "Sonhos que viraram conquistas",
-        "description": "Avaliações reais de quem já realizou o sonho do carro novo com a Andrade",
+        "title": "Clientes que confiaram na Andrade",
+        "description": "Avaliações reais de quem já realizou o processo com a Andrade Isenções.",
         "reviewsUrl": "https://maps.app.goo.gl/334gwCfDPaFuRTC7A?g_st=iw",
         "reviewCount": "+300",
-        "guiaTitle": "Guia PCD",
-        "guiaText": "Tire suas dúvidas sobre isenções, documentos e direitos.",
-        "guiaLink": "/guia",
+        "reviewsLinkText": "Ver todas as avaliações no Google",
         "featuredReviews": [
           {
             "id": "r1",
@@ -503,7 +507,7 @@
     {
       "id": "simulador",
       "type": "simulador",
-      "enabled": true,
+      "enabled": false,
       "order": 7,
       "data": {
         "title": "Descubra o seu caminho para o carro PCD",
@@ -569,7 +573,7 @@
     {
       "id": "media",
       "type": "media",
-      "enabled": true,
+      "enabled": false,
       "order": 8,
       "data": {
         "title": "Andrade na mídia",
@@ -586,7 +590,7 @@
     {
       "id": "quem-somos",
       "type": "about",
-      "enabled": true,
+      "enabled": false,
       "order": 9,
       "data": {
         "title": "",
@@ -613,29 +617,30 @@
       "id": "servicos",
       "type": "services",
       "enabled": true,
-      "order": 10,
+      "order": 3,
       "data": {
-        "title": "Assessoria nos processos de:",
+        "title": "Quais benefícios podem ser solicitados?",
         "items": [
           {
             "id": "ipi",
-            "title": "Isenção de IPI & IOF"
+            "title": "IPI",
+            "description": "Possibilidade de isenção do Imposto sobre Produtos Industrializados, conforme os requisitos da legislação federal e análise no SISEN.",
+            "link": "/guia/isencao-ipi-pcd"
           },
           {
             "id": "icms",
-            "title": "Isenção de ICMS"
+            "title": "ICMS",
+            "description": "Possibilidade de isenção do ICMS, observadas as regras do Estado competente e os requisitos aplicáveis à SEFAZ de Mato Grosso.",
+            "link": "/guia/isencao-icms-mato-grosso"
           },
           {
             "id": "ipva",
-            "title": "Isenção de IPVA"
-          },
-          {
-            "id": "rodizio",
-            "title": "Rodízio e Cartão"
+            "title": "IPVA",
+            "description": "Possibilidade de isenção do IPVA, conforme legislação estadual vigente e enquadramento do beneficiário.",
+            "link": "/guia/isencao-ipva-mato-grosso"
           }
         ],
-        "description": "Somos uma assessoria especializada em ajudar pessoas com deficiência (PCD) a adquirirem veículos zero km com os benefícios legais disponíveis. Nossa equipe é formada por profissionais comprometidos em prestar um atendimento de excelência, com empatia e dedicação em cada etapa do processo.\n\nNa Andrade, você receberá assessoria completa: desde informações sobre quais limitações se enquadram, agendamento de Junta Médica, abertura do processo, acompanhamento na perícia, Receita Federal e Secretarias de Fazenda para solicitar as isenções de IPI e ICMS. Temos acesso a concessionárias do Estado para cotações e test drive.",
-        "highlight": "Não há barreiras ou limites para quem acredita em seus sonhos!"
+        "disclaimer": "A existência de uma doença ou diagnóstico não garante automaticamente a isenção. Cada benefício possui requisitos próprios e depende da análise dos órgãos competentes."
       }
     },
     {
@@ -671,12 +676,13 @@
       "id": "final-cta",
       "type": "final-cta",
       "enabled": true,
-      "order": 13,
+      "order": 11,
       "data": {
-        "title": "Não sabe por onde começar?",
-        "subtitle": "É justamente para isso que estamos aqui. Atendimento rápido e personalizado.",
-        "ctaText": "Falar com um especialista",
-        "ctaSubtext": "Atendimento rápido e personalizado via WhatsApp",
+        "title": "Descubra quais benefícios podem se aplicar ao seu caso",
+        "subtitle": "Faça sua Análise PCD Personalizada Premium e receba orientação individualizada.",
+        "ctaText": "Fazer análise PCD Premium",
+        "ctaLink": "/iniciar",
+        "ctaSubtext": "Atendimento especializado em Mato Grosso",
         "backgroundImage": "https://storage.googleapis.com/andrade-media/media/assets/hero/road-bg.jpg"
       }
     },
@@ -684,7 +690,7 @@
       "id": "contato",
       "type": "contact",
       "enabled": true,
-      "order": 14,
+      "order": 12,
       "data": {
         "title": "Contato e Localização",
         "formEnabled": true,
@@ -718,6 +724,179 @@
       "enabled": false,
       "order": 101,
       "data": {}
+    },
+    {
+      "id": "analise-premium",
+      "type": "analise-premium",
+      "enabled": true,
+      "order": 1,
+      "data": {
+        "badge": "Serviço Premium",
+        "title": "Análise PCD Personalizada Premium",
+        "subtitle": "Antes de iniciar seu processo, descubra quais benefícios podem se aplicar ao seu caso.",
+        "intro": "Nossa análise individual considera sua condição, documentação, laudos, exames, situação como condutor ou não condutor e os requisitos aplicáveis aos benefícios pretendidos.",
+        "checklist": [
+          "Documentação",
+          "Laudos e exames",
+          "Condição de condutor ou não condutor",
+          "Possibilidade de enquadramento",
+          "Benefícios fiscais aplicáveis",
+          "Necessidade de perícia",
+          "Procedimentos junto aos órgãos competentes",
+          "Orientação para escolha do veículo"
+        ],
+        "ctaText": "Quero minha análise Premium",
+        "ctaLink": "/iniciar"
+      }
+    },
+    {
+      "id": "quem-pode-direito",
+      "type": "quem-pode-direito",
+      "enabled": true,
+      "order": 2,
+      "data": {
+        "title": "Você tem alguma destas condições?",
+        "subtitle": "Algumas condições de saúde podem gerar enquadramento como pessoa com deficiência para fins de determinados benefícios fiscais, desde que atendidos os requisitos legais.",
+        "body": "O enquadramento depende da análise individual da documentação, da condição funcional e dos requisitos de cada benefício (IPI, ICMS e IPVA). Pessoas condutoras e não condutoras podem ter caminhos distintos, conforme a legislação aplicável.",
+        "disclaimer": "Importante: a existência de uma doença ou diagnóstico não garante automaticamente a isenção. Cada benefício possui requisitos próprios e depende da análise dos órgãos competentes.",
+        "ctaText": "Ver todas as condições",
+        "ctaLink": "#condicoes"
+      }
+    },
+    {
+      "id": "por-que-andrade",
+      "type": "por-que-andrade",
+      "enabled": true,
+      "order": 5,
+      "data": {
+        "title": "Por que escolher a Andrade Isenções?",
+        "items": [
+          {
+            "id": "w1",
+            "icon": "personalizado",
+            "title": "Atendimento personalizado",
+            "description": "Cada cliente possui uma realidade diferente. Por isso, analisamos individualmente cada situação."
+          },
+          {
+            "id": "w2",
+            "icon": "experiencia",
+            "title": "Experiência em processos PCD",
+            "description": "Atuação especializada na orientação e acompanhamento de processos relacionados à aquisição de veículos com benefícios fiscais."
+          },
+          {
+            "id": "w3",
+            "icon": "transparencia",
+            "title": "Transparência",
+            "description": "Você recebe informações claras sobre as etapas, documentos e requisitos do processo."
+          },
+          {
+            "id": "w4",
+            "icon": "acompanhamento",
+            "title": "Acompanhamento",
+            "description": "Não queremos apenas entregar documentos. Queremos acompanhar você durante sua jornada."
+          },
+          {
+            "id": "w5",
+            "icon": "portal",
+            "title": "Portal do Cliente",
+            "description": "Acompanhe seu processo de forma prática e transparente."
+          },
+          {
+            "id": "w6",
+            "icon": "informacao",
+            "title": "Informação",
+            "description": "Conteúdo atualizado para ajudar você a compreender seus direitos e os requisitos legais."
+          }
+        ],
+        "authorityText": "A Andrade Isenções nasceu com o propósito de oferecer um atendimento mais humano, transparente e especializado às pessoas com deficiência que buscam informações e orientação para aquisição de veículos com benefícios fiscais.",
+        "authorityLinkText": "Conheça nossa história",
+        "authorityLink": "/quem-somos"
+      }
+    },
+    {
+      "id": "portal-promo",
+      "type": "portal-promo",
+      "enabled": true,
+      "order": 6,
+      "data": {
+        "title": "Portal do Cliente",
+        "subtitle": "Acompanhe seu processo de isenção PCD com transparência e praticidade.",
+        "features": [
+          "Visualize as etapas do seu processo em tempo real",
+          "Receba orientações sobre documentos pendentes",
+          "Acesse arquivos e informações do seu cadastro"
+        ],
+        "loginCtaText": "Acessar portal",
+        "loginCtaLink": "/entrar",
+        "startCtaText": "Iniciar meu processo",
+        "startCtaLink": "/iniciar"
+      }
+    },
+    {
+      "id": "conteudos",
+      "type": "conteudos",
+      "enabled": true,
+      "order": 9,
+      "data": {
+        "title": "Informação PCD atualizada",
+        "subtitle": "Conteúdos para ajudar você a entender requisitos, documentos e etapas do processo.",
+        "ctaText": "Ver todos os artigos",
+        "ctaLink": "/guia",
+        "featuredSlugs": [
+          "carro-pcd-2026-quem-tem-direito",
+          "documentos-necessarios-carro-pcd",
+          "isencao-ipi-pcd",
+          "isencao-icms-mato-grosso",
+          "isencao-ipva-mato-grosso",
+          "pessoa-nao-condutora-pcd",
+          "pericia-pcd-como-funciona",
+          "visao-monocular-direito-isencao",
+          "hernia-disco-direito-carro-pcd",
+          "fibromialgia-direito-carro-pcd"
+        ]
+      }
+    },
+    {
+      "id": "faq",
+      "type": "faq",
+      "enabled": true,
+      "order": 10,
+      "data": {
+        "title": "Perguntas frequentes sobre carro PCD",
+        "subtitle": "Respostas objetivas sobre direitos, processo e benefícios fiscais.",
+        "items": [
+          {
+            "id": "f1",
+            "question": "Quem pode ter direito ao carro PCD?",
+            "answer": "Pessoas que atendam aos requisitos previstos na legislação aplicável, conforme sua deficiência, condição funcional e benefício pretendido. Cada caso exige análise individualizada."
+          },
+          {
+            "id": "f2",
+            "question": "Qual o desconto de um carro PCD?",
+            "answer": "O benefício não possui um percentual único. A economia depende do veículo, dos tributos aplicáveis e do enquadramento do beneficiário perante os órgãos competentes."
+          },
+          {
+            "id": "f3",
+            "question": "Preciso ser motorista para comprar carro PCD?",
+            "answer": "Não necessariamente. Existem situações em que a pessoa com deficiência pode adquirir o veículo como não condutora, observados os requisitos específicos de cada benefício."
+          },
+          {
+            "id": "f4",
+            "question": "Posso saber se tenho direito antes de iniciar o processo?",
+            "answer": "Sim. A Andrade oferece uma Análise PCD Personalizada Premium para avaliar individualmente a documentação e as possibilidades de enquadramento."
+          },
+          {
+            "id": "f5",
+            "question": "Quanto tempo demora o processo?",
+            "answer": "O prazo varia conforme o benefício, documentação, perícias, órgãos responsáveis e eventuais exigências. Não existe prazo fixo para todos os casos."
+          },
+          {
+            "id": "f6",
+            "question": "Posso escolher qualquer carro?",
+            "answer": "Não. Existem requisitos legais e fiscais que podem limitar os veículos elegíveis para determinados benefícios, conforme legislação vigente."
+          }
+        ]
+      }
     }
   ]
 }

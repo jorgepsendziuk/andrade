@@ -18,6 +18,7 @@ export function CarsSection() {
     promoText: string;
     promoImage: string;
     ctaText: string;
+    promoBadge?: string;
   };
 
   return (
@@ -58,9 +59,17 @@ export function CarsSection() {
                       />
                     </div>
                   ) : null}
-                  <p className="font-display font-bold text-brand-800 text-sm md:text-base text-center leading-tight shrink-0">
-                    {brand.name}
-                  </p>
+                  <EditableText
+                    value={brand.name}
+                    onChange={(v) => {
+                      const brands = data.brands.map((b) =>
+                        b.id === brand.id ? { ...b, name: v } : b
+                      );
+                      updateSection('carros', { brands });
+                    }}
+                    as="p"
+                    className="font-display font-bold text-brand-800 text-sm md:text-base text-center leading-tight shrink-0"
+                  />
                 </div>
               );
             })}
@@ -77,7 +86,11 @@ export function CarsSection() {
                 wrapperClassName="w-full"
               />
               <div className="absolute top-3 left-3 bg-brand-600 text-white text-[11px] font-bold uppercase px-3 py-1.5 rounded shadow-md">
-                Condições especiais
+                <EditableText
+                  value={data.promoBadge || 'Condições especiais'}
+                  onChange={(v) => updateSection('carros', { promoBadge: v })}
+                  as="span"
+                />
               </div>
             </div>
             <div className="p-5 md:p-6 flex-1 flex flex-col bg-gradient-to-b from-white to-brand-50">
@@ -97,7 +110,11 @@ export function CarsSection() {
                 message="Olá! Gostaria de saber mais sobre veículos PCD com benefícios."
                 className="btn-primary-sm w-full text-xs md:text-sm py-2.5"
               >
-                {data.ctaText}
+                <EditableText
+                  value={data.ctaText}
+                  onChange={(v) => updateSection('carros', { ctaText: v })}
+                  as="span"
+                />
                 <ArrowRight size={16} />
               </WhatsAppLink>
             </div>

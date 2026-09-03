@@ -11,6 +11,10 @@ import {
   readGuiaArticles,
   readGuiaArticle,
   buildSitemapXml,
+  saveCondition,
+  deleteCondition,
+  saveGuiaArticle,
+  deleteGuiaArticle,
 } from './content-data.js';
 import { getInstagramFeed } from './instagram.js';
 import { sendContactEmail, sendTestEmail } from './mail-service.js';
@@ -41,6 +45,7 @@ import { getInfraInfo } from './infra-info.js';
 import { runDailyBackup, isValidBackupCronSecret } from './backup-service.js';
 import { canUploadPersistent, saveUploadedImage, validateImageMime, listMediaFiles, deleteMediaFile, collectImageUrls, isGcsEnabled } from './media-store.js';
 import { authenticateUser, getAuthUser } from './auth-login.js';
+import { requestPasswordReset, resetPasswordWithToken } from './auth-password-reset.js';
 import { registerPortalRoutes } from './portal-routes.js';
 import { registerAdminProcessRoutes } from './admin-process-routes.js';
 
@@ -109,36 +114,56 @@ app.get('/api/instagram', async (_req, res) => {
   }
 });
 
-app.get('/api/conditions', (_req, res) => {
-  res.json(readConditions());
+app.get('/api/conditions', async (_req, res) => {
+  try {
+    res.json(await readConditions());
+  } catch (err) {
+    console.error('list conditions error', err);
+    res.status(500).json({ error: 'Falha ao carregar condições.' });
+  }
 });
 
-app.get('/api/conditions/:slug', (req, res) => {
-  const condition = readCondition(req.params.slug);
-  if (!condition) return res.status(404).json({ error: 'Condição não encontrada' });
-  res.json(condition);
+app.get('/api/conditions/:slug', async (req, res) => {
+  try {
+    const condition = await readCondition(req.params.slug);
+    if (!condition) return res.status(404).json({ error: 'Condição não encontrada' });
+    res.json(condition);
+  } catch (err) {
+    console.error('get condition error', err);
+    res.status(500).json({ error: 'Falha ao carregar condição.' });
+  }
 });
 
-app.get('/api/guia', (_req, res) => {
-  res.json(readGuiaArticles());
+app.get('/api/guia', async (_req, res) => {
+  try {
+    res.json(await readGuiaArticles());
+  } catch (err) {
+    console.error('list guia error', err);
+    res.status(500).json({ error: 'Falha ao carregar guia.' });
+  }
 });
 
-app.get('/api/guia/:slug', (req, res) => {
-  const article = readGuiaArticle(req.params.slug);
-  if (!article) return res.status(404).json({ error: 'Artigo não encontrado' });
-  res.json(article);
+app.get('/api/guia/:slug', async (req, res) => {
+  try {
+    const article = await readGuiaArticle(req.params.slug);
+    if (!article) return res.status(404).json({ error: 'Artigo não encontrado' });
+    res.json(article);
+  } catch (err) {
+    console.error('get guia error', err);
+    res.status(500).json({ error: 'Falha ao carregar artigo.' });
+  }
 });
 
-app.get('/api/sitemap.xml', (_req, res) => {
+app.get('/api/sitemap.xml', async (_req, res) => {
   res.set('Content-Type', 'application/xml; charset=utf-8');
   res.set('Cache-Control', 'public, max-age=3600, s-maxage=86400');
-  res.send(buildSitemapXml());
+  res.send(await buildSitemapXml());
 });
 
-app.get('/sitemap.xml', (_req, res) => {
+app.get('/sitemap.xml', async (_req, res) => {
   res.set('Content-Type', 'application/xml; charset=utf-8');
   res.set('Cache-Control', 'public, max-age=3600, s-maxage=86400');
-  res.send(buildSitemapXml());
+  res.send(await buildSitemapXml());
 });
 
 app.post('/api/contact', async (req, res) => {
@@ -278,6 +303,92 @@ app.put('/api/content', authMiddleware, requireRole('admin', 'editor'), async (r
   }
 });
 
+app.put('/api/admin/conditions/:slug', authMiddleware, requireRole('admin', 'editor'), async (req: AuthRequest, res) => {
+  try {
+    const saved = await saveCondition(req.body as Record<string, unknown>, String(req.params.slug));
+    res.json(saved);
+  } catch (err) {
+    console.error('save condition error', err);
+    const message = err instanceof Error ? err.message : 'Falha ao salvar condição.';
+    res.status(400).json({ error: message });
+  }
+});
+
+app.post('/api/admin/conditions', authMiddleware, requireRole('admin', 'editor'), async (req: AuthRequest, res) => {
+  try {
+    const saved = await saveCondition(req.body as Record<string, unknown>);
+    res.status(201).json(saved);
+  } catch (err) {
+    console.error('create condition error', err);
+    const message = err instanceof Error ? err.message : 'Falha ao criar condição.';
+    res.status(400).json({ error: message });
+  }
+});
+
+app.delete('/api/admin/conditions/:slug', authMiddleware, requireRole('admin', 'editor'), async (req: AuthRequest, res) => {
+  try {
+    await deleteCondition(String(req.params.slug));
+    res.json({ success: true });
+  } catch (err) {
+    console.error('delete condition error', err);
+    res.status(500).json({ error: 'Falha ao excluir condição.' });
+  }
+});
+
+app.put('/api/admin/guia/:slug', authMiddleware, requireRole('admin', 'editor'), async (req: AuthRequest, res) => {
+  try {
+    const saved = await saveGuiaArticle(req.body as Record<string, unknown>, String(req.params.slug));
+    res.json(saved);
+  } catch (err) {
+    console.error('save guia error', err);
+    const message = err instanceof Error ? err.message : 'Falha ao salvar artigo.';
+    res.status(400).json({ error: message });
+  }
+});
+
+app.post('/api/admin/guia', authMiddleware, requireRole('admin', 'editor'), async (req: AuthRequest, res) => {
+  try {
+    const saved = await saveGuiaArticle(req.body as Record<string, unknown>);
+    res.status(201).json(saved);
+  } catch (err) {
+    console.error('create guia error', err);
+    const message = err instanceof Error ? err.message : 'Falha ao criar artigo.';
+    res.status(400).json({ error: message });
+  }
+});
+
+app.delete('/api/admin/guia/:slug', authMiddleware, requireRole('admin', 'editor'), async (req: AuthRequest, res) => {
+  try {
+    await deleteGuiaArticle(String(req.params.slug));
+    res.json({ success: true });
+  } catch (err) {
+    console.error('delete guia error', err);
+    res.status(500).json({ error: 'Falha ao excluir artigo.' });
+  }
+});
+
+app.post('/api/auth/forgot-password', async (req, res) => {
+  const { email } = req.body as { email?: string };
+  try {
+    const result = await requestPasswordReset(email || '');
+    res.json({ success: true, message: result.message });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Falha ao solicitar recuperação.';
+    res.status(400).json({ error: message });
+  }
+});
+
+app.post('/api/auth/reset-password', async (req, res) => {
+  const { token, password } = req.body as { token?: string; password?: string };
+  try {
+    await resetPasswordWithToken(token || '', password || '');
+    res.json({ success: true, message: 'Senha redefinida com sucesso. Você já pode entrar com a nova senha.' });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Falha ao redefinir senha.';
+    res.status(400).json({ error: message });
+  }
+});
+
 app.post('/api/auth/login', async (req, res) => {
   const { email, username, password } = req.body as {
     email?: string;
@@ -316,7 +427,7 @@ app.post('/api/auth/login', async (req, res) => {
 app.get('/api/auth/me', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const user = await getAuthUser(req.user!.id, req.user!.role);
-    if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+    if (!user) return res.status(401).json({ error: 'Sessão inválida. Faça login novamente.' });
     res.json(user);
   } catch (err) {
     console.error('auth me error', err);

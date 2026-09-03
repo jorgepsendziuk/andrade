@@ -4,7 +4,7 @@ import { randomUUID } from 'crypto';
 import { getFirestore, useFirestore } from './firestore-client.js';
 import { stripUndefined } from './firestore-utils.js';
 import { dataFile } from './data-paths.js';
-import { createDefaultSteps } from './process-constants.js';
+import { createDefaultSteps, normalizeProcessRecord } from './process-constants.js';
 import { buildProcessStorageSlug } from './storage-slugs.js';
 import type { ProcessModality, ProcessRecord, ProcessStatus, ProcessStep, ProcessStepKey } from './types/process.js';
 
@@ -25,13 +25,16 @@ function writeFileProcesses(processes: ProcessRecord[]) {
 }
 
 export async function findProcessById(id: string): Promise<ProcessRecord | null> {
+  let process: ProcessRecord | null = null;
   if (useFirestore) {
     const db = await getFirestore();
     const doc = await db.collection(COLLECTION).doc(id).get();
     if (!doc.exists) return null;
-    return doc.data() as ProcessRecord;
+    process = doc.data() as ProcessRecord;
+  } else {
+    process = readFileProcesses().find((p) => p.id === id) ?? null;
   }
-  return readFileProcesses().find((p) => p.id === id) ?? null;
+  return process ? normalizeProcessRecord(process) : null;
 }
 
 export async function findActiveProcessByClientId(clientId: string): Promise<ProcessRecord | null> {
@@ -39,13 +42,15 @@ export async function findActiveProcessByClientId(clientId: string): Promise<Pro
     const db = await getFirestore();
     const snap = await db.collection(COLLECTION).where('clientId', '==', clientId).get();
     const active = snap.docs
-      .map((d) => d.data() as ProcessRecord)
+      .map((d) => normalizeProcessRecord(d.data() as ProcessRecord))
       .filter((p) => p.status === 'ativo')
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     return active[0] ?? null;
   }
   return (
-    readFileProcesses().find((p) => p.clientId === clientId && p.status === 'ativo') ?? null
+    readFileProcesses()
+      .map(normalizeProcessRecord)
+      .find((p) => p.clientId === clientId && p.status === 'ativo') ?? null
   );
 }
 
@@ -53,9 +58,10 @@ export async function listProcesses(limit = 200): Promise<ProcessRecord[]> {
   if (useFirestore) {
     const db = await getFirestore();
     const snap = await db.collection(COLLECTION).orderBy('createdAt', 'desc').limit(limit).get();
-    return snap.docs.map((d) => d.data() as ProcessRecord);
+    return snap.docs.map((d) => normalizeProcessRecord(d.data() as ProcessRecord));
   }
   return readFileProcesses()
+    .map(normalizeProcessRecord)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     .slice(0, limit);
 }

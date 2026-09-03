@@ -1,9 +1,11 @@
 import { NavLink } from 'react-router-dom';
 import {
   BarChart3,
+  BookOpen,
   ClipboardList,
   Cloud,
   FolderOpen,
+  HeartPulse,
   Image,
   Inbox,
   LayoutDashboard,
@@ -27,6 +29,8 @@ const NAV: {
   { to: PORTAL_STAFF.processes, label: 'Processos PCD', icon: ClipboardList, roles: ['admin', 'comercial'] },
   { to: PORTAL_STAFF.files, label: 'Arquivos', icon: FolderOpen, roles: ['admin', 'comercial'] },
   { to: PORTAL_STAFF.site, label: 'Editar site', icon: Pencil, roles: ['admin', 'editor'] },
+  { to: PORTAL_STAFF.conditions, label: 'Condições PCD', icon: HeartPulse, roles: ['admin', 'editor'] },
+  { to: PORTAL_STAFF.guia, label: 'Guia PCD', icon: BookOpen, roles: ['admin', 'editor'] },
   { to: PORTAL_STAFF.media, label: 'Mídia', icon: Image, roles: ['admin', 'editor'] },
   { to: PORTAL_STAFF.settings, label: 'Configurações', icon: Settings, roles: ['admin', 'editor'] },
   { to: PORTAL_STAFF.users, label: 'Usuários', icon: Users, roles: ['admin'] },

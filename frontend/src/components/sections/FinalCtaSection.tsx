@@ -1,7 +1,7 @@
 import { EditableText } from '../cms/EditableText';
 import { EditableImage } from '../cms/EditableImage';
+import { EditableCta } from '../cms/EditableCta';
 import { useCms } from '../../context/CmsContext';
-import { WhatsAppLink } from '../ui/WhatsAppLink';
 import { ArrowRight } from 'lucide-react';
 
 export function FinalCtaSection() {
@@ -13,6 +13,7 @@ export function FinalCtaSection() {
     title: string;
     subtitle: string;
     ctaText: string;
+    ctaLink: string;
     ctaSubtext: string;
     backgroundImage: string;
   };
@@ -30,36 +31,36 @@ export function FinalCtaSection() {
       />
       <div className="absolute inset-0 bg-gradient-to-r from-brand-900/90 via-brand-800/85 to-brand-900/90" />
 
-      <div className="relative max-w-6xl mx-auto px-4">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
-          <div className="max-w-lg">
-            <EditableText
-              value={data.title}
-              onChange={(v) => updateSection('final-cta', { title: v })}
-              as="h2"
-              className="font-display text-xl md:text-2xl font-bold text-white uppercase leading-snug mb-2"
-            />
-            <EditableText
-              value={data.subtitle}
-              onChange={(v) => updateSection('final-cta', { subtitle: v })}
-              as="p"
-              className="text-brand-100 text-xs md:text-sm"
-              multiline
-            />
-          </div>
-          <div className="flex-shrink-0 text-center md:text-right">
-            <WhatsAppLink className="btn-primary text-xs md:text-sm w-full md:w-auto justify-center">
-              {data.ctaText}
-              <ArrowRight size={18} />
-            </WhatsAppLink>
-            <EditableText
-              value={data.ctaSubtext}
-              onChange={(v) => updateSection('final-cta', { ctaSubtext: v })}
-              as="p"
-              className="text-brand-200 text-[10px] mt-2"
-            />
-          </div>
-        </div>
+      <div className="relative max-w-6xl mx-auto px-4 text-center">
+        <EditableText
+          value={data.title}
+          onChange={(v) => updateSection('final-cta', { title: v })}
+          as="h2"
+          className="font-display text-xl md:text-2xl font-bold text-white uppercase leading-snug mb-2"
+        />
+        <EditableText
+          value={data.subtitle}
+          onChange={(v) => updateSection('final-cta', { subtitle: v })}
+          as="p"
+          className="text-brand-100 text-sm mb-6 max-w-xl mx-auto"
+          multiline
+        />
+        <EditableCta
+          text={data.ctaText}
+          href={data.ctaLink}
+          onTextChange={(v) => updateSection('final-cta', { ctaText: v })}
+          onHrefChange={(v) => updateSection('final-cta', { ctaLink: v })}
+          className="btn-primary text-sm inline-flex items-center gap-2 justify-center"
+        >
+          {data.ctaText}
+          <ArrowRight size={18} />
+        </EditableCta>
+        <EditableText
+          value={data.ctaSubtext}
+          onChange={(v) => updateSection('final-cta', { ctaSubtext: v })}
+          as="p"
+          className="text-brand-200 text-[10px] mt-3"
+        />
       </div>
     </section>
   );

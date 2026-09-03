@@ -25,6 +25,20 @@ export function formatCpf(cpf: string): string {
   return d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 }
 
+export function formatCep(cep: string): string {
+  const d = cep.replace(/\D/g, '');
+  if (d.length !== 8) return cep;
+  return d.replace(/(\d{5})(\d{3})/, '$1-$2');
+}
+
+export function normalizeDigits(value: string): string {
+  return value.replace(/\D/g, '');
+}
+
+export function isValidCpf(value: string): boolean {
+  return normalizeDigits(value).length === 11;
+}
+
 export function formatDate(iso: string): string {
   return new Date(iso).toLocaleString('pt-BR', {
     day: '2-digit',

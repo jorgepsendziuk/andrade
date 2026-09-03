@@ -30,14 +30,14 @@ export async function authenticateUser(
 
   const admin = await findUserByEmail(normalized);
   if (admin) {
-    if (!admin.active || !(await verifyPassword(admin, password))) return null;
+    if (admin.active === false || !(await verifyPassword(admin, password))) return null;
     const payload = { id: admin.id, email: admin.email, name: admin.name, role: admin.role as AuthRole };
     return { token: signToken(payload), user: { ...toPublicUser(admin), role: admin.role } };
   }
 
   const client = await findClientByEmail(normalized);
   if (client) {
-    if (!client.active || !(await verifyClientPassword(client, password))) return null;
+    if (client.active === false || !(await verifyClientPassword(client, password))) return null;
     const payload = { id: client.id, email: client.email, name: client.name, role: 'cliente' as AuthRole };
     return { token: signToken(payload), user: { ...toPublicClient(client), role: 'cliente' } };
   }
@@ -48,12 +48,12 @@ export async function authenticateUser(
 export async function getAuthUser(id: string, role: AuthRole): Promise<AuthUserPublic | null> {
   if (role === 'cliente') {
     const client = await findClientById(id);
-    if (!client || !client.active) return null;
+    if (!client || client.active === false) return null;
     return { ...toPublicClient(client), role: 'cliente' };
   }
 
   const user = await findUserById(id);
-  if (!user || !user.active) return null;
+  if (!user || user.active === false) return null;
   return { ...toPublicUser(user), role: user.role };
 }
 

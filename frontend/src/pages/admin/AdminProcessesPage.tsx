@@ -47,9 +47,9 @@ const STEP_OPTIONS: ProcessStepKey[] = [
   'analise',
   'pericia',
   'ipi',
-  'icms',
-  'ipva',
   'veiculo',
+  'sefaz_mt',
+  'sefaz_sp',
   'concluido',
   'cancelado',
 ];

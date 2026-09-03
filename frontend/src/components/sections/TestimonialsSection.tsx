@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { ExternalLink, ArrowRight, BookOpen } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { EditableText } from '../cms/EditableText';
 import { EditableImage } from '../cms/EditableImage';
+import { EditableCta } from '../cms/EditableCta';
 import { useCms } from '../../context/CmsContext';
 import { StarRating } from '../ui/StarRating';
 import { GoogleLogo } from '../ui/GoogleLogo';
@@ -27,9 +28,7 @@ export function TestimonialsSection() {
     reviewsUrl: string;
     reviewCount: string;
     featuredReviews: FeaturedReview[];
-    guiaTitle: string;
-    guiaText: string;
-    guiaLink: string;
+    reviewsLinkText?: string;
   } | undefined;
 
   useEffect(() => {
@@ -40,7 +39,7 @@ export function TestimonialsSection() {
 
   if (!section?.enabled || !data) return null;
 
-  const displayRating = googleData?.rating ?? 5;
+  const displayRating = googleData?.rating ?? 4.6;
   const displayCount = googleData?.totalReviews
     ? `+${googleData.totalReviews}`
     : data.reviewCount;
@@ -63,93 +62,110 @@ export function TestimonialsSection() {
           value={data.title}
           onChange={(v) => updateSection('clientes', { title: v })}
           as="h2"
-          className="section-title whitespace-nowrap"
+          className="section-title text-center mb-8"
         />
 
-        <div className="grid lg:grid-cols-12 gap-5 lg:gap-6 items-start">
-          <div className="lg:col-span-3">
-            <div className="card-vivid p-4 mb-4 bg-white">
-              <div className="flex items-center gap-2 mb-2">
-                <GoogleLogo size="lg" showText />
-              </div>
+        <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-8">
+          <div className="card-vivid p-5 bg-white flex items-center gap-4">
+            <GoogleLogo size="lg" showText />
+            <div>
               <div className="flex items-center gap-2 mb-1">
-                <StarRating rating={Math.round(displayRating)} size={16} />
-                <span className="text-lg font-extrabold text-brand-800">{displayRating.toFixed(1)}</span>
+                <StarRating rating={Math.round(displayRating)} size={18} />
+                <span className="text-2xl font-extrabold text-brand-800">{displayRating.toFixed(1)}/5</span>
               </div>
-              <p className="text-brand-600 font-bold text-sm mb-2">{displayCount} avaliações</p>
-              <EditableText
-                value={data.description}
-                onChange={(v) => updateSection('clientes', { description: v })}
-                as="p"
-                className="text-text-secondary text-[11px] mb-3 leading-relaxed"
-                multiline
-              />
-              <a
-                href={data.reviewsUrl || content?.site.googleReviewsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-brand-600 hover:text-accent font-bold text-[10px] uppercase tracking-wide transition-colors"
-              >
-                Ver todas as avaliações
-                <ExternalLink size={12} />
-              </a>
+              <p className="text-brand-600 font-bold text-sm">{displayCount} avaliações</p>
             </div>
           </div>
+          <EditableText
+            value={data.description}
+            onChange={(v) => updateSection('clientes', { description: v })}
+            as="p"
+            className="text-text-secondary text-sm max-w-md text-center md:text-left"
+            multiline
+          />
+        </div>
 
-          <div className="lg:col-span-6 grid sm:grid-cols-3 gap-3">
-            {reviews.slice(0, 3).map((review) => (
-              <div
-                key={review.id}
-                className="card-vivid p-4 flex flex-col border-l-4 border-l-accent hover:-translate-y-0.5"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  {review.photo ? (
-                    <EditableImage
-                      src={review.photo}
-                      alt={review.name}
-                      onChange={(url) => {
-                        const featuredReviews = data.featuredReviews.map((r) =>
-                          r.id === review.id ? { ...r, photo: url } : r
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          {reviews.slice(0, 9).map((review) => (
+            <div
+              key={review.id}
+              className="card-vivid p-4 flex flex-col border-l-4 border-l-accent hover:-translate-y-0.5 bg-white"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                {review.photo ? (
+                  <EditableImage
+                    src={review.photo}
+                    alt={review.name}
+                    onChange={(url) => {
+                      const featuredReviews = data.featuredReviews.map((r) =>
+                        r.id === review.id ? { ...r, photo: url } : r
+                      );
+                      updateSection('clientes', { featuredReviews });
+                    }}
+                    className="w-10 h-10 rounded-full object-cover flex-shrink-0 ring-2 ring-brand-100"
+                    loading="lazy"
+                    wrapperClassName="flex-shrink-0 rounded-full overflow-hidden"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                    {review.name.charAt(0)}
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <EditableText
+                    value={review.name}
+                    onChange={(v) => {
+                      const featuredReviews = (data.featuredReviews || []).map((r) =>
+                        r.id === review.id ? { ...r, name: v } : r
+                      );
+                      updateSection('clientes', { featuredReviews });
+                    }}
+                    as="p"
+                    className="font-bold text-brand-800 text-xs truncate"
+                  />
+                  {review.location && (
+                    <EditableText
+                      value={review.location}
+                      onChange={(v) => {
+                        const featuredReviews = (data.featuredReviews || []).map((r) =>
+                          r.id === review.id ? { ...r, location: v } : r
                         );
                         updateSection('clientes', { featuredReviews });
                       }}
-                      className="w-10 h-10 rounded-full object-cover flex-shrink-0 ring-2 ring-brand-100"
-                      loading="lazy"
-                      wrapperClassName="flex-shrink-0 rounded-full overflow-hidden"
+                      as="p"
+                      className="text-text-secondary text-[10px] truncate"
                     />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
-                      {review.name.charAt(0)}
-                    </div>
                   )}
-                  <div className="min-w-0">
-                    <p className="font-bold text-brand-800 text-xs truncate">{review.name}</p>
-                    {review.location && (
-                      <p className="text-text-secondary text-[10px] truncate">{review.location}</p>
-                    )}
-                  </div>
                 </div>
-                <StarRating rating={review.rating} size={12} />
-                <p className="text-text-secondary text-[11px] leading-relaxed mt-2 flex-1 line-clamp-5">
-                  &ldquo;{review.text}&rdquo;
-                </p>
               </div>
-            ))}
-          </div>
-
-          <div className="lg:col-span-3">
-            <div className="rounded-xl p-5 text-white h-full flex flex-col justify-center min-h-[200px] bg-gradient-to-br from-brand-800 via-brand-700 to-brand-600 shadow-[var(--shadow-card)] border border-brand-600/30">
-              <div className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center mb-3">
-                <BookOpen size={20} className="text-accent" />
-              </div>
-              <h3 className="font-display font-extrabold text-base mb-2">{data.guiaTitle}</h3>
-              <p className="text-brand-100 text-xs mb-4 leading-relaxed">{data.guiaText}</p>
-              <a href={data.guiaLink} className="btn-primary-sm self-start text-[10px]">
-                Acessar Guia
-                <ArrowRight size={14} />
-              </a>
+              <StarRating rating={review.rating} size={12} />
+              <EditableText
+                value={review.text}
+                onChange={(v) => {
+                  const featuredReviews = (data.featuredReviews || reviews).map((r) =>
+                    r.id === review.id ? { ...r, text: v } : r
+                  );
+                  updateSection('clientes', { featuredReviews });
+                }}
+                as="p"
+                className="text-text-secondary text-xs leading-relaxed mt-2 flex-1 line-clamp-6"
+                multiline
+              />
             </div>
-          </div>
+          ))}
+        </div>
+
+        <div className="text-center">
+          <EditableCta
+            text={data.reviewsLinkText || 'Ver todas as avaliações no Google'}
+            href={data.reviewsUrl || content?.site.googleReviewsUrl || '#'}
+            onTextChange={(v) => updateSection('clientes', { reviewsLinkText: v })}
+            onHrefChange={(v) => updateSection('clientes', { reviewsUrl: v })}
+            className="inline-flex items-center gap-1.5 text-brand-600 hover:text-accent font-bold text-sm transition-colors"
+          >
+            {data.reviewsLinkText || 'Ver todas as avaliações no Google'}
+            <ExternalLink size={14} />
+          </EditableCta>
         </div>
       </div>
     </section>

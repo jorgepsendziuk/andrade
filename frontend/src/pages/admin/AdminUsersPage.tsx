@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Loader2, Plus, Shield, UserX } from 'lucide-react';
+import { Loader2, Plus, Shield, UserCheck, UserX } from 'lucide-react';
 import {
   changePassword,
   createUser,
@@ -286,6 +286,16 @@ export function AdminUsersPage() {
                           title="Desativar"
                         >
                           <UserX size={16} />
+                        </button>
+                      )}
+                      {u.id !== me?.id && !u.active && (
+                        <button
+                          type="button"
+                          onClick={() => updateUser(u.id, { active: true }).then(load)}
+                          className="text-green-600 hover:text-green-800 p-1"
+                          title="Ativar"
+                        >
+                          <UserCheck size={16} />
                         </button>
                       )}
                     </td>

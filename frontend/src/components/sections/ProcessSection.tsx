@@ -1,9 +1,16 @@
-import { ArrowRight, ClipboardList, FileCheck, BadgeCheck, CarFront, Sparkles } from 'lucide-react';
+import { ArrowRight, ClipboardList, FileCheck, BadgeCheck, CarFront, Sparkles, Stethoscope, Landmark, Truck } from 'lucide-react';
 import { EditableText } from '../cms/EditableText';
 import { EditableImage } from '../cms/EditableImage';
+import { EditableCta } from '../cms/EditableCta';
 import { useCms } from '../../context/CmsContext';
 
-const stepIcons = [ClipboardList, FileCheck, BadgeCheck, CarFront, Sparkles];
+const stepIcons = [ClipboardList, FileCheck, BadgeCheck, Stethoscope, Landmark, CarFront, Truck, Sparkles];
+
+function gridClass(count: number): string {
+  if (count <= 4) return 'grid-cols-2 md:grid-cols-4';
+  if (count <= 6) return 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6';
+  return 'grid-cols-2 md:grid-cols-4';
+}
 
 export function ProcessSection() {
   const { getSection, updateSection } = useCms();
@@ -48,30 +55,30 @@ export function ProcessSection() {
               className="text-brand-100 text-xs md:text-sm"
             />
           </div>
-          <a href={data.ctaLink} className="btn-primary text-xs flex-shrink-0 self-start md:self-auto">
+          <EditableCta
+            text={data.ctaText}
+            href={data.ctaLink}
+            onTextChange={(v) => updateSection('como-funciona', { ctaText: v })}
+            onHrefChange={(v) => updateSection('como-funciona', { ctaLink: v })}
+            className="btn-primary text-xs flex-shrink-0 self-start md:self-auto inline-flex items-center gap-2"
+          >
             {data.ctaText}
             <ArrowRight size={16} strokeWidth={2.5} />
-          </a>
+          </EditableCta>
         </div>
 
-        <div className="grid grid-cols-5 gap-2 md:gap-4">
+        <div className={`grid ${gridClass(data.steps.length)} gap-3 md:gap-4`}>
           {data.steps.map((step, i) => {
             const Icon = stepIcons[i % stepIcons.length];
             return (
               <div key={step.id} className="text-center group relative">
-                {i < data.steps.length - 1 && (
-                  <div
-                    className="hidden md:block absolute top-7 left-[calc(50%+2rem)] right-0 h-px bg-white/25"
-                    aria-hidden
-                  />
-                )}
                 <div
-                  className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-white flex items-center justify-center mx-auto shadow-lg border border-brand-100 group-hover:scale-105 transition-transform mb-3"
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white flex items-center justify-center mx-auto shadow-lg border border-brand-100 group-hover:scale-105 transition-transform mb-2"
                   aria-hidden
                 >
-                  <Icon size={26} className="text-brand-600 md:w-7 md:h-7" strokeWidth={2} />
+                  <Icon size={22} className="text-brand-600" strokeWidth={2} />
                 </div>
-                <span className="block font-display font-extrabold text-white/90 text-lg md:text-xl leading-none mb-1.5 tracking-wider">
+                <span className="block font-display font-extrabold text-white/90 text-base md:text-lg leading-none mb-1 tracking-wider">
                   {step.number}
                 </span>
                 <EditableText
@@ -81,7 +88,7 @@ export function ProcessSection() {
                     updateSection('como-funciona', { steps });
                   }}
                   as="h3"
-                  className="text-white font-bold text-xs md:text-sm leading-tight"
+                  className="text-white font-bold text-[10px] md:text-xs leading-tight px-1"
                 />
                 <EditableText
                   value={step.description}
@@ -90,7 +97,7 @@ export function ProcessSection() {
                     updateSection('como-funciona', { steps });
                   }}
                   as="p"
-                  className="text-brand-100 text-xs leading-snug mt-1 sr-only"
+                  className="text-brand-100 text-[10px] leading-snug mt-1 hidden md:block px-1"
                 />
               </div>
             );

@@ -20,9 +20,9 @@ import {
   updateIntegrationSettings,
 } from '../../lib/api';
 import type { AdminSettingsResponse } from '../../types/settings';
-import type { FooterSocial, SiteInfo } from '../../types/site';
+import type { FooterLink, FooterSocial, NavItem, SiteContent, SiteInfo } from '../../types/site';
 
-type TabId = 'geral' | 'email' | 'rodape' | 'integracoes';
+type TabId = 'geral' | 'menu' | 'email' | 'rodape' | 'integracoes';
 
 export function AdminSettingsPage() {
   const user = useAdminUser();
@@ -33,6 +33,11 @@ export function AdminSettingsPage() {
   const [siteForm, setSiteForm] = useState<SiteInfo | null>(null);
   const [footerDesc, setFooterDesc] = useState('');
   const [social, setSocial] = useState<FooterSocial[]>([]);
+  const [navigation, setNavigation] = useState<NavItem[]>([]);
+  const [footerColumns, setFooterColumns] = useState<NonNullable<SiteContent['footer']>['columns']>([]);
+  const [legalLinks, setLegalLinks] = useState<FooterLink[]>([]);
+  const [trademarkText, setTrademarkText] = useState('');
+  const [contactTitle, setContactTitle] = useState('Contato');
 
   const [settings, setSettings] = useState<AdminSettingsResponse | null>(null);
   const [emailForm, setEmailForm] = useState({
@@ -63,6 +68,16 @@ export function AdminSettingsPage() {
     setSiteForm({ ...content.site });
     setFooterDesc(content.footer?.description ?? '');
     setSocial(content.footer?.social ? [...content.footer.social] : []);
+    setNavigation(content.navigation ? [...content.navigation] : []);
+    setFooterColumns(content.footer?.columns ? JSON.parse(JSON.stringify(content.footer.columns)) : []);
+    setLegalLinks(content.footer?.legalLinks ? [...content.footer.legalLinks] : [
+      { id: 'l1', label: 'Privacidade', href: '/privacidade' },
+      { id: 'l2', label: 'Termos de Uso', href: '/termos' },
+      { id: 'l3', label: 'Cookies', href: '/cookies' },
+      { id: 'l4', label: 'Iniciar processo', href: '/iniciar' },
+    ]);
+    setTrademarkText(content.footer?.trademarkText ?? 'Andrade Isenções® é marca registrada. Todos os direitos reservados.');
+    setContactTitle(content.footer?.contactTitle ?? 'Contato');
   }, [content]);
 
   useEffect(() => {
@@ -87,6 +102,7 @@ export function AdminSettingsPage() {
 
   const tabs = [
     { id: 'geral' as const, label: 'Informações do site' },
+    { id: 'menu' as const, label: 'Menu do site' },
     { id: 'rodape' as const, label: 'Rodapé e redes' },
     ...(isAdmin
       ? [
@@ -105,10 +121,15 @@ export function AdminSettingsPage() {
       const next = {
         ...content,
         site: siteForm,
+        navigation,
         footer: {
           ...(content.footer ?? { columns: [], social: [] }),
           description: footerDesc,
           social,
+          columns: footerColumns,
+          legalLinks,
+          trademarkText,
+          contactTitle,
         },
       };
       await save(next);
@@ -168,7 +189,7 @@ export function AdminSettingsPage() {
   };
 
   const handleSave = () => {
-    if (tab === 'geral' || tab === 'rodape') return handleSaveSite();
+    if (tab === 'geral' || tab === 'rodape' || tab === 'menu') return handleSaveSite();
     if (tab === 'email') return handleSaveEmail();
     if (tab === 'integracoes') return handleSaveIntegrations();
   };
@@ -277,6 +298,84 @@ export function AdminSettingsPage() {
           </AdminCard>
         )}
 
+        {tab === 'menu' && (
+          <AdminCard title="Menu de navegação" description="Itens do topo do site. Use #secao para âncoras na home.">
+            <div className="space-y-3">
+              {navigation.map((item, i) => (
+                <div key={item.id} className="grid sm:grid-cols-12 gap-2 items-end p-3 bg-slate-50 rounded-lg">
+                  <AdminField label="Rótulo" className="sm:col-span-3">
+                    <AdminInput
+                      value={item.label}
+                      onChange={(e) => {
+                        const next = [...navigation];
+                        next[i] = { ...item, label: e.target.value };
+                        setNavigation(next);
+                      }}
+                    />
+                  </AdminField>
+                  <AdminField label="Link" className="sm:col-span-4">
+                    <AdminInput
+                      value={item.href || ''}
+                      onChange={(e) => {
+                        const next = [...navigation];
+                        next[i] = { ...item, href: e.target.value };
+                        setNavigation(next);
+                      }}
+                    />
+                  </AdminField>
+                  <AdminField label="Tipo" className="sm:col-span-2">
+                    <select
+                      value={item.type}
+                      onChange={(e) => {
+                        const next = [...navigation];
+                        next[i] = { ...item, type: e.target.value as NavItem['type'] };
+                        setNavigation(next);
+                      }}
+                      className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                    >
+                      <option value="anchor">Âncora</option>
+                      <option value="internal">Interno</option>
+                      <option value="external">Externo</option>
+                    </select>
+                  </AdminField>
+                  <label className="sm:col-span-2 flex items-center gap-2 text-xs text-slate-600 pb-2">
+                    <input
+                      type="checkbox"
+                      checked={!!item.highlight}
+                      onChange={(e) => {
+                        const next = [...navigation];
+                        next[i] = { ...item, highlight: e.target.checked };
+                        setNavigation(next);
+                      }}
+                    />
+                    Destaque (CTA)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setNavigation(navigation.filter((_, j) => j !== i))}
+                    className="sm:col-span-1 p-2 text-red-500 hover:bg-red-50 rounded-lg justify-self-end"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() =>
+                  setNavigation([
+                    ...navigation,
+                    { id: `nav-${Date.now()}`, label: 'Novo item', href: '#', type: 'anchor' },
+                  ])
+                }
+                className="flex items-center gap-2 text-sm text-brand-600 font-medium"
+              >
+                <Plus size={16} />
+                Adicionar item ao menu
+              </button>
+            </div>
+          </AdminCard>
+        )}
+
         {tab === 'rodape' && (
           <>
             <AdminCard title="Texto do rodapé">
@@ -352,6 +451,130 @@ export function AdminSettingsPage() {
                 >
                   <Plus size={16} />
                   Adicionar rede social
+                </button>
+              </div>
+            </AdminCard>
+
+            <AdminCard title="Colunas de links do rodapé">
+              <div className="space-y-6">
+                {footerColumns.map((col, ci) => (
+                  <div key={col.id} className="p-4 border border-slate-200 rounded-xl space-y-3">
+                    <AdminField label="Título da coluna">
+                      <AdminInput
+                        value={col.title}
+                        onChange={(e) => {
+                          const next = [...footerColumns];
+                          next[ci] = { ...col, title: e.target.value };
+                          setFooterColumns(next);
+                        }}
+                      />
+                    </AdminField>
+                    {col.links.map((link, li) => (
+                      <div key={link.id} className="grid sm:grid-cols-12 gap-2 items-end">
+                        <AdminField label="Link" className="sm:col-span-5">
+                          <AdminInput
+                            value={link.label}
+                            onChange={(e) => {
+                              const next = [...footerColumns];
+                              const links = [...col.links];
+                              links[li] = { ...link, label: e.target.value };
+                              next[ci] = { ...col, links };
+                              setFooterColumns(next);
+                            }}
+                          />
+                        </AdminField>
+                        <AdminField label="URL" className="sm:col-span-6">
+                          <AdminInput
+                            value={link.href}
+                            onChange={(e) => {
+                              const next = [...footerColumns];
+                              const links = [...col.links];
+                              links[li] = { ...link, href: e.target.value };
+                              next[ci] = { ...col, links };
+                              setFooterColumns(next);
+                            }}
+                          />
+                        </AdminField>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const next = [...footerColumns];
+                            next[ci] = { ...col, links: col.links.filter((_, j) => j !== li) };
+                            setFooterColumns(next);
+                          }}
+                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const next = [...footerColumns];
+                        next[ci] = {
+                          ...col,
+                          links: [...col.links, { id: `l-${Date.now()}`, label: 'Novo link', href: '/' }],
+                        };
+                        setFooterColumns(next);
+                      }}
+                      className="text-xs text-brand-600 font-medium"
+                    >
+                      + Adicionar link
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </AdminCard>
+
+            <AdminCard title="Links legais e marca">
+              <div className="space-y-4">
+                <AdminField label="Título da coluna Contato">
+                  <AdminInput value={contactTitle} onChange={(e) => setContactTitle(e.target.value)} />
+                </AdminField>
+                <AdminField label="Texto de marca registrada">
+                  <AdminInput value={trademarkText} onChange={(e) => setTrademarkText(e.target.value)} />
+                </AdminField>
+                {legalLinks.map((link, i) => (
+                  <div key={link.id} className="grid sm:grid-cols-12 gap-2 items-end">
+                    <AdminField label="Rótulo" className="sm:col-span-5">
+                      <AdminInput
+                        value={link.label}
+                        onChange={(e) => {
+                          const next = [...legalLinks];
+                          next[i] = { ...link, label: e.target.value };
+                          setLegalLinks(next);
+                        }}
+                      />
+                    </AdminField>
+                    <AdminField label="URL" className="sm:col-span-6">
+                      <AdminInput
+                        value={link.href}
+                        onChange={(e) => {
+                          const next = [...legalLinks];
+                          next[i] = { ...link, href: e.target.value };
+                          setLegalLinks(next);
+                        }}
+                      />
+                    </AdminField>
+                    <button
+                      type="button"
+                      onClick={() => setLegalLinks(legalLinks.filter((_, j) => j !== i))}
+                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setLegalLinks([...legalLinks, { id: `legal-${Date.now()}`, label: 'Novo', href: '/' }])
+                  }
+                  className="flex items-center gap-2 text-sm text-brand-600 font-medium"
+                >
+                  <Plus size={16} />
+                  Adicionar link legal
                 </button>
               </div>
             </AdminCard>

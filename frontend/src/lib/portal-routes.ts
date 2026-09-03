@@ -12,6 +12,8 @@ export const PORTAL_STAFF = {
   site: '/portal/site',
   media: '/portal/midia',
   settings: '/portal/configuracoes',
+  conditions: '/portal/condicoes',
+  guia: '/portal/guia',
   users: '/portal/usuarios',
   analytics: '/portal/analytics',
   infra: '/portal/infraestrutura',

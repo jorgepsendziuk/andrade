@@ -3,6 +3,7 @@ import { InstagramIcon } from '../ui/InstagramIcon';
 import { BrandLogo } from '../ui/BrandLogo';
 import { RegisteredMarkBadge } from '../ui/RegisteredMarkBadge';
 import { useCms } from '../../context/CmsContext';
+import { trackWhatsAppClick } from '../../lib/google-analytics';
 
 const socialIcons: Record<string, React.ComponentType<{ size?: number }>> = {
   instagram: InstagramIcon,
@@ -19,6 +20,13 @@ export function Footer() {
     columns: [],
     social: [],
   };
+
+  const legalLinks = footerData.legalLinks ?? [
+    { id: 'l1', label: 'Privacidade', href: '/privacidade' },
+    { id: 'l2', label: 'Termos de Uso', href: '/termos' },
+    { id: 'l3', label: 'Cookies', href: '/cookies' },
+    { id: 'l4', label: 'Iniciar processo', href: '/iniciar' },
+  ];
 
   return (
     <footer className="bg-brand-800 text-white" role="contentinfo">
@@ -72,11 +80,20 @@ export function Footer() {
           ))}
 
           <div>
-            <h4 className="font-display font-bold text-sm uppercase tracking-wide mb-3">Contato</h4>
+            <h4 className="font-display font-bold text-sm uppercase tracking-wide mb-3">
+              {footerData.contactTitle || 'Contato'}
+            </h4>
             <ul className="space-y-2 text-brand-100 text-xs">
               <li className="flex items-center gap-2">
                 <MessageCircle size={14} className="text-accent flex-shrink-0" />
-                <a href={`https://wa.me/${site.whatsapp}`} className="hover:text-accent">
+                <a
+                  href={`https://wa.me/${site.whatsapp}`}
+                  className="hover:text-accent"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    trackWhatsAppClick(`https://wa.me/${site.whatsapp}`);
+                  }}
+                >
                   WhatsApp
                 </a>
               </li>
@@ -104,14 +121,15 @@ export function Footer() {
       <div className="border-t border-brand-700 py-4">
         <div className="max-w-6xl mx-auto px-4 text-center space-y-1.5">
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-brand-200 mb-2">
-            <a href="/privacidade" className="hover:text-accent transition-colors">Privacidade</a>
-            <a href="/termos" className="hover:text-accent transition-colors">Termos de Uso</a>
-            <a href="/cookies" className="hover:text-accent transition-colors">Cookies</a>
-            <a href="/iniciar" className="hover:text-accent transition-colors">Iniciar processo</a>
+            {legalLinks.map((link) => (
+              <a key={link.id} href={link.href} className="hover:text-accent transition-colors">
+                {link.label}
+              </a>
+            ))}
           </div>
           <p className="text-brand-200 text-xs">{site.copyright}</p>
           <p className="text-brand-300/80 text-[10px]">
-            Andrade Isenções® é marca registrada. Todos os direitos reservados.
+            {footerData.trademarkText || 'Andrade Isenções® é marca registrada. Todos os direitos reservados.'}
           </p>
         </div>
       </div>

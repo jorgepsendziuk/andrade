@@ -1,11 +1,10 @@
 import { ShieldCheck, Users, Shield, Handshake } from 'lucide-react';
 import { EditableText } from '../cms/EditableText';
 import { EditableImage } from '../cms/EditableImage';
+import { EditableCta } from '../cms/EditableCta';
 import { useCms } from '../../context/CmsContext';
-import { WhatsAppLink } from '../ui/WhatsAppLink';
 import { GoogleLogo } from '../ui/GoogleLogo';
 import { HeroBackgroundSlider } from '../ui/HeroBackgroundSlider';
-import { CtaButton } from '../ui/CtaButton';
 
 const trustLucideIcons = [Users, Shield, Handshake];
 const trustLucideIndex = [0, 2, 3];
@@ -44,6 +43,7 @@ export function HeroCommercialSection() {
     primaryCtaLink: string;
     secondaryCta: string;
     secondaryCtaLink: string;
+    trustPills?: string[];
   };
 
   const trustItems =
@@ -127,13 +127,44 @@ export function HeroCommercialSection() {
               className="text-white/80 text-xs mb-4"
             />
             <div className="flex flex-col sm:flex-row gap-2.5 [text-shadow:none]">
-              <CtaButton href={data.primaryCtaLink} icon={ShieldCheck} className="justify-center text-xs">
+              <EditableCta
+                text={data.primaryCta}
+                href={data.primaryCtaLink}
+                onTextChange={(v) => updateSection('hero-commercial', { primaryCta: v })}
+                onHrefChange={(v) => updateSection('hero-commercial', { primaryCtaLink: v })}
+                className="btn-primary justify-center text-xs inline-flex items-center gap-2"
+              >
+                <ShieldCheck size={16} />
                 {data.primaryCta}
-              </CtaButton>
-              <WhatsAppLink className="btn-secondary !border-white !text-white hover:!bg-white/15 justify-center text-xs backdrop-blur-sm">
+              </EditableCta>
+              <EditableCta
+                text={data.secondaryCta}
+                href={data.secondaryCtaLink}
+                onTextChange={(v) => updateSection('hero-commercial', { secondaryCta: v })}
+                onHrefChange={(v) => updateSection('hero-commercial', { secondaryCtaLink: v })}
+                className="btn-secondary !border-white !text-white hover:!bg-white/15 justify-center text-xs backdrop-blur-sm inline-flex items-center gap-2"
+              >
                 {data.secondaryCta}
-              </WhatsAppLink>
+              </EditableCta>
             </div>
+            {data.trustPills && data.trustPills.length > 0 && (
+              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-4 text-[10px] md:text-xs text-white/90">
+                {data.trustPills.map((pill, i) => (
+                  <span key={i} className="flex items-center gap-1">
+                    <span className="text-accent">✓</span>
+                    <EditableText
+                      value={pill}
+                      onChange={(v) => {
+                        const trustPills = [...data.trustPills!];
+                        trustPills[i] = v;
+                        updateSection('hero-commercial', { trustPills });
+                      }}
+                      as="span"
+                    />
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -165,12 +196,28 @@ export function HeroCommercialSection() {
                           />
                         ) : (
                           <>
-                            <p className="font-display font-extrabold text-base md:text-lg text-brand-800 leading-tight">
-                              {item.value}
-                            </p>
-                            <p className="text-text-secondary text-[10px] md:text-xs font-medium leading-snug">
-                              {item.label}
-                            </p>
+                            <EditableText
+                              value={item.value}
+                              onChange={(v) => {
+                                const items = trustItems.map((t) =>
+                                  t.id === item.id ? { ...t, value: v } : t
+                                );
+                                updateSection('trust-bar', { items });
+                              }}
+                              as="p"
+                              className="font-display font-extrabold text-base md:text-lg text-brand-800 leading-tight"
+                            />
+                            <EditableText
+                              value={item.label}
+                              onChange={(v) => {
+                                const items = trustItems.map((t) =>
+                                  t.id === item.id ? { ...t, label: v } : t
+                                );
+                                updateSection('trust-bar', { items });
+                              }}
+                              as="p"
+                              className="text-text-secondary text-[10px] md:text-xs font-medium leading-snug"
+                            />
                           </>
                         )}
                       </div>

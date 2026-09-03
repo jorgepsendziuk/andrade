@@ -59,11 +59,37 @@ export async function sendPortalWelcomeEmail(payload: {
       from: config.smtpFrom || config.smtpUser,
       to: payload.email,
       subject: 'Bem-vindo ao portal Andrade Isenções',
-      text: `Olá, ${payload.name}!\n\nSeu cadastro foi realizado com sucesso. Acesse o portal em /entrar para acompanhar seu processo de isenção PCD.\n\nEquipe Andrade Consultoria e Isenções`,
+      text: `Olá, ${payload.name}!\n\nSeu cadastro foi realizado com sucesso. Acesse o portal em /entrar com o e-mail e a senha que você definiu no cadastro.\n\nSe esquecer a senha, use "Esqueci minha senha" na tela de login.\n\nEquipe Andrade Consultoria e Isenções`,
     });
     return { sent: true, error: null };
   } catch (err) {
     console.error('portal welcome email error', err);
+    return { sent: false, error: mapMailError(err).message };
+  }
+}
+
+export async function sendPasswordResetEmail(payload: {
+  name: string;
+  email: string;
+  resetUrl: string;
+}): Promise<{ sent: boolean; error: string | null }> {
+  const config = await getResolvedEmailSettings();
+  const configError = validateEmailConfig(config);
+  if (configError) {
+    return { sent: false, error: configError };
+  }
+
+  try {
+    const transporter = await createTransporter(config);
+    await transporter.sendMail({
+      from: config.smtpFrom || config.smtpUser,
+      to: payload.email,
+      subject: 'Redefinição de senha — Portal Andrade Isenções',
+      text: `Olá, ${payload.name}!\n\nRecebemos um pedido para redefinir a senha da sua conta no Portal Andrade Isenções.\n\nPara criar uma nova senha, acesse o link abaixo (válido por 1 hora):\n${payload.resetUrl}\n\nSe você não solicitou esta alteração, ignore este e-mail. Sua senha atual continuará válida.\n\nEquipe Andrade Consultoria e Isenções`,
+    });
+    return { sent: true, error: null };
+  } catch (err) {
+    console.error('password reset email error', err);
     return { sent: false, error: mapMailError(err).message };
   }
 }

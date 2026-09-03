@@ -51,8 +51,8 @@
     "updatedAt": "2026-08-30T01:15:56.133Z"
   },
   {
-    "id": "1a287264-ca8e-41bc-9a81-30111ca8834a",
-    "clientId": "f07b2ba4-8a78-4f82-9e3e-3c9147e8d240",
+    "id": "2f2511fc-3e8d-4293-aadd-56a71a28c949",
+    "clientId": "03db09e6-ce81-4efd-aff5-00f10915144d",
     "modality": "pcd",
     "status": "ativo",
     "currentStep": "icms",
@@ -61,34 +61,34 @@
         "key": "documentacao",
         "label": "Documentação",
         "status": "concluida",
-        "completedAt": "2026-08-30T18:02:23.000Z"
+        "completedAt": "2026-08-31T13:05:51.450Z"
       },
       {
         "key": "analise",
         "label": "Análise",
         "status": "concluida",
-        "completedAt": "2026-08-30T18:02:23.000Z",
+        "completedAt": "2026-08-31T13:05:51.450Z",
         "protocol": "INT-2026-001"
       },
       {
         "key": "pericia",
         "label": "Perícia / Junta Médica",
         "status": "concluida",
-        "completedAt": "2026-08-30T18:02:23.000Z",
+        "completedAt": "2026-08-31T13:05:51.450Z",
         "protocol": "DETRAN-88421/2026"
       },
       {
         "key": "ipi",
         "label": "IPI (SISEN)",
         "status": "concluida",
-        "completedAt": "2026-08-30T18:02:23.000Z",
+        "completedAt": "2026-08-31T13:05:51.450Z",
         "protocol": "SISEN-2026-004521"
       },
       {
         "key": "icms",
         "label": "ICMS (SEFAZ)",
         "status": "em_andamento",
-        "startedAt": "2026-08-30T18:02:23.000Z",
+        "startedAt": "2026-08-31T13:05:51.450Z",
         "protocol": "SEFAZ-MT-2026-11892",
         "internalNote": "Aguardando deferimento da SEFAZ"
       },
@@ -108,13 +108,13 @@
         "status": "pendente"
       }
     ],
-    "storageSlug": "pcd-2026-08-30-1a287264",
-    "createdAt": "2026-08-30T18:02:23.000Z",
-    "updatedAt": "2026-08-30T18:02:23.012Z",
+    "storageSlug": "pcd-2026-08-31-2f2511fc",
+    "createdAt": "2026-08-31T13:05:51.450Z",
+    "updatedAt": "2026-08-31T13:05:51.456Z",
     "honorarios": 4500,
     "pagamentos": [
       {
-        "id": "bef23e7d-9081-48e3-963d-2036c896eded",
+        "id": "00eb77ce-bf1e-49e3-b859-f03758630575",
         "numero": "REC-2026-0001",
         "valor": 1500,
         "tipo": "PIX",
@@ -123,7 +123,7 @@
         "descricao": "Entrada — assessoria PcD"
       },
       {
-        "id": "9b41f528-6486-45a5-896d-e036c3107303",
+        "id": "c1a42a20-1071-40a8-8df8-018ef4d4ebe4",
         "numero": "REC-2026-0002",
         "valor": 1500,
         "tipo": "PIX",
@@ -132,7 +132,7 @@
         "descricao": "Perícia aprovada"
       },
       {
-        "id": "67bedf5c-ddb1-4d58-a37e-de5c310abc47",
+        "id": "583f1414-cf30-4958-a541-5b6ea8055b4d",
         "numero": "REC-2026-0003",
         "valor": 1500,
         "tipo": "PIX",

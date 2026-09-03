@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:frontend\"",
     "dev:frontend": "cd frontend && npm run dev",
-    "dev:server": "cd server && npm run dev",
+    "dev:server": "cd server && CONTACTS_STORAGE=firestore GCP_PROJECT=smart-tractor-257319 GOOGLE_CLOUD_PROJECT=smart-tractor-257319 npm run dev",
     "build": "cd frontend && npm run build",
     "start": "cd server && npm start",
     "deploy:cloudrun": "bash scripts/deploy-cloudrun.sh",
@@ -25,6 +25,7 @@
     "setup:backup": "bash scripts/gcp-setup-backup.sh",
     "backup:daily": "npx tsx scripts/backup-daily.ts",
     "seed:admin-users": "CONTACTS_STORAGE=firestore npx tsx scripts/seed-admin-users.ts",
+    "reset:admin-password": "CONTACTS_STORAGE=firestore npx tsx scripts/reset-admin-password.ts",
     "seed:test-process": "npx tsx scripts/seed-test-process.ts",
     "restore:content": "CONTACTS_STORAGE=firestore npx tsx scripts/restore-site-content.ts",
     "migrate:media": "npx tsx scripts/migrate-media-to-gcs.ts",

@@ -7,8 +7,10 @@ import {
   Loader2,
   Mail,
   MapPin,
+  Pencil,
   Phone,
   Printer,
+  Save,
   User,
 } from 'lucide-react';
 import { ProcessDocumentsPanel } from '../../components/admin/ProcessDocumentsPanel';
@@ -16,10 +18,11 @@ import { HonorariosPanel } from '../../components/admin/HonorariosPanel';
 import { ProcessEditPanel } from '../../components/admin/ProcessEditPanel';
 import { ProcessStepsPanel } from '../../components/admin/ProcessStepsPanel';
 import { SeoHead } from '../../components/seo/SeoHead';
-import { fetchAdminProcess } from '../../lib/portal-api';
+import { fetchAdminProcess, updateAdminClient } from '../../lib/portal-api';
 import { TEMPLATE_ICONS } from '../../lib/process-ui-icons';
 import { MODALITY_LABELS, STATUS_LABELS, STEP_LABELS } from '../../types/process';
 import { getToken } from '../../lib/api';
+import { formatCpf, formatCep, isValidCpf } from '../../lib/process-grid-utils';
 import { PORTAL_STAFF } from '../../lib/portal-routes';
 import type { DocumentTemplateCode } from '../../types/process';
 
@@ -28,6 +31,9 @@ export function AdminProcessDetailPage() {
   const [data, setData] = useState<Awaited<ReturnType<typeof fetchAdminProcess>> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [editingClient, setEditingClient] = useState(false);
+  const [clientForm, setClientForm] = useState({ cpf: '', cep: '' });
+  const [savingClient, setSavingClient] = useState(false);
 
   const load = () => {
     if (!id) return;
@@ -74,6 +80,39 @@ export function AdminProcessDetailPage() {
     }
   };
 
+  const client = data?.client;
+  const process = data?.process;
+  const files = data?.files ?? [];
+  const documentTemplates = data?.documentTemplates ?? [];
+  const storagePrefix = data?.storagePrefix;
+  const currentStepLabel = process ? STEP_LABELS[process.currentStep] : '';
+  const cpfLooksLikeCep = client?.cpf && client.cpf.replace(/\D/g, '').length === 8;
+
+  const startEditClient = () => {
+    if (!client) return;
+    setClientForm({ cpf: client.cpf || '', cep: client.cep || '' });
+    setEditingClient(true);
+  };
+
+  const saveClientData = async () => {
+    if (!client) return;
+    if (!isValidCpf(clientForm.cpf)) {
+      setError('CPF inválido. Informe os 11 dígitos.');
+      return;
+    }
+    setSavingClient(true);
+    setError('');
+    try {
+      await updateAdminClient(client.id, { cpf: clientForm.cpf, cep: clientForm.cep });
+      setEditingClient(false);
+      load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Falha ao salvar cliente');
+    } finally {
+      setSavingClient(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-16">
@@ -82,12 +121,9 @@ export function AdminProcessDetailPage() {
     );
   }
 
-  if (!data?.process) {
+  if (!process) {
     return <div className="text-center py-16 text-slate-500">Processo não encontrado.</div>;
   }
-
-  const { process, client, files, documentTemplates, storagePrefix } = data;
-  const currentStepLabel = STEP_LABELS[process.currentStep];
 
   return (
     <>
@@ -112,12 +148,75 @@ export function AdminProcessDetailPage() {
                 <div className="w-11 h-11 rounded-xl bg-brand-100 flex items-center justify-center shrink-0">
                   <User size={22} className="text-brand-600" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <h1 className="font-display text-xl font-extrabold text-brand-800">{client?.name}</h1>
-                  <p className="text-sm text-slate-500 mt-0.5">CPF {client?.cpf}</p>
+                  {editingClient ? (
+                    <div className="mt-2 grid sm:grid-cols-2 gap-2 max-w-md">
+                      <label className="text-xs text-slate-500">
+                        CPF
+                        <input
+                          className="input-field mt-1 text-sm"
+                          value={clientForm.cpf}
+                          onChange={(e) => setClientForm((f) => ({ ...f, cpf: e.target.value }))}
+                          placeholder="000.000.000-00"
+                        />
+                      </label>
+                      <label className="text-xs text-slate-500">
+                        CEP
+                        <input
+                          className="input-field mt-1 text-sm"
+                          value={clientForm.cep}
+                          onChange={(e) => setClientForm((f) => ({ ...f, cep: e.target.value }))}
+                          placeholder="00000-000"
+                        />
+                      </label>
+                      <div className="sm:col-span-2 flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => void saveClientData()}
+                          disabled={savingClient}
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-white bg-brand-500 px-3 py-1.5 rounded-lg"
+                        >
+                          {savingClient ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                          Salvar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditingClient(false)}
+                          className="text-xs text-slate-500 px-3 py-1.5"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-0.5">
+                      <p className="text-sm text-slate-500">
+                        CPF {client?.cpf ? formatCpf(client.cpf) : '—'}
+                        {client?.cep && (
+                          <span className="text-slate-400"> · CEP {formatCep(client.cep)}</span>
+                        )}
+                      </p>
+                      {cpfLooksLikeCep && (
+                        <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1 mt-1 inline-block">
+                          Parece que o CEP foi salvo no campo CPF. Clique em Editar para corrigir.
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                {client && !editingClient && (
+                  <button
+                    type="button"
+                    onClick={startEditClient}
+                    className="inline-flex items-center gap-1 text-xs font-medium text-brand-600 hover:bg-brand-50 px-2 py-1 rounded-lg"
+                  >
+                    <Pencil size={14} />
+                    Editar CPF/CEP
+                  </button>
+                )}
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-100 text-brand-700">
                   {MODALITY_LABELS[process.modality]}
                 </span>
@@ -167,7 +266,7 @@ export function AdminProcessDetailPage() {
               <div className="mt-4 pt-4 border-t border-slate-100 text-sm">
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Representante legal</p>
                 <p className="font-medium text-slate-800">{client.representante.nome}</p>
-                <p className="text-slate-500 text-xs">CPF {client.representante.cpf}</p>
+                <p className="text-slate-500 text-xs">CPF {formatCpf(client.representante.cpf)}</p>
               </div>
             )}
 

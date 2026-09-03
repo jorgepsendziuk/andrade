@@ -13,7 +13,7 @@ export function HomePage({ embed }: { embed?: boolean }) {
   const { content } = useCms();
 
   const title =
-    'Andrade Isenções — Assessoria PCD para Carro Zero km | Isenção IPI, ICMS e IPVA em Cuiabá-MT';
+    'Carro PCD em Mato Grosso — Isenção IPI, ICMS e IPVA | Andrade Isenções';
   const description =
     content?.site.description ||
     DEFAULT_DESCRIPTION;

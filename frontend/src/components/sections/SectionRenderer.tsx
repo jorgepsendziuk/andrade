@@ -15,12 +15,20 @@ import { ContactSection } from './ContactSection';
 import { HeroSection } from './HeroSection';
 import { DeficienciesSection } from './DeficienciesSection';
 import { PurposeSection } from './PurposeSection';
+import { PremiumAnalysisSection } from './PremiumAnalysisSection';
+import { EligibilityIntroSection } from './EligibilityIntroSection';
+import { WhyAndradeSection } from './WhyAndradeSection';
+import { PortalPromoSection } from './PortalPromoSection';
+import { ContentsSection } from './ContentsSection';
+import { FaqSection } from './FaqSection';
 import { useCms } from '../../context/CmsContext';
 
 const sectionComponents: Record<string, React.ComponentType> = {
   'hero-commercial': HeroCommercialSection,
   'trust-bar': TrustBarSection,
   'quick-path': QuickPathSection,
+  'analise-premium': PremiumAnalysisSection,
+  'quem-pode-direito': EligibilityIntroSection,
   'tenho-direito': EligibilitySection,
   'como-funciona': ProcessSection,
   carros: CarsSection,
@@ -29,6 +37,10 @@ const sectionComponents: Record<string, React.ComponentType> = {
   instagram: InstagramSection,
   testimonials: TestimonialsSection,
   about: AboutSection,
+  'por-que-andrade': WhyAndradeSection,
+  'portal-promo': PortalPromoSection,
+  conteudos: ContentsSection,
+  faq: FaqSection,
   services: ServicesSection,
   'final-cta': FinalCtaSection,
   contact: ContactSection,

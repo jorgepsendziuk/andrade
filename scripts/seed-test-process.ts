@@ -262,7 +262,7 @@ async function main() {
           s.key === 'analise' ? 'INT-2026-001' : undefined,
       };
     }
-    if (s.key === 'icms') {
+    if (s.key === 'sefaz_mt') {
       return {
         ...s,
         status: 'em_andamento' as const,
@@ -277,7 +277,7 @@ async function main() {
   const meta = derivePagamentoMeta({ honorarios: 4500, pagamentos: PAGAMENTOS });
 
   const updatedProcess = await updateProcess(process.id, {
-    currentStep: 'icms',
+    currentStep: 'sefaz_mt',
     steps,
     honorarios: 4500,
     pagamentos: PAGAMENTOS,

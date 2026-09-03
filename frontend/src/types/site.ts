@@ -44,6 +44,9 @@ export interface SiteFooter {
   description: string;
   columns: FooterColumn[];
   social: FooterSocial[];
+  legalLinks?: FooterLink[];
+  trademarkText?: string;
+  contactTitle?: string;
 }
 
 export interface AboutCard {

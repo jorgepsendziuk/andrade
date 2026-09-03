@@ -81,6 +81,50 @@ export async function fetchGuiaArticle(slug: string): Promise<GuiaArticle> {
   return res.json();
 }
 
+async function adminCmsRequest<T>(
+  path: string,
+  method: string,
+  body?: unknown
+): Promise<T> {
+  const token = getToken();
+  if (!token) throw new Error('Não autenticado');
+  const res = await fetch(`${API_BASE}${path}`, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Falha na operação');
+  return data as T;
+}
+
+export function saveAdminCondition(slug: string, payload: ConditionPage) {
+  return adminCmsRequest<ConditionPage>(`/admin/conditions/${slug}`, 'PUT', payload);
+}
+
+export function createAdminCondition(payload: ConditionPage) {
+  return adminCmsRequest<ConditionPage>('/admin/conditions', 'POST', payload);
+}
+
+export function deleteAdminCondition(slug: string) {
+  return adminCmsRequest<{ success: boolean }>(`/admin/conditions/${slug}`, 'DELETE');
+}
+
+export function saveAdminGuiaArticle(slug: string, payload: GuiaArticle) {
+  return adminCmsRequest<GuiaArticle>(`/admin/guia/${slug}`, 'PUT', payload);
+}
+
+export function createAdminGuiaArticle(payload: GuiaArticle) {
+  return adminCmsRequest<GuiaArticle>('/admin/guia', 'POST', payload);
+}
+
+export function deleteAdminGuiaArticle(slug: string) {
+  return adminCmsRequest<{ success: boolean }>(`/admin/guia/${slug}`, 'DELETE');
+}
+
 export class ContactApiError extends Error {
   status: number;
   code?: string;
@@ -165,6 +209,28 @@ export async function changePassword(currentPassword: string, newPassword: strin
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || 'Falha ao alterar senha');
   return data;
+}
+
+export async function requestPasswordReset(email: string): Promise<{ message: string }> {
+  const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Falha ao solicitar recuperação');
+  return data as { message: string };
+}
+
+export async function resetPasswordWithToken(token: string, password: string): Promise<{ message: string }> {
+  const res = await fetch(`${API_BASE}/auth/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, password }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Falha ao redefinir senha');
+  return data as { message: string };
 }
 
 export async function fetchAdminStats(): Promise<AdminStats> {

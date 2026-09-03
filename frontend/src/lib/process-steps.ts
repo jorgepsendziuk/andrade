@@ -56,34 +56,42 @@ export const STEP_META: Record<ProcessStepKey, StepMeta> = {
     agency: 'Receita Federal — SISEN',
     sla: '10–30 dias',
   },
-  icms: {
-    hint: 'Protocolo de isenção de ICMS na SEFAZ do estado, com acompanhamento de exigências.',
-    checklist: [
-      'Pedido ICMS protocolado',
-      'Documentos do veículo e do beneficiário',
-      'Acompanhamento de deferimento',
-    ],
-    agency: 'SEFAZ estadual',
-    sla: '15–60 dias',
-  },
-  ipva: {
-    hint: 'Solicitação de isenção de IPVA após deferimento do ICMS, quando aplicável no estado.',
-    checklist: [
-      'Comprovante de isenção ICMS',
-      'Dados do veículo (placa, RENAVAM)',
-      'Protocolo na secretaria de fazenda',
-    ],
-    agency: 'Secretaria da Fazenda — IPVA',
-    sla: '5–20 dias',
-  },
   veiculo: {
-    hint: 'Escolha do veículo na concessionária, reserva e alinhamento de prazos de entrega com as isenções.',
+    hint: 'Escolha do veículo na concessionária. Para dar entrada no processo na SEFAZ de Mato Grosso é obrigatória a definição do veículo.',
     checklist: [
       'Modelo e concessionária definidos',
       'Potência dentro do limite legal',
-      'Nota fiscal e entrega programada',
+      'Dados do veículo registrados no processo',
     ],
     sla: 'Variável',
+  },
+  sefaz_mt: {
+    hint: 'Protocolo de isenção de ICMS e IPVA na SEFAZ de Mato Grosso, com acompanhamento de exigências.',
+    checklist: [
+      'Pedido ICMS protocolado na SEFAZ MT',
+      'Isenção de IPVA solicitada após deferimento do ICMS',
+      'Documentos do veículo e do beneficiário anexados',
+    ],
+    agency: 'SEFAZ MT',
+    sla: '15–60 dias',
+  },
+  sefaz_sp: {
+    hint: 'Isenção de ICMS na SEFAZ de São Paulo para veículos fabricados em SP (Tracker, Polo, Virtus, Hyundai Creta, Honda City e similares).',
+    checklist: [
+      'Verificar se o veículo é fabricado em SP',
+      'Pedido ICMS protocolado na SEFAZ SP',
+      'Acompanhamento de deferimento',
+    ],
+    agency: 'SEFAZ SP',
+    sla: '15–45 dias',
+  },
+  icms: {
+    hint: 'Etapa legada — use SEFAZ MT.',
+    checklist: [],
+  },
+  ipva: {
+    hint: 'Etapa legada — use SEFAZ MT.',
+    checklist: [],
   },
   concluido: {
     hint: 'Processo finalizado com todas as etapas concluídas e veículo liberado para retirada.',

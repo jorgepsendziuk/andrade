@@ -7,6 +7,7 @@ import { AccessibilityControl } from '../a11y/AccessibilityControl';
 import { useCms } from '../../context/CmsContext';
 import { MessageCircle, ArrowUp } from 'lucide-react';
 import { useState, useEffect, type ReactNode } from 'react';
+import { trackWhatsAppClick } from '../../lib/google-analytics';
 
 export function PageLayout({ children }: { children: ReactNode }) {
   const { content, loading, isEditing } = useCms();
@@ -52,6 +53,10 @@ export function PageLayout({ children }: { children: ReactNode }) {
         rel="noopener noreferrer"
         className="fixed bottom-5 left-5 z-50 bg-accent text-white p-3.5 rounded-full shadow-lg hover:bg-accent-hover hover:scale-105 transition-all"
         aria-label="Falar pelo WhatsApp"
+        onClick={(e) => {
+          e.preventDefault();
+          trackWhatsAppClick(`https://wa.me/${content.site.whatsapp}`);
+        }}
       >
         <MessageCircle size={26} aria-hidden />
       </a>

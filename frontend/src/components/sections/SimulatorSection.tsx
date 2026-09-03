@@ -22,7 +22,7 @@ interface SimulatorData {
 }
 
 export function SimulatorSection() {
-  const { getSection, updateSection } = useCms();
+  const { getSection, updateSection, isEditing } = useCms();
   const section = getSection('simulador');
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -67,6 +67,52 @@ export function SimulatorSection() {
           as="p"
           className="section-subtitle"
         />
+
+        {isEditing && (
+          <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-xl space-y-3 text-sm">
+            <p className="font-semibold text-amber-900">Editar perguntas do simulador</p>
+            {data.questions.map((q, qi) => (
+              <div key={q.id} className="p-3 bg-white rounded-lg border border-amber-100 space-y-2">
+                <EditableText
+                  value={q.question}
+                  onChange={(v) => {
+                    const questions = data.questions.map((item, i) =>
+                      i === qi ? { ...item, question: v } : item
+                    );
+                    updateSection('simulador', { questions });
+                  }}
+                  as="p"
+                  className="font-medium text-brand-800"
+                />
+                <EditableText
+                  value={q.options.join(' | ')}
+                  onChange={(v) => {
+                    const questions = data.questions.map((item, i) =>
+                      i === qi ? { ...item, options: v.split('|').map((o) => o.trim()).filter(Boolean) } : item
+                    );
+                    updateSection('simulador', { questions });
+                  }}
+                  as="p"
+                  className="text-xs text-slate-600"
+                  multiline
+                />
+                <p className="text-[10px] text-slate-400">Opções separadas por | (exceto cidade, que usa lista MT)</p>
+              </div>
+            ))}
+            <EditableText
+              value={data.ctaText}
+              onChange={(v) => updateSection('simulador', { ctaText: v })}
+              as="p"
+              className="text-xs"
+            />
+            <EditableText
+              value={data.processCtaText || 'Iniciar processo'}
+              onChange={(v) => updateSection('simulador', { processCtaText: v })}
+              as="p"
+              className="text-xs"
+            />
+          </div>
+        )}
 
         <div className="bg-white rounded-xl shadow-md border border-brand-100 p-5 md:p-6" aria-live="polite">
           {!isComplete && currentQ && (

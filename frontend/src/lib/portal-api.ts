@@ -119,6 +119,17 @@ export async function fetchAdminProcesses(): Promise<ProcessListItem[]> {
   return res.json();
 }
 
+export async function updateAdminClient(id: string, patch: Record<string, string>) {
+  const res = await fetch(`${API_BASE}/admin/clients/${id}`, {
+    method: 'PATCH',
+    headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(patch),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Falha ao atualizar cliente');
+  return data as ClientPublic;
+}
+
 export async function fetchAdminProcess(id: string) {
   const res = await fetch(`${API_BASE}/admin/processes/${id}`, { headers: authHeaders() });
   if (!res.ok) throw new Error('Falha ao carregar processo');

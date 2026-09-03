@@ -1,106 +1,39 @@
-import { COMPANY, getCompanyLogoDataUri, SEFAZ_BRASAO_URL } from './company.js';
-import { fmtMoney, resolveReciboPagamento } from './pagamentos-utils.js';
+import { COMPANY, getBrasaoMtDataUri, getCompanyLogoFullDataUri } from './company.js';
+import {
+  clientAddressLine,
+  clientPartyBlock,
+  esc,
+  fmtCpf,
+  fmtDate,
+  fmtDateShort,
+  fmtMoney,
+  g,
+  IPVA_MANIFESTACAO,
+  pagamentosTable,
+  repInline,
+  stepProtocol,
+  valorPorExtenso,
+  vehicleBlock,
+} from './document-helpers.js';
+import { resolveReciboPagamento } from './pagamentos-utils.js';
 import type {
   ClientPublic,
   ConductorRecord,
   DocumentTemplateCode,
-  PagamentoHonorario,
   ProcessRecord,
-  VehicleInfo,
 } from './types/process.js';
 
 export interface RenderDocumentOptions {
   pagamentoId?: string;
 }
 
-function fmtDate(d: Date | string = new Date()): string {
-  const date = typeof d === 'string' ? new Date(d) : d;
-  return date.toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'America/Cuiaba',
-  });
-}
-
-function fmtCpf(cpf: string): string {
-  const n = cpf.replace(/\D/g, '');
-  if (n.length !== 11) return cpf;
-  return n.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-}
-
-function esc(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-function clientAddress(client: ClientPublic): string {
-  const parts = [
-    client.endereco,
-    client.numero,
-    client.complemento,
-    client.bairro,
-    client.cidade,
-    client.uf,
-    client.cep,
-  ].filter(Boolean);
-  return parts.join(', ') || '—';
-}
-
-function g(client: ClientPublic, forms: { F: string; M: string; N: string }): string {
-  if (client.genero === 'F') return forms.F;
-  if (client.genero === 'M') return forms.M;
-  return forms.N;
-}
-
-function stepProtocol(process: ProcessRecord, key: string): string {
-  return process.steps.find((s) => s.key === key)?.protocol ?? '—';
-}
-
-function vehicleBlock(vehicle?: VehicleInfo): string {
-  if (!vehicle) return '';
-  const rows = [
-    ['Marca / Modelo', `${vehicle.marca ?? '—'} ${vehicle.modelo ?? ''}`.trim()],
-    ['Ano / Potência', `${vehicle.ano ?? '—'}${vehicle.potencia ? ` · ${vehicle.potencia}` : ''}`],
-    ['Placa', vehicle.placa ?? '—'],
-    ['Chassi', vehicle.chassi ?? '—'],
-    ['RENAVAM', vehicle.renavam ?? '—'],
-    ['Concessionária', vehicle.concessionaria ?? '—'],
-    ['CNPJ / IE', `${vehicle.concessionariaCnpj ?? '—'}${vehicle.concessionariaIe ? ` · IE ${vehicle.concessionariaIe}` : ''}`],
-  ];
-  return `<table class="data-table"><tbody>${rows
-    .map(([label, value]) => `<tr><th>${esc(label)}</th><td>${esc(value)}</td></tr>`)
-    .join('')}</tbody></table>`;
-}
-
-function pagamentosTable(pagamentos: PagamentoHonorario[] = []): string {
-  if (pagamentos.length === 0) return '<p class="justify no-indent">Parcelas a combinar entre as partes.</p>';
-  return `<table class="data-table payments"><thead><tr>
-    <th>Nº recibo</th><th>Descrição</th><th>Valor</th><th>Forma</th><th>Data</th><th>Status</th>
-  </tr></thead><tbody>${pagamentos
-    .map(
-      (p) => `<tr>
-        <td>${esc(p.numero)}</td>
-        <td>${esc(p.descricao ?? '—')}</td>
-        <td>R$ ${fmtMoney(p.valor)}</td>
-        <td>${esc(p.tipo.toUpperCase())}</td>
-        <td>${esc(fmtDate(p.data))}</td>
-        <td>${p.status === 'pago' ? 'Pago' : 'Pendente'}</td>
-      </tr>`
-    )
-    .join('')}</tbody></table>`;
-}
-
 const PRINT_CSS = `
   @page { size: A4; margin: 1.6cm 2cm 2cm; }
   * { box-sizing: border-box; }
   body {
-    font-family: 'Georgia', 'Times New Roman', Times, serif;
+    font-family: 'Times New Roman', Times, serif;
     font-size: 11.5pt;
-    line-height: 1.55;
+    line-height: 1.5;
     color: #111;
     margin: 0;
     padding: 0;
@@ -122,40 +55,54 @@ const PRINT_CSS = `
     font-family: system-ui, sans-serif; font-size: 0.95rem; font-weight: 700;
     color: #0b2a4a; background: #fff; border: none; border-radius: 8px;
     cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    transition: transform 0.15s, box-shadow 0.15s;
   }
-  .print-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.2); }
   .print-btn svg { width: 20px; height: 20px; }
   .page { max-width: 18cm; margin: 4.5rem auto 2rem; padding: 2rem 2.2rem; background: #fff; box-shadow: 0 2px 24px rgba(0,0,0,0.08); }
-  .letterhead { display: flex; gap: 1rem; align-items: center; padding-bottom: 1rem; border-bottom: 2px solid #155a85; margin-bottom: 1.5rem; }
-  .letterhead img { height: 52px; width: auto; }
-  .letterhead-text { flex: 1; }
-  .letterhead-text .razao { font-size: 10pt; font-weight: 700; color: #0b2a4a; text-transform: uppercase; letter-spacing: 0.02em; }
-  .letterhead-text .fantasia { font-size: 13pt; font-weight: 700; color: #155a85; margin: 0.15rem 0; }
-  .letterhead-text .meta { font-size: 8.5pt; color: #555; line-height: 1.4; font-family: system-ui, sans-serif; }
-  .header-gov { text-align: center; margin-bottom: 1.5rem; }
-  .header-gov img { width: 70px; height: auto; margin-bottom: 0.5rem; }
+  .letterhead {
+    display: flex; gap: 1.25rem; align-items: center;
+    padding: 1rem 1.15rem; margin-bottom: 1.35rem;
+    border: 1px solid #c5d9eb; border-radius: 12px;
+    background: linear-gradient(135deg, #f8fbff 0%, #eef5fb 55%, #e8f0f8 100%);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+  }
+  .letterhead-logo { flex-shrink: 0; padding: 0.25rem 0.5rem 0.25rem 0; }
+  .letterhead-logo img { height: 72px; width: auto; max-width: 240px; object-fit: contain; display: block; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.08)); }
+  .letterhead-text { flex: 1; min-width: 0; }
+  .letterhead-text .razao { font-size: 9pt; font-weight: 700; color: #0b2a4a; text-transform: uppercase; letter-spacing: 0.03em; line-height: 1.3; }
+  .letterhead-text .fantasia { font-size: 12pt; font-weight: 700; color: #155a85; margin: 0.1rem 0 0.25rem; }
+  .letterhead-text .meta { font-size: 8.5pt; color: #555; line-height: 1.45; font-family: Arial, sans-serif; }
+  .header-gov { text-align: center; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px solid #ddd; }
+  .header-gov img { width: 83px; height: auto; margin-bottom: 0.45rem; }
   .header-gov p { font-size: 8pt; color: #666; line-height: 1.45; margin: 0; font-family: Arial, sans-serif; }
-  .doc-title { text-align: center; margin: 0 0 0.35rem; font-size: 14pt; font-weight: 700; color: #0b2a4a; letter-spacing: 0.03em; text-transform: uppercase; }
-  .doc-subtitle { text-align: center; font-size: 10pt; color: #555; margin: 0 0 1.5rem; font-style: italic; }
-  .doc-ref { text-align: right; font-size: 9pt; color: #666; margin-bottom: 1rem; font-family: system-ui, sans-serif; }
-  h2.section { font-size: 11pt; color: #155a85; margin: 1.25rem 0 0.5rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  .doc-title { text-align: center; margin: 0 0 0.35rem; font-size: 13.5pt; font-weight: 700; color: #0b2a4a; letter-spacing: 0.02em; text-transform: uppercase; }
+  .doc-subtitle { text-align: center; font-size: 10pt; color: #555; margin: 0 0 1.25rem; font-style: italic; }
+  .doc-ref { text-align: right; font-size: 9pt; color: #666; margin-bottom: 1rem; font-family: Arial, sans-serif; }
+  h2.section { font-size: 11pt; color: #0b2a4a; margin: 1.1rem 0 0.45rem; font-weight: 700; }
+  .clause { margin: 0.65rem 0; }
+  .clause-title { font-weight: 700; margin-bottom: 0.25rem; }
+  .clause ol, .clause ul { margin: 0.35rem 0 0.35rem 1.5rem; padding: 0; }
+  .clause li { margin-bottom: 0.25rem; text-align: justify; }
   .center { text-align: center; }
   .justify { text-align: justify; text-indent: 2em; }
   .no-indent { text-indent: 0; }
-  .sig { margin-top: 2.5rem; text-align: center; page-break-inside: avoid; }
-  .sig-line { border-top: 1px solid #333; width: 70%; margin: 0 auto 0.4rem; padding-top: 0.25rem; }
+  .party-block { margin: 0.75rem 0; padding: 0.65rem 0.75rem; background: #f8fafc; border-left: 3px solid #155a85; font-size: 10.5pt; line-height: 1.45; }
+  .party-label { font-weight: 700; color: #155a85; font-size: 9pt; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem; }
+  .sig { margin-top: 2.25rem; text-align: center; page-break-inside: avoid; }
+  .sig-line { border-top: 1px solid #333; width: 72%; margin: 0 auto 0.35rem; padding-top: 0.25rem; }
   .sig small { font-size: 9pt; color: #555; }
-  .data-table { width: 100%; border-collapse: collapse; margin: 0.75rem 0 1rem; font-size: 10pt; }
+  .data-table { width: 100%; border-collapse: collapse; margin: 0.65rem 0 0.85rem; font-size: 10pt; }
   .data-table th, .data-table td { border: 1px solid #ccc; padding: 0.35rem 0.5rem; text-align: left; vertical-align: top; }
-  .data-table th { background: #eef4fa; color: #0b2a4a; font-weight: 600; width: 32%; }
+  .data-table th { background: #eef4fa; color: #0b2a4a; font-weight: 600; width: 30%; }
   .data-table.payments th { width: auto; font-size: 9pt; }
   .data-table.payments td { font-size: 9pt; }
-  .footer-doc { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid #ddd; text-align: center; font-size: 8.5pt; color: #888; font-family: system-ui, sans-serif; }
+  .condutor-block { border: 1px solid #ddd; padding: 0.75rem; margin: 0.75rem 0; page-break-inside: avoid; }
+  .condutor-block h3 { font-size: 10.5pt; margin: 0 0 0.5rem; color: #155a85; }
+  .footer-doc { margin-top: 1.75rem; padding-top: 0.65rem; border-top: 1px solid #ddd; text-align: center; font-size: 8.5pt; color: #888; font-family: Arial, sans-serif; }
   @media print {
     body { background: #fff; }
     .no-print { display: none !important; }
     .page { margin: 0; padding: 0; box-shadow: none; max-width: none; }
+    .letterhead { border: none; background: none; padding: 0; }
   }
 `;
 
@@ -173,26 +120,29 @@ function printToolbar(title: string, subtitle?: string): string {
 }
 
 function letterheadCompany(): string {
-  const logo = getCompanyLogoDataUri();
+  const logo = getCompanyLogoFullDataUri();
   return `<header class="letterhead">
-    ${logo ? `<img src="${logo}" alt="${esc(COMPANY.nomeFantasia)}" />` : ''}
+    <div class="letterhead-logo">
+      ${logo ? `<img src="${logo}" alt="${esc(COMPANY.nomeFantasia)}" />` : `<strong style="font-size:14pt;color:#155a85">${esc(COMPANY.nomeFantasia)}</strong>`}
+    </div>
     <div class="letterhead-text">
       <div class="razao">${esc(COMPANY.razaoSocial)}</div>
       <div class="fantasia">${esc(COMPANY.nomeFantasia)}</div>
       <div class="meta">CNPJ ${esc(COMPANY.cnpj)}<br>
       ${esc(COMPANY.address)}<br>
-      Tel. ${esc(COMPANY.phone)} · ${esc(COMPANY.email)}</div>
+      Tel. ${esc(COMPANY.phone)} / ${esc(COMPANY.phoneAlt)} · ${esc(COMPANY.email)}</div>
     </div>
   </header>`;
 }
 
-function letterheadGov(): string {
+function letterheadGov(includeIpva = false): string {
+  const brasao = getBrasaoMtDataUri();
   return `<div class="header-gov">
-    <img src="${SEFAZ_BRASAO_URL}" alt="Brasão do Estado de Mato Grosso" />
+    ${brasao ? `<img src="${brasao}" alt="Brasão do Estado de Mato Grosso" />` : ''}
     <p>GOVERNO DO ESTADO DE MATO GROSSO<br>
     SECRETARIA DE ESTADO DE FAZENDA<br>
     SECRETARIA ADJUNTA DA RECEITA PÚBLICA<br>
-    SUPERINTENDÊNCIA DE INFORMAÇÕES SOBRE OUTRAS RECEITAS</p>
+    SUPERINTENDÊNCIA DE INFORMAÇÕES SOBRE OUTRAS RECEITAS${includeIpva ? '<br>GERÊNCIA DE INFORMAÇÕES DO IPVA' : ''}</p>
   </div>`;
 }
 
@@ -207,15 +157,316 @@ function wrapHtml(title: string, body: string, subtitle?: string): string {
   </body></html>`;
 }
 
-function modalityLabel(process: ProcessRecord): string {
-  return process.modality === 'taxi' ? 'Táxi' : 'PcD';
+function contratadoBlock(): string {
+  return `<div class="party-block">
+    <div class="party-label">Contratado(a)</div>
+    <strong>${esc(COMPANY.responsavelNome)}</strong>, portador da Cédula de Identidade ${esc(COMPANY.responsavelRg)}, inscrito no CPF sob nº ${fmtCpf(COMPANY.responsavelCpf)}, proprietário da <strong>${esc(COMPANY.razaoSocial)}</strong>, inscrita no CNPJ ${esc(COMPANY.cnpj)}, com sede na ${esc(COMPANY.address)}, telefone ${esc(COMPANY.phone)} / ${esc(COMPANY.phoneAlt)}, endereço eletrônico: ${esc(COMPANY.email)}.
+  </div>`;
 }
 
-function contractObject(process: ProcessRecord): string {
-  if (process.modality === 'taxi') {
-    return 'assessoria na obtenção de isenção de ICMS para aquisição de veículo automotor novo destinado à atividade de condutor autônomo de táxi, nos termos do Convênio ICMS 038/2001 e legislação estadual vigente';
-  }
-  return 'assessoria na obtenção de isenções de IPI, ICMS e IPVA na aquisição de veículo automotor zero km por pessoa com deficiência, nos termos da legislação federal e estadual vigente';
+function renderContrato(client: ClientPublic, process: ProcessRecord): string {
+  const cidade = client.cidade || 'Cuiabá';
+  const dataDoc = fmtDate(process.updatedAt);
+  const honorarios = process.honorarios ?? 0;
+  const pagamentos = process.pagamentos ?? [];
+  const rep = client.representante;
+
+  return wrapHtml(
+    'Contrato de Prestação de Serviços',
+    `${letterheadCompany()}
+    <h1 class="doc-title">Contrato de Prestação de Serviços</h1>
+    <div class="party-block">
+      <div class="party-label">Contratante</div>
+      ${clientPartyBlock(client)}${rep ? `, ${repInline(rep)}` : ''}.
+    </div>
+    ${contratadoBlock()}
+    <p class="justify no-indent">Pelo presente instrumento particular de Contrato de Prestação de Serviços, as partes têm entre si justo e contratado o que segue:</p>
+
+    <div class="clause">
+      <p class="clause-title">CLÁUSULA 1 – OBJETO</p>
+      <p class="justify no-indent">O presente contrato tem por objeto a prestação de serviços de assessoria administrativa para condução, protocolo e acompanhamento de processos de isenção tributária, compreendendo:</p>
+      <ol type="I">
+        <li>Junta Médica Especial e IPI, junto à Receita Federal do Brasil;</li>
+        <li>ICMS e IPVA, junto à Secretaria de Fazenda do Estado de Mato Grosso, no respectivo ano do fato gerador, conforme legislação vigente;</li>
+        <li>ICMS SP, junto à Secretaria da Fazenda do Estado de São Paulo, quando necessário.</li>
+      </ol>
+      <p class="justify no-indent"><strong>Parágrafo único.</strong> Os serviços serão executados pelo CONTRATADO, que declara possuir conhecimento técnico e experiência compatíveis com a prestação dos serviços de assessoria administrativa objeto deste contrato.</p>
+    </div>
+
+    <div class="clause">
+      <p class="clause-title">CLÁUSULA 2 – LOCAL DA EXECUÇÃO</p>
+      <p class="justify no-indent">Os serviços serão executados na sede da empresa situada na ${esc(COMPANY.address)}, telefone ${esc(COMPANY.phone)}.</p>
+    </div>
+
+    <div class="clause">
+      <p class="clause-title">CLÁUSULA 3 – HONORÁRIOS</p>
+      <p class="justify no-indent">O CONTRATANTE pagará ao CONTRATADO o valor de <strong>R$ ${fmtMoney(honorarios)} (${valorPorExtenso(honorarios)})</strong>.</p>
+      ${pagamentos.length ? pagamentosTable(pagamentos) : ''}
+      <p class="justify no-indent"><strong>§2º</strong> O pagamento será realizado no dia da perícia, podendo ser no PIX ou em até 4x sem juros ou de 5x a 10x, com as taxas de parcelamento da máquina de cartão de responsabilidade do cliente. Caso o pedido seja aprovado, os honorários serão cobrados. Em caso de reprovação, não haverá cobrança de honorários.</p>
+      <p class="justify no-indent"><strong>§3º</strong> O presente contrato somente entrará em vigor após a aprovação da perícia pelo órgão competente. Em caso de reprovação do pedido, o contrato será considerado sem efeito.</p>
+    </div>
+
+    <div class="clause">
+      <p class="clause-title">CLÁUSULA 4 – OBRIGAÇÕES DO CONTRATANTE</p>
+      <p class="justify no-indent">O CONTRATANTE compromete-se a:</p>
+      <ol type="I">
+        <li>Fornecer informações verdadeiras, completas e atualizadas;</li>
+        <li>Entregar documentação autêntica e válida;</li>
+        <li>Informar eventuais débitos nas esferas federal, estadual e municipal;</li>
+        <li>Responsabilizar-se integralmente por informações falsas, inexatas ou omitidas.</li>
+      </ol>
+      <p class="justify no-indent"><strong>Parágrafo único.</strong> O CONTRATADO não se responsabiliza por prejuízos decorrentes de documentos falsos ou informações inverídicas fornecidas pelo CONTRATANTE.</p>
+    </div>
+
+    <div class="clause">
+      <p class="clause-title">CLÁUSULA 5 – TAXAS E ENCARGOS DO DETRAN</p>
+      <p class="justify no-indent">Fica expressamente acordado que todas as taxas, tarifas, emolumentos e custos cobrados pelo DETRAN, bem como por quaisquer órgãos públicos relacionados à emissão de documentos ou quaisquer outros encargos incidentes sobre o processo, são de inteira e exclusiva responsabilidade do CLIENTE, incluindo taxa de abertura, emissão e foto, e taxa das perícias médicas.</p>
+    </div>
+
+    <div class="clause">
+      <p class="clause-title">CLÁUSULA 6 – OBRIGAÇÕES DO CONTRATADO</p>
+      <p class="justify no-indent">O CONTRATADO compromete-se a:</p>
+      <ol type="I">
+        <li>Executar os serviços com ética, diligência e observância da legislação aplicável;</li>
+        <li>Manter sigilo sobre informações e documentos do CONTRATANTE;</li>
+        <li>Fornecer recibo ou comprovante referente ao pagamento dos honorários.</li>
+      </ol>
+    </div>
+
+    <div class="clause">
+      <p class="clause-title">CLÁUSULA 7 – DECLARAÇÃO SOBRE BPC</p>
+      <p class="justify no-indent">O CONTRATANTE declara estar ciente das regras do BPC – Benefício de Prestação Continuada (Lei nº 8.742/1993), declarando que não recebe o referido benefício, assumindo total responsabilidade pelas informações prestadas.</p>
+    </div>
+
+    <div class="clause">
+      <p class="clause-title">CLÁUSULA 8 – DO ACESSO AO MT CIDADÃO</p>
+      <p class="justify no-indent">O CONTRATANTE autoriza o fornecimento de seus dados de acesso ao aplicativo MT Cidadão (login e senha), necessário para a abertura do processo objeto deste contrato.</p>
+      <p class="justify">A CONTRATADA compromete-se a utilizar tais informações exclusivamente para a execução dos serviços contratados, mantendo absoluto sigilo e confidencialidade dos dados.</p>
+      <p class="justify">Caso o CONTRATANTE opte por não fornecer seus dados de acesso, fica estabelecido que deverá comparecer presencialmente à empresa para a realização dos procedimentos necessários à abertura do processo.</p>
+    </div>
+
+    <div class="clause">
+      <p class="clause-title">CLÁUSULA 9 – GOV.BR E ACESSO AO SISTEMA SISEN</p>
+      <p class="justify no-indent">Para fins de protocolo junto à Receita Federal do Brasil, será necessária a utilização da conta Gov.br do CONTRATANTE para acesso ao Sistema SISEN.</p>
+      <p class="justify no-indent"><strong>§1º</strong> O CONTRATANTE declara estar ciente de que o acesso ao Sistema SISEN exige autenticação por meio de sua conta Gov.br, que será acessada duas vezes: uma no momento do protocolo e outra após sete dias para retirada do resultado.</p>
+      <p class="justify no-indent"><strong>§2º</strong> O CONTRATANTE não é obrigado a fornecer sua senha ao CONTRATADO, podendo, caso prefira, comparecer presencialmente à sede da empresa para realizar pessoalmente a digitação da senha para efetivação do protocolo.</p>
+      <p class="justify no-indent"><strong>§3º</strong> Caso o CONTRATANTE opte por fornecer sua senha para fins exclusivos de protocolo e acompanhamento do processo objeto deste contrato, o faz por sua livre e espontânea vontade.</p>
+      <p class="justify no-indent"><strong>§4º</strong> O CONTRATADO compromete-se a utilizar o acesso exclusivamente para a finalidade contratada, observando integralmente a Lei nº 13.709/2018 (Lei Geral de Proteção de Dados – LGPD).</p>
+      <p class="justify no-indent"><strong>§5º</strong> A responsabilidade pelas informações constantes na conta Gov.br é exclusiva do CONTRATANTE.</p>
+    </div>
+
+    <div class="clause">
+      <p class="clause-title">CLÁUSULA 10 – VIGÊNCIA</p>
+      <p class="justify no-indent">A vigência do contrato encerra-se quando forem executadas todas as etapas do processo de isenções contratadas e mencionadas no objeto deste Contrato.</p>
+    </div>
+
+    <div class="clause">
+      <p class="clause-title">CLÁUSULA 11 – RESCISÃO</p>
+      <p class="justify no-indent">O contrato poderá ser rescindido:</p>
+      <ol type="I">
+        <li>Por comum acordo entre as partes, não incidindo quaisquer ônus, encargos ou penalidades, ressalvado o cumprimento das obrigações contratuais ainda pendentes;</li>
+        <li>Por impossibilidade superveniente de continuidade do processo;</li>
+        <li>Por descumprimento contratual. Em caso de desistência por parte do CONTRATANTE após o início da prestação dos serviços, será devido o valor integral contratado.</li>
+      </ol>
+      <p class="justify no-indent">A parte que desejar rescindir deverá comunicar a outra por escrito com antecedência mínima de 15 (quinze) dias.</p>
+    </div>
+
+    <div class="clause">
+      <p class="clause-title">CLÁUSULA 12 – LGPD</p>
+      <p class="justify no-indent">A Lei Geral de Proteção de Dados (“LGPD”) dispõe que quaisquer dados de terceiros e/ou informações pessoais que possam ser obtidas ou utilizadas por qualquer das partes em decorrência do presente Contrato (“Dados”) serão recolhidos, utilizados, armazenados e mantidos de acordo com os padrões geralmente aceitos para coleta de dados, pela legislação aplicável, qual seja a Lei 13.709/2018.</p>
+    </div>
+
+    ${process.vehicle ? `<div class="clause"><p class="clause-title">ANEXO – DADOS DO VEÍCULO</p>${vehicleBlock(process.vehicle)}</div>` : ''}
+
+    <p class="center" style="margin-top:1.5rem">${esc(cidade)}, ${dataDoc}.</p>
+    <div class="sig"><div class="sig-line"></div><strong>CONTRATANTE</strong><br>${esc(client.name)}</div>
+    <div class="sig"><div class="sig-line"></div><strong>CONTRATADO</strong><br>${esc(COMPANY.responsavelNome)}<br><small>${esc(COMPANY.razaoSocial)} · CNPJ ${esc(COMPANY.cnpj)}</small></div>`,
+    `${esc(client.name)}`
+  );
+}
+
+function renderRecibo(
+  client: ClientPublic,
+  process: ProcessRecord,
+  options: RenderDocumentOptions
+): string {
+  const pagamento = resolveReciboPagamento(process, options.pagamentoId);
+  const honorarios = process.honorarios ?? 0;
+  const valor = pagamento?.valor ?? honorarios;
+  const dataRecibo = pagamento ? fmtDate(pagamento.data) : fmtDate(process.updatedAt);
+  const numero = pagamento?.numero ?? '—';
+  const cidade = client.cidade || 'Cuiabá';
+
+  return wrapHtml(
+    `Recibo ${numero}`,
+    `${letterheadCompany()}
+    <h1 class="doc-title">Recibo de Prestação de Serviços</h1>
+    <p class="doc-ref">RECIBO Nº ${esc(numero)}</p>
+    <p class="justify no-indent">Recebemos de ${clientPartyBlock(client)}. O valor de <strong>R$ ${fmtMoney(valor)} (${valorPorExtenso(valor)})</strong>.</p>
+    <p class="justify">O presente valor refere-se à prestação de serviços de assessoria e consultoria especializada para instrução, acompanhamento e protocolo do processo administrativo de obtenção das isenções tributárias destinadas à aquisição de veículo na modalidade Pessoa com Deficiência (PCD), compreendendo, quando cabível:</p>
+    <ul>
+      <li>Assessoria da Junta Médica do DETRAN;</li>
+      <li>Receita Federal do Brasil – Isenção de IPI;</li>
+      <li>Isenção de ICMS e IPVA perante a Secretaria de Estado de Fazenda de Mato Grosso (SEFAZ/MT);</li>
+      <li>Isenção de ICMS perante a Secretaria da Fazenda do Estado de São Paulo (SEFAZ/SP), quando necessária em razão da operação de aquisição do veículo.</li>
+    </ul>
+    <p class="justify">O presente recibo constitui prova plena do pagamento do valor acima descrito e da contratação dos serviços especificados, produzindo todos os efeitos legais previstos nos artigos 215, 219 e 320 do Código Civil Brasileiro, servindo como instrumento hábil para comprovação da quitação da obrigação financeira assumida pela contratante em relação aos serviços ora contratados.</p>
+    <p class="justify">Ressalta-se que a prestação dos serviços possui natureza de obrigação de meio, comprometendo-se a contratada a realizar todos os procedimentos técnicos e administrativos necessários à condução do processo, não constituindo garantia de deferimento das isenções, cuja análise e decisão competem exclusivamente aos órgãos públicos responsáveis.</p>
+    <p class="justify no-indent">E, por ser expressão da verdade, firma-se o presente recibo para que produza seus jurídicos e legais efeitos.</p>
+    <p class="center" style="margin-top:1.25rem">${esc(cidade)}/MT, ${dataRecibo}.</p>
+    <div class="sig">
+      <div class="sig-line"></div>
+      <strong>${esc(COMPANY.razaoSocial)}</strong><br>
+      Responsável: ${esc(COMPANY.responsavelNome)}<br>
+      CPF/CNPJ: ${fmtCpf(COMPANY.responsavelCpf)} / ${esc(COMPANY.cnpj)}<br>
+      <small>Declaro ter recebido o pagamento acima descrito.</small>
+    </div>
+    <div class="sig"><div class="sig-line"></div>${esc(COMPANY.responsavelNome)}<br><small>CNPJ ${esc(COMPANY.cnpj)}</small></div>`,
+    `${numero} · R$ ${fmtMoney(valor)}`
+  );
+}
+
+function renderIcmsPcd(client: ClientPublic, process: ProcessRecord): string {
+  const rep = client.representante;
+  const cidade = client.cidade || 'Cuiabá';
+  const dataDoc = fmtDate(process.updatedAt);
+
+  const rgPart = [
+    client.rg ? `portador${g(client, { F: 'a', M: '', N: '(a)' })} do RG nº <strong>${esc(client.rg)}</strong>` : '',
+    client.rgDataEmissao ? `expedido em <strong>${esc(fmtDateShort(client.rgDataEmissao))}</strong>` : '',
+    client.rgOrgaoEmissor ? `<strong>${esc(client.rgOrgaoEmissor)}</strong>` : '',
+    client.rgEstado ? `/${client.rgEstado}` : '',
+  ].filter(Boolean).join(', ');
+
+  const repPart = rep
+    ? `, ${g(client, { F: 'representada', M: 'representado', N: 'representado(a)' })} legalmente por <strong>${esc(rep.nome)}</strong>, RG ${esc(rep.rg)}${rep.rgOrgaoEmissor ? ` ${esc(rep.rgOrgaoEmissor)}` : ''}${rep.rgEstado ? `/${rep.rgEstado}` : ''}, CPF ${fmtCpf(rep.cpf)}, telefone <strong>${esc(rep.telefone || client.phone || '—')}</strong>`
+    : '';
+
+  return wrapHtml(
+    'Pedido de Reconhecimento de Isenção do ICMS - PcD',
+    `${letterheadGov(true)}
+    <h1 class="doc-title">Pedido de Reconhecimento de Isenção do ICMS - PcD</h1>
+    <p style="font-size:12pt;margin:1rem 0"><strong>Excelentíssimo Senhor Secretário de Estado de Fazenda de Mato Grosso</strong></p>
+    <p class="justify no-indent"><strong>${esc(client.name)}</strong>${rgPart ? `, ${rgPart}` : ''}, inscrit${g(client, { F: 'a', M: 'o', N: 'o(a)' })} no CPF sob nº <strong>${fmtCpf(client.cpf)}</strong>${repPart}, residente à <strong>${esc(clientAddressLine(client))}</strong>, e-mail <strong>${esc(client.email)}</strong>, telefone nº <strong>${esc(client.phone || '—')}</strong>, vem requerer <strong>ISENÇÃO do ICMS-PcD</strong> para aquisição de veículo automotor novo, destinado a pessoa portadora de deficiência física, visual, mental severa ou profunda, ou autista, diretamente ou por intermédio de seu representante legal, nos termos da legislação estadual, conforme documentos em anexo.</p>
+    ${IPVA_MANIFESTACAO}
+    ${process.vehicle ? `<h2 class="section">Veículo objeto do pedido</h2>${vehicleBlock(process.vehicle)}` : ''}
+    <p class="justify no-indent">Protocolo SISEN/IPI: <strong>${esc(stepProtocol(process, 'ipi'))}</strong> · Perícia: <strong>${esc(stepProtocol(process, 'pericia'))}</strong> · ICMS: <strong>${esc(stepProtocol(process, 'icms'))}</strong></p>
+    <p class="justify">Nestes termos, pede deferimento.</p>
+    <p class="center" style="margin-top:1.25rem">${esc(cidade)}, ${dataDoc}.</p>
+    <div class="sig"><div class="sig-line"></div>Assinatura do beneficiário<br><strong>${esc(client.name)}</strong></div>
+    ${rep ? `<div class="sig"><div class="sig-line"></div><small>REPRESENTANTE LEGAL</small><br><strong>${esc(rep.nome)}</strong><br>RG ${esc(rep.rg)} · CPF ${fmtCpf(rep.cpf)}</div>` : ''}
+    <p class="center" style="font-size:9pt;color:#666;margin-top:1rem">(Este documento pode ser assinado digitalmente com certificado digital no padrão ICP-Brasil ou assinatura eletrônica Gov.br)</p>`,
+    `Protocolo SEFAZ: ${stepProtocol(process, 'icms')}`
+  );
+}
+
+function renderIcmsTaxi(client: ClientPublic, process: ProcessRecord): string {
+  const cidade = client.cidade || 'Cuiabá';
+  const dataDoc = fmtDate(process.updatedAt);
+  const v = process.vehicle;
+
+  return wrapHtml(
+    'Pedido de Reconhecimento de Isenção do ICMS - Táxi',
+    `${letterheadGov(true)}
+    <h1 class="doc-title">Pedido de Reconhecimento de Isenção do ICMS - Táxi</h1>
+    <p class="justify no-indent"><strong>${esc(client.name)}</strong>, inscrit${g(client, { F: 'a', M: 'o', N: 'o(a)' })} no CPF sob nº <strong>${fmtCpf(client.cpf)}</strong>, residente e domiciliad${g(client, { F: 'a', M: 'o', N: 'o(a)' })} à <strong>${esc(clientAddressLine(client))}</strong>, e-mail <strong>${esc(client.email)}</strong>, telefone nº <strong>${esc(client.phone || '—')}</strong>, vem requerer <strong>ISENÇÃO DO ICMS – TÁXI</strong> para aquisição de automóvel novo de passageiros equipado com motor de cilindrada até dois mil centímetros cúbicos (2.0l), movido a combustíveis de origem renovável, sistema reversível de combustão ou híbrido, destinado a motorista profissional, apresentando cópia da documentação exigida para concessão do benefício${v?.concessionaria ? `, sendo a concessionária interveniente <strong>${esc(v.concessionaria)}</strong>${v.concessionariaCnpj ? `, CNPJ nº <strong>${esc(v.concessionariaCnpj)}</strong>` : ''}${v.concessionariaIe ? `, inscrição estadual nº <strong>${esc(v.concessionariaIe)}</strong>` : ''}` : ''}${v?.marca ? `, fabricado pela empresa <strong>${esc(v.marca)}</strong>` : ''}.</p>
+    <p class="justify">DECLARA que exerce há pelo menos um ano a atividade de condutor autônomo de passageiros, na categoria de aluguel – táxi, em veículo de sua propriedade e que não adquiriu nos últimos 2 (dois) anos veículo com isenção ou redução da base de cálculo do ICMS outorgada à categoria, conforme disposto no Convênio ICMS nº 038/2001 c/c Artigo 100 Anexo IV do Decreto nº 2.212/2014.</p>
+    <h2 class="section">Solicita a isenção do ICMS para o veículo</h2>
+    ${vehicleBlock(v)}
+    ${IPVA_MANIFESTACAO}
+    <p class="justify">Nestes termos, pede deferimento.</p>
+    <p class="center" style="margin-top:1.25rem">${esc(cidade)}, ${dataDoc}.</p>
+    <div class="sig"><div class="sig-line"></div>Assinatura do requerente<br><strong>${esc(client.name)}</strong></div>
+    <p class="center" style="font-size:9pt;color:#666;margin-top:1rem">(Este documento pode ser assinado digitalmente com certificado digital no padrão ICP-Brasil ou assinatura eletrônica Gov.br)</p>`,
+    `Condutor autônomo de táxi`
+  );
+}
+
+function renderDeclFinanceira(client: ClientPublic, process: ProcessRecord): string {
+  const rep = client.representante;
+  const cidade = client.cidade || 'Cuiabá';
+  const dataDoc = fmtDate(process.updatedAt);
+
+  return wrapHtml(
+    'Declaração de Disponibilidade Financeira ou Patrimonial',
+    `${letterheadGov()}
+    <h1 class="doc-title">Declaração de Disponibilidade Financeira ou Patrimonial</h1>
+    <h2 class="section">1. Identificação</h2>
+    <p class="justify no-indent"><strong>${esc(client.name)}</strong><br>CPF <strong>${fmtCpf(client.cpf)}</strong></p>
+    <h2 class="section">2. Declaração</h2>
+    <p class="justify">O interessado acima identificado${rep ? `, representado por <strong>${esc(rep.nome)}</strong>, CPF nº <strong>${fmtCpf(rep.cpf)}</strong>` : ''}, DECLARA, sob as penas da lei, que possui disponibilidade financeira ou patrimonial compatível, nos termos do item 2, alínea C, inciso III, §4º, art. 32 do Anexo IV do Decreto 2.212/2014 (RICMS), de 20 de março de 2014, com o valor do veículo a ser adquirido com a isenção do Imposto sobre Circulação de Mercadorias e Prestações de Serviços de Transporte Interestadual e Intermunicipal e de Comunicação – ICMS a que se refere o art. 1º da Lei nº 8.698, de 07 de agosto de 2007${process.vehicle ? ` (<strong>${esc([process.vehicle.marca, process.vehicle.modelo, process.vehicle.ano].filter(Boolean).join(' '))}</strong>)` : ''}.</p>
+    <h2 class="section">3. Declaração de responsabilidade</h2>
+    <ul>
+      <li>O declarante ou seu representante legal responsabiliza-se pela exatidão e veracidade das informações prestadas.</li>
+      <li>Declara estar ciente do que dispõe o art. 299 do Decreto-Lei nº 2.848, de 7 de dezembro de 1940 (Código Penal): “Omitir, em documento público ou particular, declaração que dele devia constar, ou nele inserir declaração falsa ou diversa da que devia ser escrita, com o fim de prejudicar direito, criar obrigação ou alterar a verdade sobre fato juridicamente relevante: Pena – reclusão, de 1 (um) a 5 (cinco) anos”.</li>
+    </ul>
+    <h2 class="section">4. Assinatura</h2>
+    <p class="justify no-indent">Nome: <strong>${esc(client.name)}</strong><br>CPF: <strong>${fmtCpf(client.cpf)}</strong><br>Data: <strong>${dataDoc}</strong></p>
+    <div class="sig"><div class="sig-line"></div>Assinatura<br><strong>${esc(client.name)}</strong></div>
+    <p class="center" style="font-size:9pt;color:#666;margin-top:1rem">(Este documento pode ser assinado digitalmente com certificado digital no padrão ICP-Brasil)</p>`,
+    `Beneficiário: ${client.name}`
+  );
+}
+
+function renderCondutorSp(client: ClientPublic, process: ProcessRecord, conductors: ConductorRecord[]): string {
+  const cidade = client.cidade || 'Cuiabá';
+  const dataDoc = fmtDate(process.updatedAt);
+
+  const blocks = conductors.length
+    ? conductors
+        .map(
+          (c, i) => `<div class="condutor-block">
+            <h3>Identificação do condutor autorizado – ${i + 1}</h3>
+            <p class="no-indent"><strong>CPF:</strong> ${fmtCpf(c.cpf)}<br><strong>Nome:</strong> ${esc(c.nome)}${c.rg ? `<br><strong>RG:</strong> ${esc(c.rg)}` : ''}</p>
+            <p class="no-indent" style="margin-top:0.5rem"><strong>Endereço:</strong> ${esc(c.endereco || '—')}<br><strong>Telefone:</strong> ${esc(c.telefone || '—')}</p>
+          </div>`
+        )
+        .join('')
+    : `<p class="justify no-indent">Nenhum condutor cadastrado.</p>`;
+
+  return wrapHtml(
+    'Formulário de Condutor SP',
+    `${letterheadCompany()}
+    <p class="doc-title" style="font-size:11pt">ESTADO DE SÃO PAULO</p>
+    <h1 class="doc-title">Anexo VI — Identificação do Condutor Autorizado</h1>
+    <p class="justify no-indent">Beneficiário do processo de isenção: <strong>${esc(client.name)}</strong>, CPF ${fmtCpf(client.cpf)}.</p>
+    ${blocks}
+    <p class="justify">Declaram o requerente ou o seu representante legal, e o(s) condutor(es) autorizado(s) serem autênticas e verdadeiras as informações prestadas.</p>
+    <table class="data-table" style="margin-top:1.5rem">
+      <thead><tr><th>Papel</th><th>Identificação</th><th>Assinatura</th></tr></thead>
+      <tbody>
+        <tr><td>Requerente / Representante legal</td><td>${esc(client.name)}</td><td>_________________________</td></tr>
+        ${conductors.map((c) => `<tr><td>Condutor autorizado</td><td>${esc(c.nome)}</td><td>_________________________</td></tr>`).join('')}
+      </tbody>
+    </table>
+    <p class="center" style="margin-top:1.25rem">${esc(cidade)}, ${dataDoc}.</p>`,
+    `${conductors.length} condutor(es)`
+  );
+}
+
+function renderCancelIcms(client: ClientPublic, process: ProcessRecord): string {
+  const rep = client.representante;
+  const cidade = client.cidade || 'Cuiabá';
+  const dataDoc = fmtDate(process.updatedAt);
+  const icmsProtocol = stepProtocol(process, 'icms');
+
+  const solicitanteBlock = rep
+    ? `<strong>${esc(client.name)}</strong>, RG: ${esc(client.rg || '—')}, CPF: ${fmtCpf(client.cpf)}, representado pelo tutor <strong>${esc(rep.nome)}</strong>, RG ${esc(rep.rg)}${rep.rgOrgaoEmissor ? ` ${esc(rep.rgOrgaoEmissor)}` : ''}${rep.rgEstado ? `/${rep.rgEstado}` : ''}, CPF ${fmtCpf(rep.cpf)}, residente à ${esc(clientAddressLine(client))}, telefone ${esc(rep.telefone || client.phone || '—')}, e-mail ${esc(client.email)}`
+    : clientPartyBlock(client);
+
+  return wrapHtml(
+    'Solicitação de Cancelamento de ICMS',
+    `${letterheadGov()}
+    <h1 class="doc-title">Solicitação de Cancelamento de ICMS</h1>
+    <p class="justify no-indent">À SECRETARIA DE FAZENDA DO ESTADO DE MATO GROSSO</p>
+    <p class="justify no-indent">Eu <strong>${esc(COMPANY.responsavelNome)}</strong>, portador do RG ${esc(COMPANY.responsavelRg)} e CPF ${fmtCpf(COMPANY.responsavelCpf)}, procurador neste processo, proprietário da <strong>${esc(COMPANY.razaoSocial)}</strong>, CNPJ ${esc(COMPANY.cnpj)}, venho por meio desta, em caráter de procurador da solicitante ${solicitanteBlock}, pedir gentilmente o <strong>cancelamento da autorização de ICMS</strong>${icmsProtocol !== '—' ? `, número do processo/ano: <strong>${esc(icmsProtocol)}</strong>` : ''}, deferido anteriormente em nome de <strong>${esc(client.name)}</strong>.</p>
+    <p class="justify">Precisamos cancelar para solicitar uma nova autorização, pois a autorização anterior está nos moldes anteriores, sem o novo teto atualizado. O pedido da nova autorização segue em anexo no sistema e processo.</p>
+    <p class="justify">Estivemos na Secretaria de Fazenda para pedir o cancelamento presencialmente e fomos instruídos a fazer o cancelamento no e-process junto com a nova solicitação para o novo modelo.</p>
+    <p class="justify no-indent">Sem mais, agradecemos a disponibilidade!</p>
+    <p class="center" style="margin-top:1.25rem">${esc(cidade)}, ${dataDoc}.</p>
+    <div class="sig"><div class="sig-line"></div><strong>${esc(COMPANY.responsavelNome)}</strong><br><small>CNPJ ${esc(COMPANY.cnpj)} · Procurador</small></div>`,
+    `Cliente: ${client.name}`
+  );
 }
 
 export function renderDocument(
@@ -225,139 +476,21 @@ export function renderDocument(
   conductors: ConductorRecord[] = [],
   options: RenderDocumentOptions = {}
 ): string {
-  const rep = client.representante;
-  const cidade = client.cidade || 'Cuiabá';
-  const dataDoc = fmtDate(process.updatedAt);
-  const honorarios = process.honorarios ?? 0;
-  const pagamentos = process.pagamentos ?? [];
-
-  const repClause = rep
-    ? `, ${g(client, { F: 'representada', M: 'representado', N: 'representado(a)' })} legalmente por <strong>${esc(rep.nome)}</strong>, CPF ${fmtCpf(rep.cpf)}, RG ${esc(rep.rg)}${rep.rgOrgaoEmissor ? ` ${esc(rep.rgOrgaoEmissor)}` : ''}${rep.rgEstado ? `/${rep.rgEstado}` : ''}`
-    : '';
-
   switch (code) {
     case 'contrato':
-      return wrapHtml(
-        'Contrato de Prestação de Serviços',
-        `${letterheadCompany()}
-        <h1 class="doc-title">Contrato de Prestação de Serviços</h1>
-        <p class="doc-subtitle">Assessoria em Isenções Tributárias — ${modalityLabel(process)}</p>
-        <p class="justify no-indent">Pelo presente instrumento particular, de um lado <strong>${esc(client.name)}</strong>, CPF ${fmtCpf(client.cpf)}, doravante <strong>CONTRATANTE</strong>${repClause}, residente em <strong>${esc(clientAddress(client))}</strong>, e de outro lado <strong>${esc(COMPANY.razaoSocial)}</strong>, CNPJ ${esc(COMPANY.cnpj)}, doravante <strong>CONTRATADA</strong>, com sede em ${esc(COMPANY.address)}, firmam o presente contrato para ${contractObject(process)}.</p>
-        <h2 class="section">Cláusula 1 — Do objeto</h2>
-        <p class="justify">A CONTRATADA prestará serviços de assessoria administrativa e documental, incluindo protocolo, acompanhamento e orientação junto à Receita Federal (SISEN/IPI), SEFAZ/MT (ICMS/IPVA), DETRAN/MT, Junta Médica e demais órgãos competentes, conforme a modalidade ${modalityLabel(process)}.</p>
-        <h2 class="section">Cláusula 2 — Dos honorários</h2>
-        <p class="justify no-indent">O valor total dos honorários é de <strong>R$ ${fmtMoney(honorarios)}</strong>, conforme parcelas abaixo:</p>
-        ${pagamentosTable(pagamentos)}
-        <h2 class="section">Cláusula 3 — Das obrigações do contratante</h2>
-        <p class="justify">O CONTRATANTE compromete-se a fornecer documentação verídica e atualizada, comparecer a perícias e exames quando convocado, autorizar acesso aos sistemas Gov.br e MT Cidadão quando necessário, e comunicar alterações de endereço, telefone ou representante legal.</p>
-        <h2 class="section">Cláusula 4 — Da proteção de dados (LGPD)</h2>
-        <p class="justify">Os dados pessoais e de saúde serão tratados exclusivamente para a finalidade deste contrato, com medidas de segurança adequadas, nos termos da Lei nº 13.709/2018.</p>
-        ${process.vehicle ? `<h2 class="section">Dados do veículo</h2>${vehicleBlock(process.vehicle)}` : ''}
-        <p class="center" style="margin-top:1.5rem">${esc(cidade)}, ${dataDoc}.</p>
-        <div class="sig"><div class="sig-line"></div><strong>CONTRATANTE</strong><br>${esc(client.name)}</div>
-        <div class="sig"><div class="sig-line"></div><strong>CONTRATADA</strong><br>${esc(COMPANY.razaoSocial)}<br><small>CNPJ ${esc(COMPANY.cnpj)}</small></div>`,
-        `Modalidade ${modalityLabel(process)} · ${esc(client.name)}`
-      );
-
-    case 'recibo': {
-      const pagamento = resolveReciboPagamento(process, options.pagamentoId);
-      const valor = pagamento?.valor ?? honorarios;
-      const dataRecibo = pagamento ? fmtDate(pagamento.data) : dataDoc;
-      const numero = pagamento?.numero ?? '—';
-      const forma = pagamento?.tipo?.toUpperCase() ?? process.pagamentoTipo ?? '—';
-      const descricao = pagamento?.descricao ?? `honorários de assessoria em isenções ${modalityLabel(process)}`;
-
-      return wrapHtml(
-        `Recibo ${numero}`,
-        `${letterheadCompany()}
-        <h1 class="doc-title">Recibo de Honorários</h1>
-        <p class="doc-subtitle">Prestação de serviços de assessoria em isenções tributárias</p>
-        <p class="doc-ref">Nº ${esc(numero)}</p>
-        <p class="justify">Recebi de <strong>${esc(client.name)}</strong>, CPF ${fmtCpf(client.cpf)}, a quantia de <strong>R$ ${fmtMoney(valor)}</strong> (${esc(descricao)}), paga por <strong>${esc(forma)}</strong>, referente aos serviços de assessoria para isenção ${modalityLabel(process)} (Junta Médica, IPI, ICMS/IPVA MT e ICMS SP quando aplicável).</p>
-        <p class="justify no-indent">Para maior clareza, firmo o presente recibo.</p>
-        <p class="center" style="margin-top:1.5rem">${esc(cidade)}, ${dataRecibo}.</p>
-        <div class="sig"><div class="sig-line"></div><strong>${esc(COMPANY.razaoSocial)}</strong><br><small>CNPJ ${esc(COMPANY.cnpj)}</small></div>`,
-        `${numero} · R$ ${fmtMoney(valor)}`
-      );
-    }
-
+      return renderContrato(client, process);
+    case 'recibo':
+      return renderRecibo(client, process, options);
     case 'icms_pcd':
-      return wrapHtml(
-        'Pedido de Isenção ICMS PcD',
-        `${letterheadGov()}
-        <p style="font-size:12pt;margin-bottom:1rem"><strong>Excelentíssimo Senhor Secretário de Estado de Fazenda de Mato Grosso</strong></p>
-        <p class="justify"><strong>${esc(client.name)}</strong>, ${g(client, { F: 'portadora', M: 'portador', N: 'titular' })} do RG nº <strong>${esc(client.rg || '—')}</strong>${client.rgDataEmissao ? `, expedido em <strong>${esc(fmtDate(client.rgDataEmissao))}</strong>` : ''}${client.rgOrgaoEmissor ? ` por <strong>${esc(client.rgOrgaoEmissor)}</strong>` : ''}${client.rgEstado ? `/${client.rgEstado}` : ''}, ${g(client, { F: 'inscrita', M: 'inscrito', N: 'inscrito(a)' })} no CPF sob nº <strong>${fmtCpf(client.cpf)}</strong>${rep ? `, ${g(client, { F: 'representada', M: 'representado', N: 'representado(a)' })} legalmente por <strong>${esc(rep.nome)}</strong>, CPF ${fmtCpf(rep.cpf)}, RG ${esc(rep.rg)}${rep.rgOrgaoEmissor ? ` ${esc(rep.rgOrgaoEmissor)}` : ''}${rep.rgEstado ? `/${rep.rgEstado}` : ''}, telefone <strong>${esc(rep.telefone || client.phone || '—')}</strong>` : ''}, residente à <strong>${esc(clientAddress(client))}</strong>, e-mail <strong>${esc(client.email)}</strong>, telefone <strong>${esc(client.phone || '—')}</strong>, vem requerer <strong>ISENÇÃO do ICMS</strong> para aquisição de veículo automotor novo, destinado a pessoa com deficiência, nos termos da legislação estadual vigente, conforme documentos em anexo.</p>
-        ${process.vehicle ? `<h2 class="section">Veículo objeto do pedido</h2>${vehicleBlock(process.vehicle)}` : ''}
-        <p class="justify">Protocolo SISEN/IPI: <strong>${esc(stepProtocol(process, 'ipi'))}</strong> · Perícia: <strong>${esc(stepProtocol(process, 'pericia'))}</strong></p>
-        <p class="justify">Nestes termos, pede deferimento.</p>
-        <p class="center" style="margin-top:1.5rem">${esc(cidade)}, ${dataDoc}.</p>
-        <div class="sig"><div class="sig-line"></div>Assinatura do beneficiário<br><strong>${esc(client.name)}</strong></div>
-        ${rep ? `<div class="sig"><div class="sig-line"></div><small>REPRESENTANTE LEGAL</small><br><strong>${esc(rep.nome)}</strong><br>CPF ${fmtCpf(rep.cpf)}</div>` : ''}`,
-        `Protocolo SEFAZ: ${stepProtocol(process, 'icms')}`
-      );
-
+      return renderIcmsPcd(client, process);
     case 'icms_taxi':
-      return wrapHtml(
-        'Pedido de Isenção ICMS Táxi',
-        `${letterheadGov()}
-        <p style="font-size:12pt;margin-bottom:1rem"><strong>Excelentíssimo Senhor Secretário de Estado de Fazenda de Mato Grosso</strong></p>
-        <p class="justify"><strong>${esc(client.name)}</strong>, CPF <strong>${fmtCpf(client.cpf)}</strong>, condutor autônomo de táxi, ${g(client, { F: 'residente', M: 'residente', N: 'residente' })} em <strong>${esc(clientAddress(client))}</strong>, e-mail <strong>${esc(client.email)}</strong>, telefone <strong>${esc(client.phone || '—')}</strong>, vem requerer <strong>ISENÇÃO do ICMS</strong> para aquisição de veículo automotor novo, nos termos do Convênio ICMS 038/2001 e legislação estadual vigente.</p>
-        ${process.vehicle ? `<h2 class="section">Veículo objeto do pedido</h2>${vehicleBlock(process.vehicle)}` : ''}
-        <p class="justify">Nestes termos, pede deferimento.</p>
-        <p class="center" style="margin-top:1.5rem">${esc(cidade)}, ${dataDoc}.</p>
-        <div class="sig"><div class="sig-line"></div>Assinatura do requerente<br><strong>${esc(client.name)}</strong></div>`,
-        `Condutor autônomo de táxi`
-      );
-
+      return renderIcmsTaxi(client, process);
     case 'decl_financeira':
-      return wrapHtml(
-        'Declaração de Disponibilidade Financeira',
-        `${letterheadCompany()}
-        <h1 class="doc-title">Declaração de Disponibilidade Financeira ou Patrimonial</h1>
-        <p class="doc-subtitle">RICMS/MT — art. 32, Anexo IV, Decreto nº 2.212/2014</p>
-        <p class="justify">Eu, <strong>${esc(client.name)}</strong>, CPF <strong>${fmtCpf(client.cpf)}</strong>${repClause}, declaro, para os devidos fins fiscais, possuir disponibilidade financeira ou patrimonial para a aquisição do veículo objeto do pedido de isenção de ICMS${process.vehicle ? ` (<strong>${esc([process.vehicle.marca, process.vehicle.modelo, process.vehicle.ano].filter(Boolean).join(' '))}</strong>)` : ''}, assumindo integral responsabilidade pela veracidade das informações prestadas.</p>
-        <p class="center" style="margin-top:1.5rem">${esc(cidade)}, ${dataDoc}.</p>
-        <div class="sig"><div class="sig-line"></div><strong>${esc(client.name)}</strong><br><small>CPF ${fmtCpf(client.cpf)}</small></div>`,
-        `Beneficiário: ${client.name}`
-      );
-
+      return renderDeclFinanceira(client, process);
     case 'condutor_sp':
-      return wrapHtml(
-        'Formulário de Condutores Autorizados — SP',
-        `${letterheadCompany()}
-        <h1 class="doc-title">Identificação de Condutores Autorizados</h1>
-        <p class="doc-subtitle">ICMS — Estado de São Paulo</p>
-        <p class="justify no-indent">Beneficiário: <strong>${esc(client.name)}</strong>, CPF ${fmtCpf(client.cpf)}.</p>
-        <h2 class="section">Condutores autorizados</h2>
-        ${conductors.length === 0 ? '<p class="justify no-indent">Nenhum condutor cadastrado.</p>' : `<table class="data-table"><thead><tr><th>#</th><th>Nome</th><th>CPF</th><th>RG</th><th>Endereço</th><th>Telefone</th></tr></thead><tbody>${conductors
-          .map(
-            (c, i) => `<tr>
-              <td>${i + 1}</td>
-              <td>${esc(c.nome)}</td>
-              <td>${fmtCpf(c.cpf)}</td>
-              <td>${esc(c.rg ?? '—')}</td>
-              <td>${esc(c.endereco ?? '—')}</td>
-              <td>${esc(c.telefone ?? '—')}</td>
-            </tr>`
-          )
-          .join('')}</tbody></table>`}
-        <p class="center" style="margin-top:1.5rem">${esc(cidade)}, ${dataDoc}.</p>`,
-        `${conductors.length} condutor(es) cadastrado(s)`
-      );
-
+      return renderCondutorSp(client, process, conductors);
     case 'cancel_icms':
-      return wrapHtml(
-        'Solicitação de Cancelamento de ICMS',
-        `${letterheadGov()}
-        <h1 class="doc-title" style="font-size:12pt">Solicitação de Cancelamento de Isenção de ICMS</h1>
-        <p class="justify no-indent">À Secretaria de Estado de Fazenda de Mato Grosso — SEFAZ/MT</p>
-        <p class="justify"><strong>${esc(COMPANY.razaoSocial)}</strong>, CNPJ ${esc(COMPANY.cnpj)}, com sede em ${esc(COMPANY.address)}, na qualidade de procuradora de <strong>${esc(client.name)}</strong>, CPF ${fmtCpf(client.cpf)}, solicita o <strong>CANCELAMENTO</strong> da autorização de isenção de ICMS anteriormente concedida, para fins de atualização do teto e novo pedido de reconhecimento.</p>
-        <p class="justify"><strong>Motivo:</strong> atualização de valor/teto do veículo a ser adquirido${process.vehicle ? ` (${esc([process.vehicle.marca, process.vehicle.modelo, process.vehicle.ano].filter(Boolean).join(' '))})` : ''}.</p>
-        <p class="center" style="margin-top:1.5rem">${esc(cidade)}, ${dataDoc}.</p>
-        <div class="sig"><div class="sig-line"></div><strong>${esc(COMPANY.razaoSocial)}</strong><br><small>CNPJ ${esc(COMPANY.cnpj)} · Procuradora</small></div>`,
-        `Cliente: ${client.name}`
-      );
-
+      return renderCancelIcms(client, process);
     default:
       return wrapHtml('Documento', `${letterheadCompany()}<p>Template não encontrado.</p>`);
   }

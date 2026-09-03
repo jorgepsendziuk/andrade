@@ -36,9 +36,11 @@ export const STEP_ICONS: Record<ProcessStepKey, LucideIcon> = {
   analise: FileCheck,
   pericia: Stethoscope,
   ipi: Landmark,
+  veiculo: Car,
+  sefaz_mt: Scale,
+  sefaz_sp: UserCheck,
   icms: Scale,
   ipva: Receipt,
-  veiculo: Car,
   concluido: BadgeCheck,
   cancelado: Ban,
 };

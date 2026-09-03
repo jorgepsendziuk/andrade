@@ -3,6 +3,8 @@ import { CmsProvider } from './context/CmsContext';
 import { AccessibilityProvider } from './context/AccessibilityContext';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { ConditionPage } from './pages/ConditionPage';
 import { GuiaPage } from './pages/GuiaPage';
 import { ArticlePage } from './pages/ArticlePage';
@@ -10,6 +12,7 @@ import { StartProcessPage } from './pages/StartProcessPage';
 import { PortalAccountPage } from './pages/PortalAccountPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { TermsPage } from './pages/TermsPage';
+import { AboutPage } from './pages/AboutPage';
 import { CookiesPage } from './pages/CookiesPage';
 import { AdminShell } from './components/admin/AdminShell';
 import { PortalGuard } from './components/portal/PortalGuard';
@@ -19,6 +22,8 @@ import { AdminSitePage } from './pages/admin/AdminSitePage';
 import { AdminUsersPage } from './pages/admin/AdminUsersPage';
 import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
+import { AdminConditionsPage } from './pages/admin/AdminConditionsPage';
+import { AdminGuiaPage } from './pages/admin/AdminGuiaPage';
 import { AdminInfraPage } from './pages/admin/AdminInfraPage';
 import { AdminMediaPage } from './pages/admin/AdminMediaPage';
 import { AdminProcessesPage } from './pages/admin/AdminProcessesPage';
@@ -40,8 +45,11 @@ export default function App() {
           <Route path="/iniciar" element={<StartProcessPage />} />
           <Route path="/privacidade" element={<PrivacyPage />} />
           <Route path="/termos" element={<TermsPage />} />
+          <Route path="/quem-somos" element={<AboutPage />} />
           <Route path="/cookies" element={<CookiesPage />} />
           <Route path={PORTAL_LOGIN} element={<LoginPage />} />
+          <Route path="/entrar/esqueci-senha" element={<ForgotPasswordPage />} />
+          <Route path="/entrar/redefinir-senha" element={<ResetPasswordPage />} />
 
           {/* Legado */}
           <Route path="/conta" element={<LegacyContaRedirect />} />
@@ -62,6 +70,8 @@ export default function App() {
               <Route path="processos/:id" element={<RoleGuard roles={['admin', 'comercial']}><AdminProcessDetailPage /></RoleGuard>} />
               <Route path="arquivos" element={<RoleGuard roles={['admin', 'comercial']}><AdminDocsBrowserPage /></RoleGuard>} />
               <Route path="site" element={<RoleGuard roles={['admin', 'editor']}><AdminSitePage /></RoleGuard>} />
+              <Route path="condicoes" element={<RoleGuard roles={['admin', 'editor']}><AdminConditionsPage /></RoleGuard>} />
+              <Route path="guia" element={<RoleGuard roles={['admin', 'editor']}><AdminGuiaPage /></RoleGuard>} />
               <Route path="midia" element={<RoleGuard roles={['admin', 'editor']}><AdminMediaPage /></RoleGuard>} />
               <Route path="configuracoes" element={<RoleGuard roles={['admin', 'editor']}><AdminSettingsPage /></RoleGuard>} />
               <Route path="usuarios" element={<RoleGuard roles={['admin']}><AdminUsersPage /></RoleGuard>} />

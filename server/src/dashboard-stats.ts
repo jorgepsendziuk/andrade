@@ -71,8 +71,7 @@ export async function getDashboardStats(includeUsers = false): Promise<Dashboard
     getGa4DashboardData(),
   ]);
 
-  const conditions = readConditions();
-  const guiaArticles = readGuiaArticles();
+  const [conditions, guiaArticles] = await Promise.all([readConditions(), readGuiaArticles()]);
 
   const stats: DashboardStats = {
     contacts: contactStats,

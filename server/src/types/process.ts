@@ -5,9 +5,11 @@ export type ProcessStepKey =
   | 'analise'
   | 'pericia'
   | 'ipi'
+  | 'veiculo'
+  | 'sefaz_mt'
+  | 'sefaz_sp'
   | 'icms'
   | 'ipva'
-  | 'veiculo'
   | 'concluido'
   | 'cancelado';
 

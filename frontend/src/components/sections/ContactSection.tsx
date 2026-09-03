@@ -3,7 +3,9 @@ import { Phone, Mail, Clock, MapPin } from 'lucide-react';
 import { EditableText } from '../cms/EditableText';
 import { useCms } from '../../context/CmsContext';
 import { submitContact, ContactApiError } from '../../lib/api';
+import { trackContactFormConversion } from '../../lib/google-analytics';
 import { BrandLogo } from '../ui/BrandLogo';
+import { trackWhatsAppClick } from '../../lib/google-analytics';
 
 const DEFAULT_MAP_URL = 'https://maps.app.goo.gl/334gwCfDPaFuRTC7A?g_st=iw';
 const DEFAULT_MAP_EMBED =
@@ -52,6 +54,7 @@ export function ContactSection() {
     setSubmitted(false);
     try {
       await submitContact({ ...formState, to: site.email });
+      trackContactFormConversion();
       setSubmitted(true);
       setFormState({ name: '', email: '', phone: '', message: '' });
     } catch (err) {
@@ -111,6 +114,10 @@ export function ContactSection() {
               target="_blank"
               rel="noopener noreferrer"
               className="btn-green w-full mt-6 text-sm"
+              onClick={(e) => {
+                e.preventDefault();
+                trackWhatsAppClick(`https://wa.me/${site.whatsapp}`);
+              }}
             >
               WhatsApp
             </a>

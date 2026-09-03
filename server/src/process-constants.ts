@@ -1,4 +1,4 @@
-import type { FileTypeCode, ProcessModality, ProcessStep, ProcessStepKey } from './types/process.js';
+import type { FileTypeCode, ProcessModality, ProcessRecord, ProcessStep, ProcessStepKey } from './types/process.js';
 import {
   buildClientFolderSlug,
   buildProcessFolderSlug,
@@ -39,24 +39,89 @@ export const STEP_LABELS: Record<ProcessStepKey, string> = {
   documentacao: 'Documentação',
   analise: 'Análise',
   pericia: 'Perícia / Junta Médica',
-  ipi: 'IPI (SISEN)',
+  ipi: 'IPI — SISEN',
+  veiculo: 'Escolha do veículo',
+  sefaz_mt: 'SEFAZ MT — ICMS e IPVA',
+  sefaz_sp: 'SEFAZ SP — ICMS',
   icms: 'ICMS (SEFAZ)',
   ipva: 'IPVA',
-  veiculo: 'Escolha do veículo',
   concluido: 'Concluído',
   cancelado: 'Cancelado',
 };
 
-const ACTIVE_STEPS: ProcessStepKey[] = [
+/** Ordem canônica das etapas ativas do processo PCD. */
+export const ACTIVE_STEPS: ProcessStepKey[] = [
   'documentacao',
   'analise',
   'pericia',
   'ipi',
-  'icms',
-  'ipva',
   'veiculo',
+  'sefaz_mt',
+  'sefaz_sp',
   'concluido',
 ];
+
+const LEGACY_STEP_KEYS: Partial<Record<ProcessStepKey, ProcessStepKey>> = {
+  icms: 'sefaz_mt',
+  ipva: 'sefaz_mt',
+};
+
+const STATUS_RANK: Record<ProcessStep['status'], number> = {
+  pendente: 0,
+  bloqueada: 1,
+  em_andamento: 2,
+  concluida: 3,
+};
+
+function mergeStepProgress(a: ProcessStep, b: ProcessStep, key: ProcessStepKey): ProcessStep {
+  const primary = STATUS_RANK[a.status] >= STATUS_RANK[b.status] ? a : b;
+  const secondary = primary === a ? b : a;
+  return {
+    key,
+    label: STEP_LABELS[key],
+    status: primary.status,
+    protocol: primary.protocol || secondary.protocol,
+    startedAt: primary.startedAt || secondary.startedAt,
+    completedAt: primary.completedAt || secondary.completedAt,
+    internalNote: [primary.internalNote, secondary.internalNote].filter(Boolean).join(' · ') || undefined,
+  };
+}
+
+function migrateStepKey(key: ProcessStepKey): ProcessStepKey {
+  return LEGACY_STEP_KEYS[key] ?? key;
+}
+
+export function normalizeProcessRecord(process: ProcessRecord): ProcessRecord {
+  const merged = new Map<ProcessStepKey, ProcessStep>();
+
+  for (const step of process.steps) {
+    const key = migrateStepKey(step.key);
+    const normalized: ProcessStep = {
+      ...step,
+      key,
+      label: STEP_LABELS[key],
+    };
+    const existing = merged.get(key);
+    merged.set(key, existing ? mergeStepProgress(existing, normalized, key) : normalized);
+  }
+
+  for (const key of ACTIVE_STEPS) {
+    if (!merged.has(key)) {
+      merged.set(key, { key, label: STEP_LABELS[key], status: 'pendente' });
+    }
+  }
+
+  const steps = ACTIVE_STEPS.map((key) => merged.get(key)!);
+  let currentStep = migrateStepKey(process.currentStep);
+  if (!steps.some((s) => s.key === currentStep)) {
+    currentStep =
+      steps.find((s) => s.status === 'em_andamento')?.key ??
+      steps.find((s) => s.status === 'pendente')?.key ??
+      'concluido';
+  }
+
+  return { ...process, steps, currentStep };
+}
 
 export function createDefaultSteps(): ProcessStep[] {
   return ACTIVE_STEPS.map((key, index) => ({

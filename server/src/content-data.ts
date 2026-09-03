@@ -75,58 +75,23 @@ export async function getGoogleReviews() {
   }
 }
 
-export function readConditions(): unknown[] {
-  const dir = path.join(DATA_DIR, 'conditions');
-  if (!fs.existsSync(dir)) return [];
-  return fs
-    .readdirSync(dir)
-    .filter((f) => f.endsWith('.json'))
-    .map((f) => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf-8')));
-}
+export {
+  listConditions as readConditions,
+  getCondition as readCondition,
+  listGuiaArticles as readGuiaArticles,
+  getGuiaArticle as readGuiaArticle,
+  listConditionSlugs as readConditionSlugs,
+  listGuiaSlugs as readGuiaSlugs,
+  saveCondition,
+  deleteCondition,
+  saveGuiaArticle,
+  deleteGuiaArticle,
+  safeSlug,
+} from './cms-content-store.js';
 
-export function readCondition(slug: string): unknown | null {
-  const file = path.join(DATA_DIR, 'conditions', `${slug}.json`);
-  if (!fs.existsSync(file)) return null;
-  return JSON.parse(fs.readFileSync(file, 'utf-8'));
-}
+import { listConditionSlugs, listGuiaSlugs } from './cms-content-store.js';
 
-export function readGuiaArticles(): unknown[] {
-  const dir = path.join(DATA_DIR, 'guia');
-  if (!fs.existsSync(dir)) return [];
-  return fs
-    .readdirSync(dir)
-    .filter((f) => f.endsWith('.json'))
-    .map((f) => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf-8')))
-    .sort((a: { publishedAt?: string }, b: { publishedAt?: string }) =>
-      (b.publishedAt ?? '').localeCompare(a.publishedAt ?? '')
-    );
-}
-
-export function readGuiaArticle(slug: string): unknown | null {
-  const file = path.join(DATA_DIR, 'guia', `${slug}.json`);
-  if (!fs.existsSync(file)) return null;
-  return JSON.parse(fs.readFileSync(file, 'utf-8'));
-}
-
-export function readConditionSlugs(): string[] {
-  const dir = path.join(DATA_DIR, 'conditions');
-  if (!fs.existsSync(dir)) return [];
-  return fs
-    .readdirSync(dir)
-    .filter((f) => f.endsWith('.json'))
-    .map((f) => f.replace('.json', ''));
-}
-
-export function readGuiaSlugs(): string[] {
-  const dir = path.join(DATA_DIR, 'guia');
-  if (!fs.existsSync(dir)) return [];
-  return fs
-    .readdirSync(dir)
-    .filter((f) => f.endsWith('.json'))
-    .map((f) => f.replace('.json', ''));
-}
-
-export function buildSitemapXml(): string {
+export async function buildSitemapXml(): Promise<string> {
   const siteUrl = (process.env.SITE_URL || 'https://andradeisencoes.com.br').replace(/\/$/, '');
   const today = new Date().toISOString().split('T')[0];
 
@@ -135,7 +100,8 @@ export function buildSitemapXml(): string {
     { loc: `${siteUrl}/guia`, priority: '0.9', changefreq: 'weekly' },
   ];
 
-  for (const slug of readConditionSlugs()) {
+  const conditionSlugs = await listConditionSlugs();
+  for (const slug of conditionSlugs) {
     urls.push({
       loc: `${siteUrl}/isencao-pcd/${slug}`,
       priority: '0.8',
@@ -143,7 +109,8 @@ export function buildSitemapXml(): string {
     });
   }
 
-  for (const slug of readGuiaSlugs()) {
+  const guiaSlugs = await listGuiaSlugs();
+  for (const slug of guiaSlugs) {
     urls.push({
       loc: `${siteUrl}/guia/${slug}`,
       priority: '0.7',

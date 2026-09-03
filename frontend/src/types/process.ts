@@ -1,6 +1,9 @@
 export type ProcessModality = 'pcd' | 'taxi';
 export type ProcessStepKey =
-  | 'documentacao' | 'analise' | 'pericia' | 'ipi' | 'icms' | 'ipva' | 'veiculo' | 'concluido' | 'cancelado';
+  | 'documentacao' | 'analise' | 'pericia' | 'ipi' | 'veiculo'
+  | 'sefaz_mt' | 'sefaz_sp'
+  | 'icms' | 'ipva'
+  | 'concluido' | 'cancelado';
 export type ProcessStepStatus = 'pendente' | 'em_andamento' | 'concluida' | 'bloqueada';
 export type ProcessStatus = 'ativo' | 'concluido' | 'cancelado';
 export type FileTypeCode =
@@ -125,10 +128,12 @@ export const STEP_LABELS: Record<ProcessStepKey, string> = {
   documentacao: 'Documentação',
   analise: 'Análise',
   pericia: 'Perícia / Junta Médica',
-  ipi: 'IPI (SISEN)',
+  ipi: 'IPI — SISEN',
+  veiculo: 'Escolha do veículo',
+  sefaz_mt: 'SEFAZ MT — ICMS e IPVA',
+  sefaz_sp: 'SEFAZ SP — ICMS',
   icms: 'ICMS (SEFAZ)',
   ipva: 'IPVA',
-  veiculo: 'Escolha do veículo',
   concluido: 'Concluído',
   cancelado: 'Cancelado',
 };

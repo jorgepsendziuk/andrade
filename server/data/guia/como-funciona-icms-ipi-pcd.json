@@ -1,14 +1,16 @@
 {
   "slug": "como-funciona-icms-ipi-pcd",
-  "title": "Como funciona o ICMS e IPI para PCD?",
-  "metaDescription": "Entenda as isenções tributárias disponíveis na compra de veículo para pessoas com deficiência. Guia completo da Andrade Isenções.",
-  "excerpt": "Entenda as isenções tributárias disponíveis na compra de veículo para pessoas com deficiência.",
+  "title": "Como funcionam as isenções de ICMS e IPI para PCD?",
+  "metaDescription": "Visão geral das isenções de ICMS e IPI na compra de carro PCD em Mato Grosso: órgãos competentes, etapas e requisitos legais.",
+  "excerpt": "Entenda a diferença entre isenção federal (IPI) e estadual (ICMS) e como cada benefício é analisado.",
   "content": [
-    "Entenda as isenções tributárias disponíveis na compra de veículo para pessoas com deficiência.",
-    "A Andrade Consultoria e Isenções é especializada em assessoria para pessoas com deficiência na compra de veículos zero km com os benefícios legais disponíveis. Atuamos no Estado de Mato Grosso, com mais de 3.000 famílias atendidas.",
-    "Cada caso possui características específicas e nossa equipe realiza uma análise individualizada para orientar sobre os benefícios aplicáveis. O processo envolve documentação médica, perícias quando necessário, e acompanhamento junto aos órgãos competentes como Receita Federal e Secretarias de Fazenda.",
-    "Se você tem dúvidas sobre seu caso específico, entre em contato conosco pelo WhatsApp. Nosso atendimento é personalizado, humanizado e acompanha você do primeiro passo até a escolha do seu veículo."
+    "Na compra de veículo zero km por pessoa com deficiência, podem existir benefícios fiscais de natureza federal e estadual — principalmente a isenção de IPI (Receita Federal / SISEN) e a isenção de ICMS (SEFAZ do Estado).",
+    "Cada benefício possui legislação própria, documentação específica e órgão responsável pela análise. O IPI é tratado em âmbito federal; o ICMS, em âmbito estadual — no caso de residentes em Mato Grosso, pela SEFAZ MT.",
+    "Não existe um percentual único de desconto aplicável a todos os casos. A economia depende do veículo escolhido, dos tributos incidentes e do enquadramento aprovado pelos órgãos competentes.",
+    "O processo costuma envolver etapas como análise documental, perícias ou laudos quando exigidos, definição do veículo, protocolo dos pedidos e acompanhamento de eventuais exigências.",
+    "A Andrade Isenções atua em Mato Grosso com assessoria especializada, oferecendo orientação transparente em cada etapa — sem utilizar informações desatualizadas sobre limites de valor ou regras antigas.",
+    "Para aprofundar: consulte nossos artigos específicos sobre isenção de IPI, ICMS em Mato Grosso e IPVA em Mato Grosso no Guia PCD."
   ],
-  "relatedConditions": [],
-  "publishedAt": "2026-01-15"
+  "relatedConditions": ["autismo", "visao-monocular", "outras-condicoes"],
+  "publishedAt": "2026-03-01"
 }

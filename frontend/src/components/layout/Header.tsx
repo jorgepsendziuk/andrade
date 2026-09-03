@@ -5,6 +5,7 @@ import { useCms } from '../../context/CmsContext';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { AccessibilityControl } from '../a11y/AccessibilityControl';
 import { BrandLogo } from '../ui/BrandLogo';
+import { trackWhatsAppClick } from '../../lib/google-analytics';
 
 export function Header() {
   const { content } = useCms();
@@ -48,6 +49,7 @@ export function Header() {
   const enterHref = enterNav?.href || '/entrar';
   const isEnterPage =
     location.pathname === '/entrar' ||
+    location.pathname.startsWith('/entrar/') ||
     location.pathname.startsWith('/portal') ||
     location.pathname.startsWith('/admin') ||
     location.pathname === '/conta';
@@ -98,6 +100,10 @@ export function Header() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-primary-sm !py-2 !px-2.5 xl:!px-4 !text-[10px] xl:!text-xs whitespace-nowrap"
+                onClick={(e) => {
+                  e.preventDefault();
+                  trackWhatsAppClick(`https://wa.me/${site.whatsapp}`);
+                }}
               >
                 <MessageCircle size={15} className="flex-shrink-0" aria-hidden />
                 <span className="hidden xl:inline">{ctaNav.label}</span>
@@ -160,7 +166,11 @@ export function Header() {
               href={`https://wa.me/${site.whatsapp}`}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => setMobileOpen(false)}
+              onClick={(e) => {
+                e.preventDefault();
+                setMobileOpen(false);
+                trackWhatsAppClick(`https://wa.me/${site.whatsapp}`);
+              }}
               className="btn-primary-sm w-full justify-center mt-2"
             >
               <MessageCircle size={16} aria-hidden />

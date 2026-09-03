@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  ArrowLeft, ArrowRight, CheckCircle, FileText, Shield, Upload, User,
+  ArrowLeft, ArrowRight, CheckCircle, FileText, Loader2, Shield, Upload, User,
 } from 'lucide-react';
 import { PageLayout } from '../components/layout/PageLayout';
 import { SeoHead } from '../components/seo/SeoHead';
@@ -11,6 +11,8 @@ import { registerPortal } from '../lib/portal-api';
 import { PORTAL_CLIENT_PROCESS } from '../lib/portal-routes';
 import { setToken } from '../lib/api';
 import { FILE_TYPE_LABELS, type FileTypeCode } from '../types/process';
+import { isValidCpf } from '../lib/process-grid-utils';
+import { fetchViaCep, maskCepInput } from '../lib/viacep';
 
 const STEPS = ['lgpd', 'dados', 'representante', 'orientacao', 'documentos', 'senha'] as const;
 type Step = (typeof STEPS)[number];
@@ -42,6 +44,10 @@ export function StartProcessPage() {
 
   const [files, setFiles] = useState<Partial<Record<FileTypeCode, File>>>({});
   const [docHint, setDocHint] = useState('');
+  const [dadosHint, setDadosHint] = useState('');
+  const [cepLoading, setCepLoading] = useState(false);
+  const [cepHint, setCepHint] = useState('');
+  const lastCepLookup = useRef('');
 
   const requiredDocTypes: FileTypeCode[] = [
     'cnh',
@@ -59,6 +65,45 @@ export function StartProcessPage() {
   const set = (key: keyof typeof form, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
 
+  const lookupCep = async (cep: string) => {
+    const digits = cep.replace(/\D/g, '');
+    if (digits.length !== 8 || digits === lastCepLookup.current) return;
+
+    setCepLoading(true);
+    setCepHint('');
+    lastCepLookup.current = digits;
+
+    try {
+      const data = await fetchViaCep(digits);
+      if (!data) {
+        setCepHint('CEP não encontrado. Preencha o endereço manualmente.');
+        return;
+      }
+      setForm((f) => ({
+        ...f,
+        cep: maskCepInput(digits),
+        endereco: data.logradouro || f.endereco,
+        bairro: data.bairro || f.bairro,
+        cidade: data.localidade || f.cidade,
+        uf: data.uf || f.uf,
+      }));
+    } catch {
+      setCepHint('Não foi possível buscar o CEP. Preencha o endereço manualmente.');
+      lastCepLookup.current = '';
+    } finally {
+      setCepLoading(false);
+    }
+  };
+
+  const handleCepChange = (value: string) => {
+    const masked = maskCepInput(value);
+    set('cep', masked);
+    setCepHint('');
+    const digits = masked.replace(/\D/g, '');
+    if (digits.length < 8) lastCepLookup.current = '';
+    if (digits.length === 8) void lookupCep(digits);
+  };
+
   const next = () => {
     setDocHint('');
     setStep(STEPS[stepIndex + 1]);
@@ -66,6 +111,19 @@ export function StartProcessPage() {
   const back = () => {
     setDocHint('');
     setStep(STEPS[stepIndex - 1]);
+  };
+
+  const tryNextFromDados = () => {
+    if (!form.name.trim() || !form.email.trim() || !form.cpf.trim()) {
+      setDadosHint('Preencha nome, e-mail e CPF.');
+      return;
+    }
+    if (!isValidCpf(form.cpf)) {
+      setDadosHint('CPF inválido. Informe os 11 dígitos (não use o CEP neste campo).');
+      return;
+    }
+    setDadosHint('');
+    next();
   };
 
   const tryNextFromDocs = () => {
@@ -193,6 +251,32 @@ export function StartProcessPage() {
               <label className="text-sm">UF do RG
                 <input className="input-field mt-1" value={form.rgEstado} onChange={(e) => set('rgEstado', e.target.value)} />
               </label>
+              <label className="text-sm sm:col-span-2">
+                CEP
+                <div className="relative mt-1">
+                  <input
+                    className="input-field w-full"
+                    value={form.cep}
+                    onChange={(e) => handleCepChange(e.target.value)}
+                    onBlur={() => void lookupCep(form.cep)}
+                    placeholder="00000-000"
+                    inputMode="numeric"
+                    autoComplete="postal-code"
+                  />
+                  {cepLoading && (
+                    <Loader2
+                      size={16}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-brand-500"
+                      aria-hidden
+                    />
+                  )}
+                </div>
+              </label>
+              {cepHint && (
+                <p className="sm:col-span-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                  {cepHint}
+                </p>
+              )}
               <label className="sm:col-span-2 text-sm">Endereço
                 <input className="input-field mt-1" value={form.endereco} onChange={(e) => set('endereco', e.target.value)} />
               </label>
@@ -206,12 +290,15 @@ export function StartProcessPage() {
                 <input className="input-field mt-1" value={form.cidade} onChange={(e) => set('cidade', e.target.value)} />
               </label>
               <label className="text-sm">UF
-                <input className="input-field mt-1" value={form.uf} onChange={(e) => set('uf', e.target.value)} />
+                <input className="input-field mt-1" value={form.uf} onChange={(e) => set('uf', e.target.value)} maxLength={2} />
               </label>
             </div>
+            {dadosHint && (
+              <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">{dadosHint}</p>
+            )}
             <div className="flex gap-3">
               <button type="button" onClick={back} className="btn-secondary flex-1 justify-center"><ArrowLeft size={16} /> Voltar</button>
-              <button type="button" onClick={next} disabled={!form.name || !form.cpf || !form.email} className="btn-primary flex-1 justify-center disabled:opacity-50">Continuar <ArrowRight size={16} /></button>
+              <button type="button" onClick={tryNextFromDados} className="btn-primary flex-1 justify-center">Continuar <ArrowRight size={16} /></button>
             </div>
           </div>
         )}
@@ -329,7 +416,7 @@ export function StartProcessPage() {
         {step === 'senha' && (
           <div className="bg-white rounded-2xl p-6 shadow-card border border-brand-100 space-y-4">
             <h2 className="font-display font-bold text-lg text-brand-800">Criar senha do portal</h2>
-            <p className="text-sm text-slate-600">Use esta senha para acompanhar seu processo em /entrar</p>
+            <p className="text-sm text-slate-600">Use esta senha para acompanhar seu processo em /entrar. Se esquecer, use &quot;Esqueci minha senha&quot; na tela de login.</p>
             <label className="text-sm block">Senha (mín. 8 caracteres)
               <input type="password" className="input-field mt-1" value={form.password} onChange={(e) => set('password', e.target.value)} />
             </label>

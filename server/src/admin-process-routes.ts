@@ -86,6 +86,35 @@ export function registerAdminProcessRoutes(app: Express) {
     }
   });
 
+  app.patch('/api/admin/clients/:id', authMiddleware, staffOnly, async (req, res) => {
+    try {
+      const { cpf, cep, phone, endereco, numero, complemento, bairro, cidade, uf } = req.body as Record<string, string>;
+      const patch: Record<string, string> = {};
+      if (cpf !== undefined) {
+        const digits = cpf.replace(/\D/g, '');
+        if (digits.length !== 11) {
+          return res.status(400).json({ error: 'CPF inválido. Informe os 11 dígitos.' });
+        }
+        patch.cpf = digits;
+      }
+      if (cep !== undefined) patch.cep = cep.replace(/\D/g, '');
+      if (phone !== undefined) patch.phone = phone;
+      if (endereco !== undefined) patch.endereco = endereco;
+      if (numero !== undefined) patch.numero = numero;
+      if (complemento !== undefined) patch.complemento = complemento;
+      if (bairro !== undefined) patch.bairro = bairro;
+      if (cidade !== undefined) patch.cidade = cidade;
+      if (uf !== undefined) patch.uf = uf;
+      const { updateClient } = await import('./clients-store.js');
+      const updated = await updateClient(String(req.params.id), patch);
+      if (!updated) return res.status(404).json({ error: 'Cliente não encontrado.' });
+      res.json(updated);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Falha ao atualizar cliente.';
+      res.status(400).json({ error: message });
+    }
+  });
+
   app.get('/api/admin/processes', authMiddleware, staffOnly, async (_req, res) => {
     try {
       const processes = await listProcesses();

@@ -68,6 +68,60 @@ describe('API portal register', () => {
   });
 });
 
+describe('API password reset', () => {
+  it('POST /api/auth/forgot-password retorna mensagem genérica', async () => {
+    const res = await request(app)
+      .post('/api/auth/forgot-password')
+      .send({ email: 'naoexiste@test.com' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.message).toMatch(/cadastrado/i);
+  });
+
+  it('redefine senha com token válido', async () => {
+    const suffix = Date.now();
+    const email = `reset-${suffix}@test.com`;
+    const register = await request(app)
+      .post('/api/portal/register')
+      .field('email', email)
+      .field('password', 'Senha@1234')
+      .field('name', 'Reset Teste')
+      .field('cpf', `${suffix}`.slice(-11).padStart(11, '7'))
+      .field('modality', 'pcd')
+      .field('lgpdConsent', 'true')
+      .field('termsConsent', 'true')
+      .attach('cnh', fakePdf, { filename: 'cnh.pdf', contentType: 'application/pdf' })
+      .attach('laudo', fakePdf, { filename: 'laudo.pdf', contentType: 'application/pdf' })
+      .attach('comprovante_residencia', fakePdf, {
+        filename: 'comprovante.pdf',
+        contentType: 'application/pdf',
+      });
+    expect(register.status).toBe(201);
+
+    const forgot = await request(app).post('/api/auth/forgot-password').send({ email });
+    expect(forgot.status).toBe(200);
+
+    const { createPasswordResetToken } = await import('../../password-reset-store.js');
+    const { token } = await createPasswordResetToken({
+      email,
+      userId: register.body.client.id,
+      accountType: 'cliente',
+    });
+
+    const reset = await request(app)
+      .post('/api/auth/reset-password')
+      .send({ token, password: 'NovaSenha@99' });
+    expect(reset.status).toBe(200);
+
+    const loginOld = await request(app).post('/api/auth/login').send({ email, password: 'Senha@1234' });
+    expect(loginOld.status).toBe(401);
+
+    const loginNew = await request(app).post('/api/auth/login').send({ email, password: 'NovaSenha@99' });
+    expect(loginNew.status).toBe(200);
+    expect(loginNew.body.user.role).toBe('cliente');
+  });
+});
+
 describe('API admin processos', () => {
   const adminToken = signToken({
     id: 'admin-test-id',

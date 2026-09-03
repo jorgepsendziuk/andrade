@@ -1,5 +1,6 @@
 import { MessageCircle } from 'lucide-react';
 import { useCms } from '../../context/CmsContext';
+import { trackWhatsAppClick } from '../../lib/google-analytics';
 
 interface WhatsAppLinkProps {
   message?: string;
@@ -13,7 +14,16 @@ export function WhatsAppLink({ message, className = 'btn-primary', children }: W
   const href = `https://wa.me/${phone}${message ? `?text=${encodeURIComponent(message)}` : ''}`;
 
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={className}
+      onClick={(e) => {
+        e.preventDefault();
+        trackWhatsAppClick(href);
+      }}
+    >
       <MessageCircle size={18} />
       {children}
     </a>
