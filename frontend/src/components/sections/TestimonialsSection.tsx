@@ -121,7 +121,7 @@ export function TestimonialsSection() {
                       updateSection('clientes', { featuredReviews });
                     }}
                     as="p"
-                    className="font-bold text-brand-800 text-xs truncate"
+                    className="font-bold text-brand-800 text-sm truncate"
                   />
                   {review.location && (
                     <EditableText
@@ -133,7 +133,7 @@ export function TestimonialsSection() {
                         updateSection('clientes', { featuredReviews });
                       }}
                       as="p"
-                      className="text-text-secondary text-[10px] truncate"
+                      className="text-text-secondary text-sm truncate"
                     />
                   )}
                 </div>
@@ -148,7 +148,7 @@ export function TestimonialsSection() {
                   updateSection('clientes', { featuredReviews });
                 }}
                 as="p"
-                className="text-text-secondary text-xs leading-relaxed mt-2 flex-1 line-clamp-6"
+                className="text-text-secondary text-sm leading-relaxed mt-2 flex-1 line-clamp-6"
                 multiline
               />
             </div>

@@ -43,7 +43,7 @@ export function TrustBarSection() {
                     updateSection('trust-bar', { items });
                   }}
                   as="p"
-                  className="text-text-secondary text-xs md:text-sm"
+                  className="text-text-secondary text-sm md:text-base"
                 />
               </div>
             );

@@ -46,6 +46,7 @@ fs.writeFileSync(path.join(tmp, 'processes.json'), '[]');
 fs.writeFileSync(path.join(tmp, 'process-files.json'), '[]');
 fs.writeFileSync(path.join(tmp, 'conductors.json'), '[]');
 fs.writeFileSync(path.join(tmp, 'audit-logs.json'), '[]');
+fs.writeFileSync(path.join(tmp, 'staff-alerts.json'), '[]');
 fs.writeFileSync(path.join(tmp, 'contacts.json'), '[]');
 fs.writeFileSync(path.join(tmp, 'app-settings.json'), '{}');
 fs.writeFileSync(

@@ -1,8 +1,26 @@
 import { useEffect, useState } from 'react';
-import { CheckCircle, Clock, FileUp, Loader2, Upload } from 'lucide-react';
+import { CheckCircle, Clock, FileUp, Loader2, ScrollText, Upload, User } from 'lucide-react';
+import { AuditLogsPanel } from '../components/admin/AuditLogsPanel';
+import { ClientProfileForm } from '../components/forms/ClientProfileForm';
+import { VehicleProfileForm } from '../components/forms/VehicleProfileForm';
 import { SeoHead } from '../components/seo/SeoHead';
-import { fetchPortalProcess, fetchPortalMe, uploadPortalFile, openPortalFile } from '../lib/portal-api';
-import { FILE_TYPE_LABELS, type FileTypeCode, type ProcessFileRecord, type ProcessRecord } from '../types/process';
+import {
+  fetchPortalAudit,
+  fetchPortalMe,
+  fetchPortalProcess,
+  openPortalFile,
+  updatePortalMe,
+  updatePortalProcess,
+  uploadPortalFile,
+} from '../lib/portal-api';
+import {
+  FILE_TYPE_LABELS,
+  type AuditLogRecord,
+  type ClientPublic,
+  type FileTypeCode,
+  type ProcessFileRecord,
+  type ProcessRecord,
+} from '../types/process';
 
 const STATUS_ICON = {
   pendente: Clock,
@@ -23,24 +41,33 @@ const REQUIRED: FileTypeCode[] = ['cnh', 'laudo', 'comprovante_residencia'];
 export function PortalAccountPage() {
   const [process, setProcess] = useState<ProcessRecord | null>(null);
   const [files, setFiles] = useState<ProcessFileRecord[]>([]);
-  const [clientName, setClientName] = useState('');
+  const [client, setClient] = useState<ClientPublic | null>(null);
+  const [logs, setLogs] = useState<AuditLogRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState<FileTypeCode | null>(null);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [savingVehicle, setSavingVehicle] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const load = () => {
     setLoading(true);
-    Promise.all([fetchPortalMe(), fetchPortalProcess()])
-      .then(([client, data]) => {
-        setClientName(client.name);
-        setProcess(data.process);
-        setFiles(data.files);
+    Promise.allSettled([fetchPortalMe(), fetchPortalProcess(), fetchPortalAudit()])
+      .then(([me, data, audit]) => {
+        if (me.status === 'fulfilled') setClient(me.value);
+        else setError(me.reason instanceof Error ? me.reason.message : 'Erro ao carregar');
+        if (data.status === 'fulfilled') {
+          setProcess(data.value.process);
+          setFiles(data.value.files);
+        }
+        if (audit.status === 'fulfilled') setLogs(audit.value);
       })
-      .catch((err) => setError(err instanceof Error ? err.message : 'Erro ao carregar'))
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   const handleUpload = async (type: FileTypeCode, file: File) => {
     setUploading(type);
@@ -63,6 +90,40 @@ export function PortalAccountPage() {
     }
   };
 
+  const handleSaveProfile = async (patch: Record<string, unknown>) => {
+    setSavingProfile(true);
+    setError('');
+    setSuccess('');
+    try {
+      const updated = await updatePortalMe(patch);
+      setClient(updated);
+      setSuccess('Seus dados foram atualizados.');
+      const audit = await fetchPortalAudit();
+      setLogs(audit);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Falha ao salvar dados');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const handleSaveVehicle = async (vehicle: ProcessRecord['vehicle']) => {
+    setSavingVehicle(true);
+    setError('');
+    setSuccess('');
+    try {
+      const updated = await updatePortalProcess({ vehicle: vehicle ?? {} });
+      setProcess(updated);
+      setSuccess('Dados do veículo atualizados.');
+      const audit = await fetchPortalAudit();
+      setLogs(audit);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Falha ao salvar veículo');
+    } finally {
+      setSavingVehicle(false);
+    }
+  };
+
   const uploadedTypes = new Set(files.map((f) => f.fileType));
   const missing = REQUIRED.filter((t) => !uploadedTypes.has(t));
 
@@ -77,13 +138,32 @@ export function PortalAccountPage() {
   return (
     <>
       <SeoHead title="Meu processo | Portal Andrade" description="Acompanhe seu processo de isenção PCD." noindex path="/portal/meu-processo" />
-      <h1 className="font-display text-2xl font-extrabold text-brand-800 mb-1">Olá, {clientName.split(' ')[0]}!</h1>
-      <p className="text-slate-600 text-sm mb-6">Acompanhe as etapas do seu processo de isenção.</p>
+      <h1 className="font-display text-2xl font-extrabold text-brand-800 mb-1">
+        Olá, {client?.name.split(' ')[0] || 'cliente'}!
+      </h1>
+      <p className="text-slate-600 text-sm mb-6">Acompanhe as etapas e mantenha seus dados atualizados.</p>
 
       {error && <div className="mb-4 bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm">{error}</div>}
+      {success && <div className="mb-4 bg-emerald-50 text-emerald-800 px-4 py-3 rounded-xl text-sm">{success}</div>}
+
+      {client && (
+        <section className="bg-white rounded-2xl p-5 shadow-card border border-brand-100 mb-6">
+          <h2 className="font-display font-bold text-brand-800 mb-4 flex items-center gap-2">
+            <User size={20} /> Meus dados e representante legal
+          </h2>
+          <p className="text-xs text-slate-500 mb-4">
+            E-mail e CPF não podem ser alterados por aqui. Se precisar corrigir, fale com a equipe.
+          </p>
+          <ClientProfileForm client={client} includeIdentity={false} saving={savingProfile} onSave={handleSaveProfile} />
+        </section>
+      )}
 
       {process && (
         <>
+          <section className="bg-white rounded-2xl p-5 shadow-card border border-brand-100 mb-6">
+            <VehicleProfileForm vehicle={process.vehicle} saving={savingVehicle} onSave={handleSaveVehicle} />
+          </section>
+
           <section className="bg-white rounded-2xl p-5 shadow-card border border-brand-100 mb-6">
             <h2 className="font-display font-bold text-brand-800 mb-4">Etapas do processo</h2>
             <div className="space-y-3">
@@ -141,6 +221,13 @@ export function PortalAccountPage() {
           </section>
         </>
       )}
+
+      <section className="bg-white rounded-2xl p-5 shadow-card border border-brand-100 mb-6">
+        <h2 className="font-display font-bold text-brand-800 mb-4 flex items-center gap-2">
+          <ScrollText size={20} /> Histórico de alterações
+        </h2>
+        <AuditLogsPanel logs={logs} variant="client" />
+      </section>
     </>
   );
 }

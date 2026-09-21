@@ -4,6 +4,8 @@ import { BrandLogo } from '../ui/BrandLogo';
 import { RegisteredMarkBadge } from '../ui/RegisteredMarkBadge';
 import { useCms } from '../../context/CmsContext';
 import { trackWhatsAppClick } from '../../lib/google-analytics';
+import { AnchorLink } from '../ui/AnchorLink';
+import { isAnchorHref } from '../../lib/scroll-to-anchor';
 
 const socialIcons: Record<string, React.ComponentType<{ size?: number }>> = {
   instagram: InstagramIcon,
@@ -41,7 +43,7 @@ export function Footer() {
               className="mb-3"
             />
             <RegisteredMarkBadge className="mb-4" />
-            <p className="text-brand-100 text-xs leading-relaxed mb-4">{footerData.description}</p>
+            <p className="text-brand-100 text-sm leading-relaxed mb-4">{footerData.description}</p>
             <div className="flex gap-3">
               {(footerData.social ?? []).map((s) => {
                 const Icon = socialIcons[s.icon] || MessageCircle;
@@ -65,14 +67,23 @@ export function Footer() {
             <div key={col.id}>
               <h4 className="font-display font-bold text-sm uppercase tracking-wide mb-3">{col.title}</h4>
               <ul className="space-y-2">
-                {col.links.map((link) => (
+                {(col.links ?? []).map((link) => (
                   <li key={link.id}>
-                    <a
-                      href={link.href}
-                      className="text-brand-100 text-xs hover:text-accent transition-colors"
-                    >
-                      {link.label}
-                    </a>
+                    {isAnchorHref(link.href) ? (
+                      <AnchorLink
+                        href={link.href || '#'}
+                        className="text-brand-100 text-sm hover:text-accent transition-colors"
+                      >
+                        {link.label}
+                      </AnchorLink>
+                    ) : (
+                      <a
+                        href={link.href}
+                        className="text-brand-100 text-sm hover:text-accent transition-colors"
+                      >
+                        {link.label}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -83,7 +94,7 @@ export function Footer() {
             <h4 className="font-display font-bold text-sm uppercase tracking-wide mb-3">
               {footerData.contactTitle || 'Contato'}
             </h4>
-            <ul className="space-y-2 text-brand-100 text-xs">
+            <ul className="space-y-2 text-brand-100 text-sm">
               <li className="flex items-center gap-2">
                 <MessageCircle size={14} className="text-accent flex-shrink-0" />
                 <a
@@ -120,15 +131,15 @@ export function Footer() {
 
       <div className="border-t border-brand-700 py-4">
         <div className="max-w-6xl mx-auto px-4 text-center space-y-1.5">
-          <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-brand-200 mb-2">
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm text-brand-200 mb-2">
             {legalLinks.map((link) => (
               <a key={link.id} href={link.href} className="hover:text-accent transition-colors">
                 {link.label}
               </a>
             ))}
           </div>
-          <p className="text-brand-200 text-xs">{site.copyright}</p>
-          <p className="text-brand-300/80 text-[10px]">
+          <p className="text-brand-200 text-sm">{site.copyright}</p>
+          <p className="text-brand-300/80 text-sm">
             {footerData.trademarkText || 'Andrade Isenções® é marca registrada. Todos os direitos reservados.'}
           </p>
         </div>

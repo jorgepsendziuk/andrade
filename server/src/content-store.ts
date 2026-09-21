@@ -2,6 +2,7 @@ import fs from 'fs';
 import { getFirestore, useFirestore } from './firestore-client.js';
 import { stripUndefined } from './firestore-utils.js';
 import { dataFile } from './data-paths.js';
+import { upgradeSiteContent } from './site-content-upgrade.js';
 
 const CONTENT_FILE = dataFile('site-content.json');
 const DOC_ID = 'main';
@@ -25,18 +26,26 @@ function parseStoredContent(data: Record<string, unknown> | undefined): Record<s
 }
 
 export async function getSiteContent(): Promise<Record<string, unknown>> {
+  let raw: Record<string, unknown>;
   if (useFirestore) {
     const db = await getFirestore();
     const doc = await db.collection(COLLECTION).doc(DOC_ID).get();
     if (doc.exists) {
       const parsed = parseStoredContent(doc.data());
-      if (parsed) return parsed;
+      raw = parsed || readFileContent();
+    } else {
+      raw = readFileContent();
+      await saveSiteContent(raw);
     }
-    const bootstrap = readFileContent();
-    await saveSiteContent(bootstrap);
-    return bootstrap;
+  } else {
+    raw = readFileContent();
   }
-  return readFileContent();
+
+  const { content, changed } = upgradeSiteContent(raw);
+  if (changed) {
+    await saveSiteContent(content);
+  }
+  return content;
 }
 
 export async function saveSiteContent(content: Record<string, unknown>): Promise<void> {

@@ -89,40 +89,68 @@ export {
   safeSlug,
 } from './cms-content-store.js';
 
-import { listConditionSlugs, listGuiaSlugs } from './cms-content-store.js';
+import { listConditions, listGuiaArticles } from './cms-content-store.js';
+
+function sitemapLastmod(value: unknown, fallback: string): string {
+  const raw = String(value ?? '').trim();
+  if (!raw) return fallback;
+  const date = raw.split('T')[0];
+  return /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : fallback;
+}
 
 export async function buildSitemapXml(): Promise<string> {
   const siteUrl = (process.env.SITE_URL || 'https://andradeisencoes.com.br').replace(/\/$/, '');
   const today = new Date().toISOString().split('T')[0];
 
-  const urls: Array<{ loc: string; priority: string; changefreq: string }> = [
-    { loc: `${siteUrl}/`, priority: '1.0', changefreq: 'weekly' },
-    { loc: `${siteUrl}/guia`, priority: '0.9', changefreq: 'weekly' },
+  const urls: Array<{ loc: string; priority: string; changefreq: string; lastmod: string }> = [
+    { loc: `${siteUrl}/`, priority: '1.0', changefreq: 'weekly', lastmod: today },
+    { loc: `${siteUrl}/quem-somos`, priority: '0.8', changefreq: 'monthly', lastmod: today },
+    { loc: `${siteUrl}/guia`, priority: '0.9', changefreq: 'weekly', lastmod: today },
+    { loc: `${siteUrl}/iniciar`, priority: '0.7', changefreq: 'monthly', lastmod: today },
+    { loc: `${siteUrl}/privacidade`, priority: '0.3', changefreq: 'yearly', lastmod: today },
+    { loc: `${siteUrl}/termos`, priority: '0.3', changefreq: 'yearly', lastmod: today },
+    { loc: `${siteUrl}/cookies`, priority: '0.3', changefreq: 'yearly', lastmod: today },
   ];
 
-  const conditionSlugs = await listConditionSlugs();
-  for (const slug of conditionSlugs) {
-    urls.push({
-      loc: `${siteUrl}/isencao-pcd/${slug}`,
-      priority: '0.8',
-      changefreq: 'monthly',
-    });
+  try {
+    const conditions = await listConditions();
+    for (const condition of conditions) {
+      const slug = String((condition as { slug?: string }).slug ?? '');
+      if (!slug) continue;
+      const row = condition as { updatedAt?: string; publishedAt?: string };
+      urls.push({
+        loc: `${siteUrl}/isencao-pcd/${slug}`,
+        priority: '0.8',
+        changefreq: 'monthly',
+        lastmod: sitemapLastmod(row.updatedAt || row.publishedAt, today),
+      });
+    }
+  } catch (err) {
+    console.error('sitemap conditions error', err);
   }
 
-  const guiaSlugs = await listGuiaSlugs();
-  for (const slug of guiaSlugs) {
-    urls.push({
-      loc: `${siteUrl}/guia/${slug}`,
-      priority: '0.7',
-      changefreq: 'monthly',
-    });
+  try {
+    const guiaArticles = await listGuiaArticles();
+    for (const article of guiaArticles) {
+      const slug = String((article as { slug?: string }).slug ?? '');
+      if (!slug) continue;
+      const row = article as { updatedAt?: string; publishedAt?: string };
+      urls.push({
+        loc: `${siteUrl}/guia/${slug}`,
+        priority: '0.7',
+        changefreq: 'monthly',
+        lastmod: sitemapLastmod(row.updatedAt || row.publishedAt, today),
+      });
+    }
+  } catch (err) {
+    console.error('sitemap guia error', err);
   }
 
   const body = urls
     .map(
       (u) => `  <url>
     <loc>${u.loc}</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${u.lastmod}</lastmod>
     <changefreq>${u.changefreq}</changefreq>
     <priority>${u.priority}</priority>
   </url>`

@@ -6,6 +6,8 @@ export const PORTAL_STAFF_HOME = '/portal/inicio';
 export const PORTAL_STAFF = {
   home: PORTAL_STAFF_HOME,
   contacts: '/portal/contatos',
+  clients: '/portal/clientes',
+  client: (id: string) => `/portal/clientes/${id}`,
   processes: '/portal/processos',
   process: (id: string) => `/portal/processos/${id}`,
   files: '/portal/arquivos',
@@ -17,6 +19,8 @@ export const PORTAL_STAFF = {
   users: '/portal/usuarios',
   analytics: '/portal/analytics',
   infra: '/portal/infraestrutura',
+  audit: '/portal/auditoria',
+  alerts: '/portal/alertas',
 } as const;
 
 /** Mapeia rotas legadas /admin/* para /portal/*. */

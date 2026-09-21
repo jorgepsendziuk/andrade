@@ -46,7 +46,7 @@ export function EligibilityIntroSection() {
             value={data.disclaimer}
             onChange={(v) => updateSection('quem-pode-direito', { disclaimer: v })}
             as="p"
-            className="text-amber-900 text-xs md:text-sm leading-relaxed"
+            className="text-amber-900 text-sm md:text-base leading-relaxed"
             multiline
           />
         </div>

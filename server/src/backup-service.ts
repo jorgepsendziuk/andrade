@@ -27,6 +27,7 @@ export const FIRESTORE_BACKUP_COLLECTIONS = [
   'process_files',
   'conductors',
   'audit_logs',
+  'staff_alerts',
 ] as const;
 
 export const BACKUP_NEARLINE_USD_PER_GB_MONTH = 0.016;
@@ -195,6 +196,7 @@ async function exportFirestoreToBackup(
     process_files: 'process-files.json',
     conductors: 'conductors.json',
     audit_logs: 'audit-logs.json',
+    staff_alerts: 'staff-alerts.json',
   };
 
   for (const [collection, file] of Object.entries(localCollections)) {

@@ -133,7 +133,7 @@ export function SimulatorSection() {
                   />
                 ))}
               </div>
-              <p className="text-xs text-text-secondary mb-2" id="simulator-step-label">
+              <p className="text-sm text-text-secondary mb-2" id="simulator-step-label">
                 Pergunta {step + 1} de {totalSteps}
               </p>
               <h3 className="font-display font-bold text-brand-800 text-lg mb-6" id="simulator-question">

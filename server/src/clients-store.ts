@@ -7,9 +7,14 @@ import { stripUndefined } from './firestore-utils.js';
 import { dataFile } from './data-paths.js';
 import type { ClientRecord, ClientPublic } from './types/process.js';
 import { buildClientStorageSlug } from './storage-slugs.js';
+import { normalizeAuthEmail } from './auth-email.js';
 
 const CLIENTS_FILE = dataFile('clients.json');
 const COLLECTION = 'clients';
+
+function normalizeEmail(email: string): string {
+  return normalizeAuthEmail(email);
+}
 
 function readFileClients(): ClientRecord[] {
   try {
@@ -30,7 +35,7 @@ export function toPublicClient(client: ClientRecord): ClientPublic {
 }
 
 export async function findClientByEmail(email: string): Promise<ClientRecord | null> {
-  const normalized = email.trim().toLowerCase();
+  const normalized = normalizeEmail(email);
   if (useFirestore) {
     const db = await getFirestore();
     const snap = await db.collection(COLLECTION).where('email', '==', normalized).limit(1).get();
@@ -95,7 +100,7 @@ export async function createClient(input: {
   lgpdConsentAt?: string;
   termsConsentAt?: string;
 }): Promise<ClientPublic> {
-  const email = input.email.trim().toLowerCase();
+  const email = normalizeEmail(input.email);
   const cpf = input.cpf.replace(/\D/g, '');
   if (cpf.length !== 11) throw new Error('CPF inválido. Informe os 11 dígitos.');
 
@@ -181,20 +186,20 @@ export async function updateClientPassword(id: string, newPassword: string): Pro
   const client = await findClientById(id);
   if (!client) return false;
 
-  const updated: ClientRecord = {
-    ...client,
-    passwordHash: bcrypt.hashSync(newPassword, 10),
-    updatedAt: new Date().toISOString(),
-  };
+  const passwordHash = bcrypt.hashSync(newPassword, 10);
+  const updatedAt = new Date().toISOString();
 
   if (useFirestore) {
     const db = await getFirestore();
-    await db.collection(COLLECTION).doc(id).set(stripUndefined(updated));
+    await db.collection(COLLECTION).doc(id).update({
+      passwordHash,
+      updatedAt,
+    });
   } else {
     const clients = readFileClients();
     const idx = clients.findIndex((c) => c.id === id);
     if (idx === -1) return false;
-    clients[idx] = updated;
+    clients[idx] = { ...clients[idx], passwordHash, updatedAt };
     writeFileClients(clients);
   }
   return true;

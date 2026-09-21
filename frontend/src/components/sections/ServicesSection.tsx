@@ -1,18 +1,12 @@
-import { Link } from 'react-router-dom';
-import { Receipt, Percent, Car } from 'lucide-react';
 import { EditableText } from '../cms/EditableText';
 import { useCms } from '../../context/CmsContext';
+import { ASSESSORIA_ICONS, IconAnaliseDocumental } from './AssessoriaIcons';
 
-const serviceIcons: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
-  ipi: Receipt,
-  icms: Percent,
-  ipva: Car,
-};
-
-const serviceColors: Record<string, string> = {
-  ipi: 'from-brand-600 to-brand-700',
-  icms: 'from-brand-500 to-brand-600',
-  ipva: 'from-accent to-accent-dark',
+type AssessoriaItem = {
+  id: string;
+  title: string;
+  description?: string;
+  highlight?: boolean;
 };
 
 export function ServicesSection() {
@@ -22,13 +16,44 @@ export function ServicesSection() {
 
   const data = section.data as {
     title: string;
-    items: { id: string; title: string; description: string; link?: string }[];
-    disclaimer: string;
+    items: AssessoriaItem[];
   };
 
-  const updateItem = (itemId: string, patch: Partial<{ title: string; description: string }>) => {
+  const updateItem = (itemId: string, patch: Partial<AssessoriaItem>) => {
     const items = data.items.map((item) => (item.id === itemId ? { ...item, ...patch } : item));
     updateSection('servicos', { items });
+  };
+
+  const top = data.items.slice(0, 4);
+  const bottom = data.items.slice(4);
+
+  const renderCard = (item: AssessoriaItem) => {
+    const Icon = ASSESSORIA_ICONS[item.id] || IconAnaliseDocumental;
+    return (
+      <article
+        key={item.id}
+        className={`bg-white rounded-2xl px-4 py-5 text-center shadow-[var(--shadow-card)] border h-full flex flex-col items-center ${
+          item.highlight ? 'border-accent/70' : 'border-brand-100'
+        }`}
+      >
+        <Icon className="w-20 h-16 mb-3" />
+        <EditableText
+          value={item.title}
+          onChange={(v) => updateItem(item.id, { title: v })}
+          as="h3"
+          className="font-display font-bold text-brand-800 text-sm md:text-base leading-snug mb-2"
+        />
+        {item.description && (
+          <EditableText
+            value={item.description}
+            onChange={(v) => updateItem(item.id, { description: v })}
+            as="p"
+            className="text-text-secondary text-sm leading-relaxed"
+            multiline
+          />
+        )}
+      </article>
+    );
   };
 
   return (
@@ -41,49 +66,14 @@ export function ServicesSection() {
           className="section-title text-center mb-8"
         />
 
-        <div className="grid md:grid-cols-3 gap-4 mb-8">
-          {data.items.map((item) => {
-            const Icon = serviceIcons[item.id] || Receipt;
-            const gradient = serviceColors[item.id] || 'from-brand-600 to-brand-700';
-            const card = (
-              <div
-                className={`bg-gradient-to-br ${gradient} rounded-xl p-5 text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all h-full flex flex-col`}
-              >
-                <Icon size={28} className="text-white/90 mb-3" />
-                <EditableText
-                  value={item.title}
-                  onChange={(v) => updateItem(item.id, { title: v })}
-                  as="h3"
-                  className="font-bold text-base mb-2"
-                />
-                <EditableText
-                  value={item.description}
-                  onChange={(v) => updateItem(item.id, { description: v })}
-                  as="p"
-                  className="text-white/90 text-xs leading-relaxed flex-1"
-                  multiline
-                />
-              </div>
-            );
-            return item.link ? (
-              <Link key={item.id} to={item.link} className="block h-full">
-                {card}
-              </Link>
-            ) : (
-              <div key={item.id}>{card}</div>
-            );
-          })}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {top.map(renderCard)}
         </div>
-
-        <div className="max-w-3xl mx-auto bg-amber-50 border border-amber-200 rounded-xl p-4 md:p-5">
-          <EditableText
-            value={data.disclaimer}
-            onChange={(v) => updateSection('servicos', { disclaimer: v })}
-            as="p"
-            className="text-amber-900 text-xs md:text-sm leading-relaxed text-center"
-            multiline
-          />
-        </div>
+        {bottom.length > 0 && (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 lg:max-w-4xl lg:mx-auto">
+            {bottom.map(renderCard)}
+          </div>
+        )}
       </div>
     </section>
   );

@@ -462,7 +462,7 @@
         "promoTitle": "Condições especiais para você!",
         "promoText": "Consulte os modelos disponíveis com benefícios PCD.",
         "promoImage": "https://storage.googleapis.com/andrade-media/media/assets/hero/sonhos/photo-3.webp",
-        "ctaText": "Saber mais"
+        "ctaText": "SOLICITAR MINHA COTAÇÃO"
       }
     },
     {
@@ -609,7 +609,7 @@
         "historyParagraphs": [
           "Luiz Carlos Ferreira de Andrade Junior, fundador e CEO da Andrade Consultoria e Isenções, é formado em Administração de Empresas pela UFMT e possui MBAs em Gestão Comercial e Inteligência de Mercado. Com 30 anos de experiência comercial, ele foca em oferecer um atendimento que realmente impacte, valorizando acessibilidade, sustentabilidade e responsabilidade social.",
           "Desde a fundação da Andrade Consultoria, em outubro de 2019, Luiz busca atender o público PCD com um modelo exclusivo, proporcionando experiências marcantes. A abordagem da empresa é personalizada: cada cliente encontra uma solução adaptada às suas necessidades.",
-          "A Andrade Consultoria também atua como Correspondente Bancário e Representante Autorizado do Consórcio Nacional Volkswagen para pessoas físicas, jurídicas e produtores rurais."
+          "A Andrade Isenções é especializada no atendimento ao público PCD, com acompanhamento em cada etapa da aquisição do veículo zero km."
         ]
       }
     },
@@ -619,28 +619,51 @@
       "enabled": true,
       "order": 3,
       "data": {
-        "title": "Quais benefícios podem ser solicitados?",
+        "title": "ASSESSORIA NOS PROCESSOS DE:",
         "items": [
           {
-            "id": "ipi",
-            "title": "IPI",
-            "description": "Possibilidade de isenção do Imposto sobre Produtos Industrializados, conforme os requisitos da legislação federal e análise no SISEN.",
-            "link": "/guia/isencao-ipi-pcd"
+            "id": "analise-documental",
+            "title": "Análise Documental e Juntada de Documentos",
+            "description": "Analisamos a documentação, orientamos sobre os documentos necessários e realizamos a juntada para o andamento do processo.",
+            "highlight": false
           },
           {
-            "id": "icms",
-            "title": "ICMS",
-            "description": "Possibilidade de isenção do ICMS, observadas as regras do Estado competente e os requisitos aplicáveis à SEFAZ de Mato Grosso.",
-            "link": "/guia/isencao-icms-mato-grosso"
+            "id": "junta-detran",
+            "title": "Junta Médica Detran (para quem possui CNH)",
+            "description": "Orientamos desde a abertura do processo, agendamento e acompanhamento na perícia.",
+            "highlight": false
           },
           {
-            "id": "ipva",
-            "title": "IPVA",
-            "description": "Possibilidade de isenção do IPVA, conforme legislação estadual vigente e enquadramento do beneficiário.",
-            "link": "/guia/isencao-ipva-mato-grosso"
+            "id": "junta-sus",
+            "title": "Junta Médica SUS (para quem não possui CNH)",
+            "description": "Orientamos desde a abertura do processo, agendamento e acompanhamento na perícia.",
+            "highlight": false
+          },
+          {
+            "id": "cotacao",
+            "title": "Cotação de Valores Personalizada",
+            "description": "Preparamos cotações personalizadas conforme a escolha de cada cliente, com marca, modelo, versão, cor, itens e valores aplicáveis.",
+            "highlight": true
+          },
+          {
+            "id": "receita-federal",
+            "title": "Receita Federal IPI e IOF",
+            "description": "Protocolos, acompanhamento e defesa dos processos quando necessários.",
+            "highlight": false
+          },
+          {
+            "id": "sefaz-mt",
+            "title": "Sefaz MT ICMS e IPVA",
+            "description": "Protocolos, acompanhamento e defesa dos processos quando necessários.",
+            "highlight": true
+          },
+          {
+            "id": "sefaz-sp",
+            "title": "Sefaz SP ICMS",
+            "description": "Protocolos, acompanhamento e defesa dos processos quando necessários.",
+            "highlight": false
           }
-        ],
-        "disclaimer": "A existência de uma doença ou diagnóstico não garante automaticamente a isenção. Cada benefício possui requisitos próprios e depende da análise dos órgãos competentes."
+        ]
       }
     },
     {

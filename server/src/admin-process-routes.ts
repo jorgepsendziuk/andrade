@@ -4,9 +4,10 @@ import path from 'path';
 import type { AuthRequest } from './auth.js';
 import { authMiddleware, requireRole } from './auth.js';
 import { canManageProcesses } from './auth-login.js';
-import { listClients, findClientById, toPublicClient } from './clients-store.js';
+import { listClients, findClientById, findClientByCpf, toPublicClient } from './clients-store.js';
 import {
   listProcesses,
+  listProcessesByClientId,
   findProcessById,
   updateProcess,
   updateProcessStep,
@@ -22,7 +23,11 @@ import {
   updateProcessFile,
 } from './process-files-store.js';
 import { listConductors, upsertConductors } from './conductors-store.js';
-import { logAudit } from './audit-store.js';
+import { findAuditLogById, listAuditLogs, logAudit } from './audit-store.js';
+import { isRevertableAudit, revertAuditLog } from './audit-revert.js';
+import { acknowledgeStaffAlert, countUnreadStaffAlerts, listStaffAlerts } from './alerts-store.js';
+import { applyClientPatch, CLIENT_AUDIT_FIELDS, parseLegalRepresentative } from './client-patch.js';
+import { diffRecords, summarizeChanges } from './audit-diff.js';
 import { buildFileObjectName, FILE_TYPE_LABELS } from './process-constants.js';
 import { resolveStorageContext, getClientStoragePrefix } from './storage-context.js';
 import { clientOwnsObjectName, formatHumanStoragePath, resolveClientStorageSlug } from './storage-slugs.js';
@@ -49,6 +54,11 @@ import type {
   PagamentoHonorario,
 } from './types/process.js';
 import { createClient } from './clients-store.js';
+import {
+  sendClientPortalAccessEmail,
+  sendClientPasswordResetLink,
+  sendPasswordResetToAllActiveClients,
+} from './auth-password-reset.js';
 
 const docUpload = multer({
   storage: multer.memoryStorage(),
@@ -67,12 +77,110 @@ function staffOnly(req: AuthRequest, res: Response, next: () => void) {
 }
 
 export function registerAdminProcessRoutes(app: Express) {
-  app.get('/api/admin/clients', authMiddleware, staffOnly, async (_req, res) => {
+  app.get('/api/admin/clients', authMiddleware, staffOnly, async (req, res) => {
     try {
-      res.json(await listClients());
+      const search = String(req.query.search || '').trim().toLowerCase();
+      const cpfQuery = String(req.query.cpf || '').replace(/\D/g, '');
+      const clients = await listClients(5000);
+      const processes = await listProcesses(5000);
+      const processCountByClient = new Map<string, number>();
+      const activeProcessByClient = new Map<string, string>();
+      for (const p of processes) {
+        processCountByClient.set(p.clientId, (processCountByClient.get(p.clientId) ?? 0) + 1);
+        if (p.status === 'ativo' && !activeProcessByClient.has(p.clientId)) {
+          activeProcessByClient.set(p.clientId, p.id);
+        }
+      }
+
+      let enriched = clients.map((c) => ({
+        ...c,
+        processCount: processCountByClient.get(c.id) ?? 0,
+        activeProcessId: activeProcessByClient.get(c.id),
+      }));
+
+      if (cpfQuery.length === 11) {
+        enriched = enriched.filter((c) => c.cpf === cpfQuery);
+      } else if (search) {
+        const digits = search.replace(/\D/g, '');
+        enriched = enriched.filter(
+          (c) =>
+            c.name.toLowerCase().includes(search) ||
+            c.email.toLowerCase().includes(search) ||
+            (digits.length >= 3 && c.cpf.includes(digits))
+        );
+      }
+
+      res.json(enriched);
     } catch (err) {
       console.error('list clients error', err);
       res.status(500).json({ error: 'Falha ao carregar clientes.' });
+    }
+  });
+
+  app.get('/api/admin/clients/by-cpf/:cpf', authMiddleware, staffOnly, async (req, res) => {
+    try {
+      const cpf = String(req.params.cpf).replace(/\D/g, '');
+      if (cpf.length !== 11) {
+        return res.status(400).json({ error: 'CPF inválido. Informe os 11 dígitos.' });
+      }
+      const client = await findClientByCpf(cpf);
+      if (!client) return res.status(404).json({ error: 'Cliente não encontrado para este CPF.' });
+      const processes = await listProcessesByClientId(client.id);
+      res.json({
+        client: toPublicClient(client),
+        processes,
+        activeProcessId: processes.find((p) => p.status === 'ativo')?.id,
+      });
+    } catch (err) {
+      res.status(500).json({ error: 'Falha ao buscar cliente.' });
+    }
+  });
+
+  app.post('/api/admin/clients/send-password-resets', authMiddleware, staffOnly, async (_req, res) => {
+    try {
+      const result = await sendPasswordResetToAllActiveClients();
+      res.json({
+        success: true,
+        total: result.total,
+        sent: result.sent,
+        failed: result.failed,
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Falha ao enviar e-mails.';
+      res.status(500).json({ error: message });
+    }
+  });
+
+  app.post('/api/admin/clients/:id/send-password-reset', authMiddleware, staffOnly, async (req, res) => {
+    try {
+      const client = await findClientById(String(req.params.id));
+      if (!client) return res.status(404).json({ error: 'Cliente não encontrado.' });
+      if (client.active === false) {
+        return res.status(400).json({ error: 'Cliente inativo.' });
+      }
+      const result = await sendClientPasswordResetLink(client);
+      if (!result.sent) {
+        return res.status(502).json({ error: result.error || 'Falha ao enviar e-mail.' });
+      }
+      res.json({ success: true, message: 'E-mail de redefinição enviado.' });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Falha ao enviar e-mail.';
+      res.status(500).json({ error: message });
+    }
+  });
+
+  app.get('/api/admin/clients/:id/processes', authMiddleware, staffOnly, async (req, res) => {
+    try {
+      const client = await findClientById(String(req.params.id));
+      if (!client) return res.status(404).json({ error: 'Cliente não encontrado.' });
+      const processes = await listProcessesByClientId(client.id);
+      res.json({
+        client: toPublicClient(client),
+        processes,
+        activeProcessId: processes.find((p) => p.status === 'ativo')?.id,
+      });
+    } catch (err) {
+      res.status(500).json({ error: 'Falha ao carregar processos do cliente.' });
     }
   });
 
@@ -86,28 +194,31 @@ export function registerAdminProcessRoutes(app: Express) {
     }
   });
 
-  app.patch('/api/admin/clients/:id', authMiddleware, staffOnly, async (req, res) => {
+  app.patch('/api/admin/clients/:id', authMiddleware, staffOnly, async (req: AuthRequest, res) => {
     try {
-      const { cpf, cep, phone, endereco, numero, complemento, bairro, cidade, uf } = req.body as Record<string, string>;
-      const patch: Record<string, string> = {};
-      if (cpf !== undefined) {
-        const digits = cpf.replace(/\D/g, '');
-        if (digits.length !== 11) {
-          return res.status(400).json({ error: 'CPF inválido. Informe os 11 dígitos.' });
-        }
-        patch.cpf = digits;
-      }
-      if (cep !== undefined) patch.cep = cep.replace(/\D/g, '');
-      if (phone !== undefined) patch.phone = phone;
-      if (endereco !== undefined) patch.endereco = endereco;
-      if (numero !== undefined) patch.numero = numero;
-      if (complemento !== undefined) patch.complemento = complemento;
-      if (bairro !== undefined) patch.bairro = bairro;
-      if (cidade !== undefined) patch.cidade = cidade;
-      if (uf !== undefined) patch.uf = uf;
-      const { updateClient } = await import('./clients-store.js');
-      const updated = await updateClient(String(req.params.id), patch);
+      const before = await findClientById(String(req.params.id));
+      if (!before) return res.status(404).json({ error: 'Cliente não encontrado.' });
+      const body = { ...req.body, representante: parseLegalRepresentative(req.body?.representante) };
+      const updated = await applyClientPatch(before.id, body, { allowIdentity: true, allowActive: true });
       if (!updated) return res.status(404).json({ error: 'Cliente não encontrado.' });
+      const changes = diffRecords(
+        before as unknown as Record<string, unknown>,
+        updated as unknown as Record<string, unknown>,
+        [...CLIENT_AUDIT_FIELDS]
+      );
+      if (changes.length) {
+        await logAudit({
+          action: 'update',
+          resourceType: 'client',
+          resourceId: before.id,
+          userId: req.user!.id,
+          userRole: req.user!.role,
+          userEmail: req.user!.email,
+          ip: req.ip,
+          summary: `Cliente ${updated.name}: ${summarizeChanges(changes)}`,
+          changes,
+        });
+      }
       res.json(updated);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Falha ao atualizar cliente.';
@@ -115,10 +226,90 @@ export function registerAdminProcessRoutes(app: Express) {
     }
   });
 
+  app.get('/api/admin/alerts', authMiddleware, staffOnly, async (req, res) => {
+    try {
+      const alerts = await listStaffAlerts({
+        limit: Number(req.query.limit) || 200,
+        unreadOnly: req.query.unread === '1' || req.query.unread === 'true',
+        clientId: typeof req.query.clientId === 'string' ? req.query.clientId : undefined,
+      });
+      res.json(alerts);
+    } catch (err) {
+      console.error('list alerts error', err);
+      res.status(500).json({ error: 'Falha ao carregar alertas.' });
+    }
+  });
+
+  app.get('/api/admin/alerts/count', authMiddleware, staffOnly, async (_req, res) => {
+    try {
+      const unread = await countUnreadStaffAlerts();
+      res.json({ unread });
+    } catch (err) {
+      res.status(500).json({ error: 'Falha ao contar alertas.' });
+    }
+  });
+
+  app.patch('/api/admin/alerts/:id/ack', authMiddleware, staffOnly, async (req: AuthRequest, res) => {
+    try {
+      const updated = await acknowledgeStaffAlert(String(req.params.id), {
+        id: req.user!.id,
+        email: req.user!.email,
+      });
+      if (!updated) return res.status(404).json({ error: 'Alerta não encontrado.' });
+      res.json(updated);
+    } catch (err) {
+      res.status(500).json({ error: 'Falha ao marcar alerta.' });
+    }
+  });
+
+  app.post('/api/admin/audit/:id/revert', authMiddleware, staffOnly, async (req: AuthRequest, res) => {
+    try {
+      const log = await findAuditLogById(String(req.params.id));
+      if (!log) return res.status(404).json({ error: 'Registro não encontrado.' });
+      if (!isRevertableAudit(log)) {
+        return res.status(400).json({ error: 'Esta alteração não pode ser desfeita.' });
+      }
+      const result = await revertAuditLog(log);
+      if (result.changes.length) {
+        await logAudit({
+          action: 'update',
+          resourceType: result.resourceType,
+          resourceId: result.resourceId,
+          userId: req.user!.id,
+          userRole: req.user!.role,
+          userEmail: req.user!.email,
+          ip: req.ip,
+          summary: `Desfez alteração: ${summarizeChanges(result.changes)}`,
+          changes: result.changes,
+        });
+      }
+      res.json({ success: true, changes: result.changes });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Falha ao desfazer.';
+      res.status(400).json({ error: message });
+    }
+  });
+
+  app.get('/api/admin/audit', authMiddleware, staffOnly, async (req, res) => {
+    try {
+      const logs = await listAuditLogs({
+        limit: Number(req.query.limit) || 200,
+        resourceType: typeof req.query.resourceType === 'string' ? req.query.resourceType : undefined,
+        resourceId: typeof req.query.resourceId === 'string' ? req.query.resourceId : undefined,
+        action: typeof req.query.action === 'string' ? req.query.action : undefined,
+        search: typeof req.query.search === 'string' ? req.query.search : undefined,
+      });
+      res.json(logs);
+    } catch (err) {
+      console.error('list audit error', err);
+      res.status(500).json({ error: 'Falha ao carregar auditoria.' });
+    }
+  });
+
   app.get('/api/admin/processes', authMiddleware, staffOnly, async (_req, res) => {
     try {
-      const processes = await listProcesses();
-      const clients = await listClients();
+      const processes = await listProcesses(5000);
+      const clients = await listClients(5000);
       const clientMap = Object.fromEntries(clients.map((c) => [c.id, c]));
       const enriched = processes.map((p) => {
         const completedSteps = p.steps.filter(
@@ -132,6 +323,7 @@ export function registerAdminProcessRoutes(app: Express) {
           clientEmail: clientMap[p.clientId]?.email ?? '',
           clientPhone: clientMap[p.clientId]?.phone ?? '',
           clientStorageSlug: clientMap[p.clientId]?.storageSlug,
+          clientLastSelfEditAt: clientMap[p.clientId]?.lastSelfEditAt,
           progressPercent: totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0,
         };
       });
@@ -142,14 +334,16 @@ export function registerAdminProcessRoutes(app: Express) {
     }
   });
 
-  app.post('/api/admin/processes', authMiddleware, staffOnly, async (req, res) => {
+  app.post('/api/admin/processes', authMiddleware, staffOnly, async (req: AuthRequest, res) => {
     const {
       clientId,
+      clientCpf,
       modality,
       newClient,
       force,
     } = req.body as {
       clientId?: string;
+      clientCpf?: string;
       modality?: ProcessModality;
       force?: boolean;
       newClient?: {
@@ -164,8 +358,28 @@ export function registerAdminProcessRoutes(app: Express) {
     try {
       let resolvedClientId = clientId?.trim();
       let generatedPassword: string | undefined;
+      let linkedExistingClient = false;
+
+      if (!resolvedClientId && clientCpf?.trim()) {
+        const digits = clientCpf.replace(/\D/g, '');
+        if (digits.length !== 11) {
+          return res.status(400).json({ error: 'CPF inválido. Informe os 11 dígitos.' });
+        }
+        const byCpf = await findClientByCpf(digits);
+        if (!byCpf) {
+          return res.status(404).json({ error: 'Nenhum cliente encontrado com este CPF.' });
+        }
+        resolvedClientId = byCpf.id;
+        linkedExistingClient = true;
+      }
 
       if (!resolvedClientId && newClient) {
+        const cpfDigits = newClient.cpf.replace(/\D/g, '');
+        const existingByCpf = cpfDigits.length === 11 ? await findClientByCpf(cpfDigits) : null;
+        if (existingByCpf) {
+          resolvedClientId = existingByCpf.id;
+          linkedExistingClient = true;
+        } else {
         const tempPassword =
           newClient.password?.trim() ||
           `Andrade${Math.random().toString(36).slice(2, 8)}!`;
@@ -180,6 +394,11 @@ export function registerAdminProcessRoutes(app: Express) {
           termsConsentAt: new Date().toISOString(),
         });
         resolvedClientId = client.id;
+        const accessEmail = await sendClientPortalAccessEmail(client);
+        if (!accessEmail.sent) {
+          console.error('portal access email failed', client.email, accessEmail.error);
+        }
+        }
       }
 
       if (!resolvedClientId) {
@@ -201,6 +420,16 @@ export function registerAdminProcessRoutes(app: Express) {
         clientId: resolvedClientId,
         modality: modality ?? 'pcd',
       });
+      await logAudit({
+        action: 'create',
+        resourceType: 'process',
+        resourceId: process.id,
+        userId: req.user!.id,
+        userRole: req.user!.role,
+        userEmail: req.user!.email,
+        ip: req.ip,
+        summary: `Processo criado (${process.modality}) para ${client.name}`,
+      });
 
       const enriched = {
         ...process,
@@ -214,6 +443,7 @@ export function registerAdminProcessRoutes(app: Express) {
       res.status(201).json({
         process: enriched,
         ...(generatedPassword ? { tempPassword: generatedPassword } : {}),
+        ...(linkedExistingClient ? { linkedExistingClient: true } : {}),
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Falha ao criar processo.';
@@ -250,6 +480,8 @@ export function registerAdminProcessRoutes(app: Express) {
 
   app.patch('/api/admin/processes/:id', authMiddleware, staffOnly, async (req: AuthRequest, res) => {
     try {
+      const before = await findProcessById(String(req.params.id));
+      if (!before) return res.status(404).json({ error: 'Processo não encontrado.' });
       const { vehicle, honorarios, pagamentoTipo, pagamentoStatus, pagamentos, modality, status } = req.body as {
         vehicle?: VehicleInfo;
         honorarios?: number;
@@ -279,6 +511,24 @@ export function registerAdminProcessRoutes(app: Express) {
 
       const updated = await updateProcess(String(req.params.id), patch);
       if (!updated) return res.status(404).json({ error: 'Processo não encontrado.' });
+      const changes = diffRecords(
+        before as unknown as Record<string, unknown>,
+        updated as unknown as Record<string, unknown>,
+        ['modality', 'status', 'vehicle', 'honorarios', 'pagamentoTipo', 'pagamentoStatus', 'pagamentos']
+      );
+      if (changes.length) {
+        await logAudit({
+          action: 'update',
+          resourceType: 'process',
+          resourceId: updated.id,
+          userId: req.user!.id,
+          userRole: req.user!.role,
+          userEmail: req.user!.email,
+          ip: req.ip,
+          summary: `Processo ${updated.id}: ${summarizeChanges(changes)}`,
+          changes,
+        });
+      }
       res.json(updated);
     } catch (err) {
       res.status(500).json({ error: 'Falha ao atualizar processo.' });
@@ -294,34 +544,102 @@ export function registerAdminProcessRoutes(app: Express) {
     };
     if (!stepKey) return res.status(400).json({ error: 'Informe a etapa.' });
     try {
+      const before = await findProcessById(String(req.params.id));
+      if (!before) return res.status(404).json({ error: 'Processo não encontrado.' });
       const updated = await updateProcessStep(String(req.params.id), stepKey, {
         status: status as ProcessStepStatus,
         protocol,
         internalNote,
       });
       if (!updated) return res.status(404).json({ error: 'Processo não encontrado.' });
+      const changes = diffRecords(
+        {
+          currentStep: before.currentStep,
+          status: before.status,
+          step: before.steps.find((s) => s.key === stepKey),
+        },
+        {
+          currentStep: updated.currentStep,
+          status: updated.status,
+          step: updated.steps.find((s) => s.key === stepKey),
+        },
+        ['currentStep', 'status', 'step']
+      );
+      if (changes.length) {
+        await logAudit({
+          action: 'update',
+          resourceType: 'process',
+          resourceId: updated.id,
+          userId: req.user!.id,
+          userRole: req.user!.role,
+          userEmail: req.user!.email,
+          ip: req.ip,
+          summary: `Etapa ${stepKey}: ${summarizeChanges(changes)}`,
+          changes,
+        });
+      }
       res.json(updated);
     } catch (err) {
       res.status(500).json({ error: 'Falha ao atualizar etapa.' });
     }
   });
 
-  app.post('/api/admin/processes/:id/advance', authMiddleware, staffOnly, async (req, res) => {
+  app.post('/api/admin/processes/:id/advance', authMiddleware, staffOnly, async (req: AuthRequest, res) => {
     try {
+      const before = await findProcessById(String(req.params.id));
       const updated = await advanceProcessStep(String(req.params.id));
       if (!updated) return res.status(404).json({ error: 'Processo não encontrado.' });
+      if (before) {
+        const changes = diffRecords(
+          { currentStep: before.currentStep, status: before.status, steps: before.steps },
+          { currentStep: updated.currentStep, status: updated.status, steps: updated.steps },
+          ['currentStep', 'status', 'steps']
+        );
+        if (changes.length) {
+          await logAudit({
+            action: 'update',
+            resourceType: 'process',
+            resourceId: updated.id,
+            userId: req.user!.id,
+            userRole: req.user!.role,
+            userEmail: req.user!.email,
+            ip: req.ip,
+            summary: `Etapa avançada: ${before.currentStep} → ${updated.currentStep}`,
+            changes,
+          });
+        }
+      }
       res.json(updated);
     } catch (err) {
       res.status(500).json({ error: 'Falha ao avançar etapa.' });
     }
   });
 
-  app.put('/api/admin/processes/:id/conductors', authMiddleware, staffOnly, async (req, res) => {
+  app.put('/api/admin/processes/:id/conductors', authMiddleware, staffOnly, async (req: AuthRequest, res) => {
     try {
       const process = await findProcessById(String(req.params.id));
       if (!process) return res.status(404).json({ error: 'Processo não encontrado.' });
+      const before = await listConductors(process.id);
       const { conductors } = req.body as { conductors: { nome: string; cpf: string; rg?: string; endereco?: string; telefone?: string }[] };
       const saved = await upsertConductors(process.id, process.clientId, conductors || []);
+      const changes = diffRecords(
+        { conductors: before },
+        { conductors: saved },
+        ['conductors']
+      );
+      if (changes.length) {
+        await logAudit({
+          action: 'update',
+          resourceType: 'process',
+          resourceId: process.id,
+          userId: req.user!.id,
+          userRole: req.user!.role,
+          userEmail: req.user!.email,
+          ip: req.ip,
+          summary: `Condutores: ${summarizeChanges(changes)}`,
+          changes,
+        });
+      }
       res.json(saved);
     } catch (err) {
       res.status(500).json({ error: 'Falha ao salvar condutores.' });
@@ -593,6 +911,10 @@ export function registerAdminProcessRoutes(app: Express) {
         termsConsentAt: new Date().toISOString(),
       });
       const process = await createProcess({ clientId: client.id, contactId: contact.id });
+      const accessEmail = await sendClientPortalAccessEmail(client);
+      if (!accessEmail.sent) {
+        console.error('portal access email failed', client.email, accessEmail.error);
+      }
       res.status(201).json({ client, process, tempPassword });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Falha ao criar processo.';

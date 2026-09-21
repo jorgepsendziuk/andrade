@@ -81,7 +81,7 @@ export function AboutPage() {
               {data.historyTitle || 'Nossa História'}
             </h2>
             {paragraphs.map((p, i) => (
-              <p key={i} className="text-text-secondary text-sm leading-relaxed text-justify">
+              <p key={i} className="text-text-secondary text-base leading-relaxed text-justify">
                 {p}
               </p>
             ))}

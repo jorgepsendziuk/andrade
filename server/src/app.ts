@@ -46,8 +46,29 @@ import { runDailyBackup, isValidBackupCronSecret } from './backup-service.js';
 import { canUploadPersistent, saveUploadedImage, validateImageMime, listMediaFiles, deleteMediaFile, collectImageUrls, isGcsEnabled } from './media-store.js';
 import { authenticateUser, getAuthUser } from './auth-login.js';
 import { requestPasswordReset, resetPasswordWithToken } from './auth-password-reset.js';
+import { normalizeAuthEmail } from './auth-email.js';
 import { registerPortalRoutes } from './portal-routes.js';
 import { registerAdminProcessRoutes } from './admin-process-routes.js';
+import {
+  buildRobotsTxt,
+  canonicalRedirect,
+  isOfficialHost,
+  isPreviewHost,
+  guiaRedirectPath,
+  isPublicSpaPath,
+  legacyRedirectPath,
+  NOT_FOUND_HTML,
+  publicRedirectLocation,
+  requestHostname,
+} from './seo-public.js';
+import {
+  normalizeConditionPage,
+  normalizeGuiaArticle,
+  renderConditionNotFoundHtml,
+  renderConditionPage,
+  renderGuiaArticlePage,
+  renderGuiaNotFoundHtml,
+} from './public-page-html.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.join(__dirname, '../data');
@@ -66,6 +87,35 @@ const app = express();
 app.set('trust proxy', true);
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+
+app.use((req, res, next) => {
+  const host = requestHostname(req.headers);
+  const location = req.originalUrl || req.url || '/';
+
+  const hostRedirect = canonicalRedirect(host, location);
+  if (hostRedirect) {
+    return res.redirect(301, hostRedirect);
+  }
+
+  const pathRedirect = legacyRedirectPath(req.path);
+  if (pathRedirect) {
+    res.set('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+    return res.redirect(301, publicRedirectLocation(host, pathRedirect));
+  }
+
+  const skipRobotsTag =
+    req.path === '/sitemap.xml' ||
+    req.path === '/api/sitemap.xml' ||
+    req.path === '/robots.txt';
+
+  if (
+    !skipRobotsTag &&
+    (isPreviewHost(host) || (host && !isOfficialHost(host) && host !== 'localhost' && host !== '127.0.0.1'))
+  ) {
+    res.set('X-Robots-Tag', 'noindex, nofollow');
+  }
+  next();
+});
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -154,16 +204,77 @@ app.get('/api/guia/:slug', async (req, res) => {
   }
 });
 
-app.get('/api/sitemap.xml', async (_req, res) => {
-  res.set('Content-Type', 'application/xml; charset=utf-8');
-  res.set('Cache-Control', 'public, max-age=3600, s-maxage=86400');
-  res.send(await buildSitemapXml());
+app.get('/robots.txt', (req, res) => {
+  const host = requestHostname(req.headers);
+  res.set('Content-Type', 'text/plain; charset=utf-8');
+  res.set('Cache-Control', 'public, max-age=3600');
+  res.send(buildRobotsTxt(host));
 });
 
-app.get('/sitemap.xml', async (_req, res) => {
+app.get(['/api/sitemap.xml', '/sitemap.xml'], async (_req, res) => {
   res.set('Content-Type', 'application/xml; charset=utf-8');
-  res.set('Cache-Control', 'public, max-age=3600, s-maxage=86400');
-  res.send(await buildSitemapXml());
+  res.set('Cache-Control', 'public, max-age=300, s-maxage=300');
+  res.removeHeader('X-Robots-Tag');
+  try {
+    res.send(await buildSitemapXml());
+  } catch (err) {
+    console.error('sitemap error', err);
+    res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://andradeisencoes.com.br/</loc></url>
+</urlset>`);
+  }
+});
+
+app.get('/isencao-pcd/:slug', async (req, res, next) => {
+  const slug = String(req.params.slug || '').trim();
+  if (!slug) return next();
+
+  try {
+    const raw = await readCondition(slug);
+    if (!raw) {
+      res.status(404);
+      res.set('X-Robots-Tag', 'noindex, nofollow');
+      res.set('Cache-Control', 'public, max-age=60');
+      return res.type('html').send(renderConditionNotFoundHtml());
+    }
+
+    const condition = normalizeConditionPage(raw as Record<string, unknown>);
+    res.set('Cache-Control', 'public, max-age=300, s-maxage=300');
+    return res.type('html').send(renderConditionPage(condition));
+  } catch (err) {
+    console.error('condition ssr error', err);
+    return next(err);
+  }
+});
+
+app.get('/guia/:slug', async (req, res, next) => {
+  const host = requestHostname(req.headers);
+  const slug = String(req.params.slug || '').trim();
+  if (!slug) return next();
+
+  const alias = guiaRedirectPath(slug);
+  if (alias) {
+    res.set('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+    return res.redirect(301, publicRedirectLocation(host, alias));
+  }
+
+  try {
+    const raw = await readGuiaArticle(slug);
+    if (!raw) {
+      res.status(404);
+      res.set('X-Robots-Tag', 'noindex, nofollow');
+      res.set('Cache-Control', 'public, max-age=60');
+      return res.type('html').send(renderGuiaNotFoundHtml());
+    }
+
+    const article = normalizeGuiaArticle(raw as Record<string, unknown>);
+    res.set('Cache-Control', 'public, max-age=300, s-maxage=300');
+    return res.type('html').send(renderGuiaArticlePage(article));
+  } catch (err) {
+    console.error('guia ssr error', err);
+    return next(err);
+  }
 });
 
 app.post('/api/contact', async (req, res) => {
@@ -395,8 +506,8 @@ app.post('/api/auth/login', async (req, res) => {
     username?: string;
     password?: string;
   };
-  const loginEmail = (email || username || '').trim().toLowerCase();
-  if (!loginEmail || !password) {
+  const loginEmail = normalizeAuthEmail(email || username || '');
+  if (!loginEmail || !password?.trim()) {
     return res.status(400).json({ error: 'Informe e-mail e senha.' });
   }
 
@@ -671,13 +782,20 @@ app.post('/api/admin/settings/email/test', authMiddleware, requireRole('admin'),
 // Frontend estático (Cloud Run / produção local)
 if (fs.existsSync(FRONTEND_DIST)) {
   app.use(express.static(FRONTEND_DIST, { index: false, maxAge: '1d' }));
+}
 
-  app.get(/^(?!\/api).*/, (req, res, next) => {
-    if (req.path.includes('.')) return next();
-    res.sendFile(path.join(FRONTEND_DIST, 'index.html'), (err) => {
+app.get(/^(?!\/api).*/, (req, res, next) => {
+  if (isPublicSpaPath(req.path) && fs.existsSync(FRONTEND_DIST)) {
+    return res.sendFile(path.join(FRONTEND_DIST, 'index.html'), (err) => {
       if (err) next(err);
     });
-  });
-}
+  }
+  if (isPublicSpaPath(req.path)) return next();
+
+  res.status(404);
+  res.set('X-Robots-Tag', 'noindex, nofollow');
+  res.set('Cache-Control', 'public, max-age=60');
+  res.type('html').send(NOT_FOUND_HTML);
+});
 
 export default app;

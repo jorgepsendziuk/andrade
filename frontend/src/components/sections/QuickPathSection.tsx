@@ -44,7 +44,7 @@ export function QuickPathSection() {
                   updateSection('quick-path', { steps });
                 }}
                 as="p"
-                className="text-text-secondary text-xs md:text-sm"
+                className="text-text-secondary text-sm md:text-base"
               />
             </div>
           ))}

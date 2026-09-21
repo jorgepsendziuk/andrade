@@ -1,4 +1,5 @@
 import type {
+  ClientListItem,
   ClientPublic,
   DocsBrowseResult,
   FileTypeCode,
@@ -7,6 +8,8 @@ import type {
   ProcessModality,
   ProcessRecord,
   ProcessStatus,
+  AuditLogRecord,
+  StaffAlert,
 } from '../types/process';
 import type { AdminUser } from '../types/user';
 import { getToken } from './api';
@@ -46,6 +49,90 @@ export async function fetchPortalProcess(): Promise<{
   return res.json();
 }
 
+export async function updatePortalMe(patch: Record<string, unknown>): Promise<ClientPublic> {
+  const res = await fetch(`${API_BASE}/portal/me`, {
+    method: 'PATCH',
+    headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(patch),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Falha ao atualizar dados');
+  return data as ClientPublic;
+}
+
+export async function updatePortalProcess(patch: Record<string, unknown>): Promise<ProcessRecord> {
+  const res = await fetch(`${API_BASE}/portal/process`, {
+    method: 'PATCH',
+    headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(patch),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Falha ao atualizar processo');
+  return data as ProcessRecord;
+}
+
+export async function fetchPortalAudit(): Promise<AuditLogRecord[]> {
+  const res = await fetch(`${API_BASE}/portal/audit`, { headers: authHeaders() });
+  if (!res.ok) throw new Error('Falha ao carregar auditoria');
+  return res.json();
+}
+
+export async function fetchAdminAudit(params?: {
+  search?: string;
+  action?: string;
+  resourceType?: string;
+  resourceId?: string;
+}): Promise<AuditLogRecord[]> {
+  const query = new URLSearchParams();
+  if (params?.search) query.set('search', params.search);
+  if (params?.action) query.set('action', params.action);
+  if (params?.resourceType) query.set('resourceType', params.resourceType);
+  if (params?.resourceId) query.set('resourceId', params.resourceId);
+  const res = await fetch(`${API_BASE}/admin/audit?${query.toString()}`, { headers: authHeaders() });
+  if (!res.ok) throw new Error('Falha ao carregar auditoria');
+  return res.json();
+}
+
+export async function revertAdminAudit(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/admin/audit/${id}/revert`, {
+    method: 'POST',
+    headers: authHeaders(),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Não foi possível desfazer');
+}
+
+export async function fetchAdminAlerts(params?: {
+  unread?: boolean;
+  clientId?: string;
+  limit?: number;
+}): Promise<StaffAlert[]> {
+  const query = new URLSearchParams();
+  if (params?.unread) query.set('unread', '1');
+  if (params?.clientId) query.set('clientId', params.clientId);
+  if (params?.limit) query.set('limit', String(params.limit));
+  const res = await fetch(`${API_BASE}/admin/alerts?${query.toString()}`, { headers: authHeaders() });
+  if (!res.ok) throw new Error('Falha ao carregar alertas');
+  return res.json();
+}
+
+export async function fetchAdminAlertsCount(): Promise<number> {
+  const res = await fetch(`${API_BASE}/admin/alerts/count`, { headers: authHeaders() });
+  if (!res.ok) throw new Error('Falha ao contar alertas');
+  const data = await res.json();
+  return Number(data.unread || 0);
+}
+
+export async function acknowledgeAdminAlert(id: string): Promise<StaffAlert> {
+  const res = await fetch(`${API_BASE}/admin/alerts/${id}/ack`, {
+    method: 'PATCH',
+    headers: authHeaders(),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Falha ao marcar alerta');
+  return data as StaffAlert;
+}
+
 export async function uploadPortalFile(file: File, fileType: FileTypeCode): Promise<ProcessFileRecord> {
   const form = new FormData();
   form.append('file', file);
@@ -81,14 +168,57 @@ export async function openPortalFile(fileId: string): Promise<void> {
   window.setTimeout(() => URL.revokeObjectURL(blobUrl), 120_000);
 }
 
-export async function fetchAdminClients(): Promise<ClientPublic[]> {
-  const res = await fetch(`${API_BASE}/admin/clients`, { headers: authHeaders() });
+export async function fetchAdminClients(search?: string): Promise<ClientListItem[]> {
+  const params = new URLSearchParams();
+  if (search?.trim()) params.set('search', search.trim());
+  const qs = params.toString();
+  const res = await fetch(`${API_BASE}/admin/clients${qs ? `?${qs}` : ''}`, { headers: authHeaders() });
   if (!res.ok) throw new Error('Falha ao carregar clientes');
   return res.json();
 }
 
+export async function fetchAdminClientByCpf(cpf: string): Promise<{
+  client: ClientPublic;
+  processes: ProcessRecord[];
+  activeProcessId?: string;
+}> {
+  const digits = cpf.replace(/\D/g, '');
+  const res = await fetch(`${API_BASE}/admin/clients/by-cpf/${digits}`, { headers: authHeaders() });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Cliente não encontrado');
+  return data;
+}
+
+export async function fetchAdminClientDetail(id: string): Promise<ClientPublic> {
+  const res = await fetch(`${API_BASE}/admin/clients/${id}`, { headers: authHeaders() });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Falha ao carregar cliente');
+  return data;
+}
+
+export async function fetchAdminClientProcesses(id: string): Promise<{
+  client: ClientPublic;
+  processes: ProcessRecord[];
+  activeProcessId?: string;
+}> {
+  const res = await fetch(`${API_BASE}/admin/clients/${id}/processes`, { headers: authHeaders() });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Falha ao carregar processos');
+  return data;
+}
+
+export async function sendAdminClientPasswordReset(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/admin/clients/${id}/send-password-reset`, {
+    method: 'POST',
+    headers: authHeaders(),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Falha ao enviar e-mail de redefinição');
+}
+
 export async function createAdminProcess(input: {
   clientId?: string;
+  clientCpf?: string;
   modality?: ProcessModality;
   force?: boolean;
   newClient?: {
@@ -98,7 +228,7 @@ export async function createAdminProcess(input: {
     phone?: string;
     password?: string;
   };
-}): Promise<{ process: ProcessListItem; tempPassword?: string }> {
+}): Promise<{ process: ProcessListItem; tempPassword?: string; linkedExistingClient?: boolean }> {
   const res = await fetch(`${API_BASE}/admin/processes`, {
     method: 'POST',
     headers: { ...authHeaders(), 'Content-Type': 'application/json' },
@@ -119,7 +249,10 @@ export async function fetchAdminProcesses(): Promise<ProcessListItem[]> {
   return res.json();
 }
 
-export async function updateAdminClient(id: string, patch: Record<string, string>) {
+export async function updateAdminClient(
+  id: string,
+  patch: Record<string, unknown>
+) {
   const res = await fetch(`${API_BASE}/admin/clients/${id}`, {
     method: 'PATCH',
     headers: { ...authHeaders(), 'Content-Type': 'application/json' },

@@ -44,8 +44,12 @@ export function SeoHead({
 
     document.title = title;
 
+    const host = window.location.hostname.toLowerCase();
+    const official = host === 'andradeisencoes.com.br' || host === 'www.andradeisencoes.com.br';
+    const hideFromIndex = noindex || (!official && host !== 'localhost' && host !== '127.0.0.1');
+
     upsertMeta('name', 'description', description);
-    upsertMeta('name', 'robots', noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large');
+    upsertMeta('name', 'robots', hideFromIndex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large');
     upsertLink('canonical', url);
 
     upsertMeta('property', 'og:type', type);

@@ -8,10 +8,11 @@ import type { AdminUser } from '../../types/user';
 interface AdminLayoutProps {
   user: AdminUser | null;
   newContacts?: number;
+  unreadAlerts?: number;
   onLogout?: () => void;
 }
 
-export function AdminLayout({ user, newContacts = 0, onLogout }: AdminLayoutProps) {
+export function AdminLayout({ user, newContacts = 0, unreadAlerts = 0, onLogout }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = () => {
@@ -43,6 +44,7 @@ export function AdminLayout({ user, newContacts = 0, onLogout }: AdminLayoutProp
         <div className="flex-1 p-4 overflow-y-auto">
           <AdminNav
             newContacts={newContacts}
+            unreadAlerts={unreadAlerts}
             role={user?.role}
             onNavigate={() => setSidebarOpen(false)}
           />

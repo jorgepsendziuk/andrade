@@ -24,7 +24,7 @@ export function PremiumAnalysisSection() {
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <div>
             {data.badge && (
-              <span className="inline-block bg-accent/15 text-accent-dark font-bold text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-full mb-3">
+              <span className="inline-block bg-accent/15 text-accent-dark font-bold text-sm uppercase tracking-widest px-2.5 py-1 rounded-full mb-3">
                 <EditableText
                   value={data.badge}
                   onChange={(v) => updateSection('analise-premium', { badge: v })}

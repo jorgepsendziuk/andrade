@@ -5,7 +5,7 @@ import { useCms } from '../../context/CmsContext';
 import { fetchInstagramFeed, type InstagramFeedData } from '../../lib/api';
 
 function truncateCaption(text: string, max = 90) {
-  const clean = text.replace(/\s+/g, ' ').trim();
+  const clean = (text ?? '').replace(/\s+/g, ' ').trim();
   if (clean.length <= max) return clean;
   return `${clean.slice(0, max).trim()}…`;
 }

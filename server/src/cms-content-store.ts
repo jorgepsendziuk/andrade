@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { getFirestore, useFirestore } from './firestore-client.js';
 import { stripUndefined } from './firestore-utils.js';
+import { stripRodizioFromValue } from './public-copy.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.join(__dirname, '../data');
@@ -83,7 +84,14 @@ async function listFromFirestore(collection: string, fallback: Record<string, un
     await bootstrapFirestoreCollection(collection, fallback);
     return fallback;
   }
-  return snap.docs.map((d) => JSON.parse(String(d.data().json)) as Record<string, unknown>);
+  return snap.docs.flatMap((d) => {
+    try {
+      const parsed = JSON.parse(String(d.data().json)) as Record<string, unknown>;
+      return parsed && typeof parsed === 'object' ? [parsed] : [];
+    } catch {
+      return [];
+    }
+  });
 }
 
 async function getFromFirestore(collection: string, slug: string, fallback: Record<string, unknown> | null) {
@@ -115,16 +123,26 @@ async function deleteFromFirestore(collection: string, slug: string) {
   await db.collection(collection).doc(slug).delete();
 }
 
+async function sanitizeCondition(item: Record<string, unknown>, persist: boolean): Promise<Record<string, unknown>> {
+  const { value, changed } = stripRodizioFromValue(item);
+  if (changed && persist) {
+    const slug = String(value.slug || item.slug || '');
+    if (slug) await saveCondition(value);
+  }
+  return value;
+}
+
 export async function listConditions(): Promise<Record<string, unknown>[]> {
   const fromFiles = readConditionsFromFiles();
-  if (useFirestore) return listFromFirestore(CONDITIONS_COLLECTION, fromFiles);
-  return fromFiles;
+  const items = useFirestore ? await listFromFirestore(CONDITIONS_COLLECTION, fromFiles) : fromFiles;
+  return Promise.all(items.map((item) => sanitizeCondition(item, useFirestore)));
 }
 
 export async function getCondition(slug: string): Promise<Record<string, unknown> | null> {
   const fromFile = readConditionsFromFiles().find((c) => c.slug === slug) ?? null;
-  if (useFirestore) return getFromFirestore(CONDITIONS_COLLECTION, slug, fromFile);
-  return fromFile;
+  const item = useFirestore ? await getFromFirestore(CONDITIONS_COLLECTION, slug, fromFile) : fromFile;
+  if (!item) return null;
+  return sanitizeCondition(item, useFirestore);
 }
 
 export async function saveCondition(data: Record<string, unknown>, previousSlug?: string): Promise<Record<string, unknown>> {

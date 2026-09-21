@@ -3,6 +3,9 @@ import { PageLayout } from '../components/layout/PageLayout';
 import { SeoHead } from '../components/seo/SeoHead';
 import { JsonLd } from '../components/seo/JsonLd';
 import { useCms } from '../context/CmsContext';
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { scrollToAnchor } from '../lib/scroll-to-anchor';
 import {
   DEFAULT_DESCRIPTION,
   buildLocalBusinessSchema,
@@ -11,6 +14,15 @@ import {
 
 export function HomePage({ embed }: { embed?: boolean }) {
   const { content } = useCms();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!location.hash) return;
+    const scroll = () => scrollToAnchor(location.hash);
+    scroll();
+    const timer = window.setTimeout(scroll, 150);
+    return () => window.clearTimeout(timer);
+  }, [location.pathname, location.hash]);
 
   const title =
     'Carro PCD em Mato Grosso — Isenção IPI, ICMS e IPVA | Andrade Isenções';

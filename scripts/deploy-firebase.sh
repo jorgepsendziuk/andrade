@@ -11,6 +11,7 @@ bash scripts/deploy-cloudrun.sh
 echo ""
 echo "═══ 2/2 Firebase Hosting ═══"
 PROJECT="${GCP_PROJECT:-smart-tractor-257319}"
+# sitemap.xml é gerado dinamicamente pelo Cloud Run (lastmod por artigo)
 npx --yes firebase-tools deploy --only hosting --project "$PROJECT" --non-interactive
 
 echo ""

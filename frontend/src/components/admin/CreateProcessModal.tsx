@@ -8,11 +8,12 @@ interface CreateProcessModalProps {
   open: boolean;
   onClose: () => void;
   onCreated: (processId: string, tempPassword?: string) => void;
+  initialClientId?: string;
 }
 
 type Tab = 'existing' | 'new';
 
-export function CreateProcessModal({ open, onClose, onCreated }: CreateProcessModalProps) {
+export function CreateProcessModal({ open, onClose, onCreated, initialClientId }: CreateProcessModalProps) {
   const [tab, setTab] = useState<Tab>('existing');
   const [clients, setClients] = useState<ClientPublic[]>([]);
   const [loadingClients, setLoadingClients] = useState(false);
@@ -34,11 +35,15 @@ export function CreateProcessModal({ open, onClose, onCreated }: CreateProcessMo
     if (!open) return;
     setError('');
     setLoadingClients(true);
+    if (initialClientId) {
+      setTab('existing');
+      setSelectedClientId(initialClientId);
+    }
     fetchAdminClients()
       .then(setClients)
       .catch((err) => setError(err instanceof Error ? err.message : 'Erro ao carregar clientes'))
       .finally(() => setLoadingClients(false));
-  }, [open]);
+  }, [open, initialClientId]);
 
   const filteredClients = useMemo(() => {
     const q = clientSearch.trim().toLowerCase();
@@ -86,6 +91,9 @@ export function CreateProcessModal({ open, onClose, onCreated }: CreateProcessMo
               },
             });
       onCreated(result.process.id, result.tempPassword);
+      if (result.linkedExistingClient) {
+        window.alert('CPF já cadastrado — novo processo vinculado ao cliente existente.');
+      }
       handleClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Falha ao criar processo');
@@ -234,6 +242,9 @@ export function CreateProcessModal({ open, onClose, onCreated }: CreateProcessMo
                     placeholder="000.000.000-00"
                     className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm"
                   />
+                  <p className="text-xs text-slate-500 mt-1">
+                    Se o CPF já existir, o processo será vinculado automaticamente ao cliente cadastrado.
+                  </p>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-600 mb-1">Telefone</label>

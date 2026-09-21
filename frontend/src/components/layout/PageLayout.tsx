@@ -42,7 +42,7 @@ export function PageLayout({ children }: { children: ReactNode }) {
     <div className={isEditing ? 'cms-editing' : ''}>
       <SkipLink />
       <Header />
-      <main id="main-content" className="pt-14 md:pt-16" tabIndex={-1}>
+      <main id="main-content" tabIndex={-1}>
         {children}
       </main>
       <Footer />

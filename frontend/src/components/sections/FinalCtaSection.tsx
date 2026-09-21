@@ -47,7 +47,7 @@ export function FinalCtaSection() {
         />
         <EditableCta
           text={data.ctaText}
-          href={data.ctaLink}
+          href={data.ctaLink?.trim() || '/iniciar'}
           onTextChange={(v) => updateSection('final-cta', { ctaText: v })}
           onHrefChange={(v) => updateSection('final-cta', { ctaLink: v })}
           className="btn-primary text-sm inline-flex items-center gap-2 justify-center"
@@ -59,7 +59,7 @@ export function FinalCtaSection() {
           value={data.ctaSubtext}
           onChange={(v) => updateSection('final-cta', { ctaSubtext: v })}
           as="p"
-          className="text-brand-200 text-[10px] mt-3"
+          className="text-brand-100 text-sm mt-3"
         />
       </div>
     </section>

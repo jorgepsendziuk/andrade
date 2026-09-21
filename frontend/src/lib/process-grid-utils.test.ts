@@ -51,6 +51,28 @@ describe('process-grid-utils', () => {
     expect(filtered[0].clientName).toBe('Ana Silva');
   });
 
+  it('filterProcesses filtra por texto sem retornar todos os registros', () => {
+    const filtered = filterProcesses(sample, {
+      search: 'Ana',
+      status: 'all',
+      step: 'all',
+      modality: 'all',
+    });
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0].clientName).toBe('Ana Silva');
+  });
+
+  it('filterProcesses filtra por CPF com ou sem máscara', () => {
+    const filtered = filterProcesses(sample, {
+      search: '987.654.321-00',
+      status: 'all',
+      step: 'all',
+      modality: 'all',
+    });
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0].clientName).toBe('Bruno Costa');
+  });
+
   it('sortProcesses ordena por nome', () => {
     const sorted = sortProcesses(sample, 'clientName', 'asc');
     expect(sorted[0].clientName).toBe('Ana Silva');

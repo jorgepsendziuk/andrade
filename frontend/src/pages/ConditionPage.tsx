@@ -13,19 +13,33 @@ import {
   buildWebPageSchema,
 } from '../lib/seo';
 
+declare global {
+  interface Window {
+    __CONDITION_PAGE__?: ConditionPage;
+  }
+}
+
+function readBootstrappedCondition(slug?: string): ConditionPage | null {
+  const boot = window.__CONDITION_PAGE__;
+  if (!boot || !slug) return null;
+  if (boot.slug && boot.slug !== slug) return null;
+  return boot;
+}
+
 export function ConditionPage() {
   const { slug } = useParams<{ slug: string }>();
-  const [condition, setCondition] = useState<ConditionPage | null>(null);
-  const [loading, setLoading] = useState(true);
+  const bootstrapped = readBootstrappedCondition(slug);
+  const [condition, setCondition] = useState<ConditionPage | null>(bootstrapped);
+  const [loading, setLoading] = useState(!bootstrapped);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    if (!slug) return;
+    if (!slug || bootstrapped) return;
     fetchCondition(slug)
       .then(setCondition)
       .catch(() => setError(true))
       .finally(() => setLoading(false));
-  }, [slug]);
+  }, [slug, bootstrapped]);
 
   const pageTitle = condition
     ? `${condition.title} | Andrade Isenções`
@@ -82,7 +96,7 @@ export function ConditionPage() {
 
       <article className="py-10 md:py-14" itemScope itemType="https://schema.org/WebPage">
         <div className="max-w-3xl mx-auto px-4">
-          <nav aria-label="Trilha de navegação" className="text-xs text-text-secondary mb-6">
+          <nav aria-label="Trilha de navegação" className="text-sm text-text-secondary mb-6">
             <ol className="flex flex-wrap items-center gap-1 list-none p-0 m-0">
               <li>
                 <Link to="/" className="hover:text-brand-600">Início</Link>

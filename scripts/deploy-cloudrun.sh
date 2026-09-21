@@ -33,7 +33,7 @@ DEPLOY_ARGS=(
   --port 8080
   --memory 512Mi
   --cpu 1
-  --min-instances 0
+  --min-instances 1
   --max-instances 3
   --set-env-vars "NODE_ENV=production,SITE_URL=https://andradeisencoes.com.br,GCS_BUCKET=${GCS_BUCKET:-andrade-media},GCS_DOCS_BUCKET=${GCS_DOCS_BUCKET:-andrade-docs},GCS_BACKUP_BUCKET=${GCS_BACKUP_BUCKET:-andrade-backups},BACKUP_RETENTION_DAYS=${BACKUP_RETENTION_DAYS:-90},SMTP_HOST=smtp.gmail.com,SMTP_PORT=587,SMTP_SECURE=false,SMTP_USER=andradeisencoescloud@gmail.com,SMTP_FROM=andradeisencoescloud@gmail.com,CONTACT_EMAIL=comercial@andradeisencoes.com.br,LOGIN_RATE_LIMIT_EXEMPT=jimxxx@gmail.com,GA4_PROPERTY_ID=${GA4_PROPERTY_ID:-347102827},GCP_PROJECT_NUMBER=${PROJECT_NUMBER},BILLING_BQ_DATASET=${BILLING_BQ_DATASET:-billing_export},BILLING_ACCOUNT_ID=${BILLING_ACCOUNT_ID:-017163-F935E4-FCF7C4}"
 )

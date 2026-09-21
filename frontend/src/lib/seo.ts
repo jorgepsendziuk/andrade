@@ -47,14 +47,23 @@ export function buildArticleSchema(opts: {
   description: string;
   path: string;
   publishedAt?: string;
+  updatedAt?: string;
+  image?: string;
 }) {
+  const url = absoluteUrl(opts.path);
   return {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: opts.title,
     description: opts.description,
-    url: absoluteUrl(opts.path),
+    url,
+    image: opts.image || DEFAULT_OG_IMAGE,
     datePublished: opts.publishedAt,
+    dateModified: opts.updatedAt || opts.publishedAt,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': url,
+    },
     author: {
       '@type': 'Organization',
       name: SITE_NAME,

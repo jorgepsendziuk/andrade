@@ -1,5 +1,6 @@
 import { EditableText } from './EditableText';
 import { useCms } from '../../context/CmsContext';
+import { AnchorLink } from '../ui/AnchorLink';
 
 interface EditableCtaProps {
   text: string;
@@ -37,8 +38,8 @@ export function EditableCta({
   }
 
   return (
-    <a href={href} className={className}>
+    <AnchorLink href={href || '#'} className={className}>
       {children ?? text}
-    </a>
+    </AnchorLink>
   );
 }

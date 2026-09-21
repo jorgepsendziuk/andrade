@@ -107,4 +107,6 @@ export interface GuiaArticle {
   content: string[];
   relatedConditions?: string[];
   publishedAt: string;
+  updatedAt?: string;
+  faq?: Array<{ question: string; answer: string }>;
 }

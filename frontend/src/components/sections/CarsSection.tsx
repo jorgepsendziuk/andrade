@@ -35,7 +35,7 @@ export function CarsSection() {
             value={data.subtitle}
             onChange={(v) => updateSection('carros', { subtitle: v })}
             as="p"
-            className="text-text-secondary text-xs md:text-sm font-medium"
+            className="text-text-secondary text-sm md:text-base font-medium"
           />
         </div>
 
@@ -104,11 +104,11 @@ export function CarsSection() {
                 value={data.promoText}
                 onChange={(v) => updateSection('carros', { promoText: v })}
                 as="p"
-                className="text-text-secondary text-xs md:text-sm mb-5 flex-1 leading-relaxed"
+                className="text-text-secondary text-sm md:text-base mb-5 flex-1 leading-relaxed"
               />
               <WhatsAppLink
-                message="Olá! Gostaria de saber mais sobre veículos PCD com benefícios."
-                className="btn-primary-sm w-full text-xs md:text-sm py-2.5"
+                message="Olá! Quero solicitar minha cotação personalizada de veículo PCD."
+                className="btn-primary-sm w-full py-2.5"
               >
                 <EditableText
                   value={data.ctaText}

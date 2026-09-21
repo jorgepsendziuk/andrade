@@ -52,7 +52,7 @@ export function ProcessSection() {
               value={data.subtitle}
               onChange={(v) => updateSection('como-funciona', { subtitle: v })}
               as="p"
-              className="text-brand-100 text-xs md:text-sm"
+              className="text-brand-100 text-sm md:text-base"
             />
           </div>
           <EditableCta
@@ -60,7 +60,7 @@ export function ProcessSection() {
             href={data.ctaLink}
             onTextChange={(v) => updateSection('como-funciona', { ctaText: v })}
             onHrefChange={(v) => updateSection('como-funciona', { ctaLink: v })}
-            className="btn-primary text-xs flex-shrink-0 self-start md:self-auto inline-flex items-center gap-2"
+            className="btn-primary flex-shrink-0 self-start md:self-auto inline-flex items-center gap-2"
           >
             {data.ctaText}
             <ArrowRight size={16} strokeWidth={2.5} />
@@ -88,7 +88,7 @@ export function ProcessSection() {
                     updateSection('como-funciona', { steps });
                   }}
                   as="h3"
-                  className="text-white font-bold text-[10px] md:text-xs leading-tight px-1"
+                  className="text-white font-bold text-sm leading-tight px-1"
                 />
                 <EditableText
                   value={step.description}
@@ -97,7 +97,7 @@ export function ProcessSection() {
                     updateSection('como-funciona', { steps });
                   }}
                   as="p"
-                  className="text-brand-100 text-[10px] leading-snug mt-1 hidden md:block px-1"
+                  className="text-brand-100 text-sm leading-snug mt-1 hidden md:block px-1"
                 />
               </div>
             );

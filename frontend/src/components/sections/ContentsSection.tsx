@@ -79,7 +79,7 @@ export function ContentsSection() {
               <h3 className="font-bold text-brand-800 text-sm leading-snug mb-2 group-hover:text-brand-600">
                 {article.title}
               </h3>
-              <p className="text-text-secondary text-xs leading-relaxed line-clamp-2">
+              <p className="text-text-secondary text-sm leading-relaxed line-clamp-2">
                 {article.excerpt}
               </p>
             </Link>

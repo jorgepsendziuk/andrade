@@ -14,6 +14,7 @@ import { PrivacyPage } from './pages/PrivacyPage';
 import { TermsPage } from './pages/TermsPage';
 import { AboutPage } from './pages/AboutPage';
 import { CookiesPage } from './pages/CookiesPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { AdminShell } from './components/admin/AdminShell';
 import { PortalGuard } from './components/portal/PortalGuard';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
@@ -28,7 +29,11 @@ import { AdminInfraPage } from './pages/admin/AdminInfraPage';
 import { AdminMediaPage } from './pages/admin/AdminMediaPage';
 import { AdminProcessesPage } from './pages/admin/AdminProcessesPage';
 import { AdminProcessDetailPage } from './pages/admin/AdminProcessDetailPage';
+import { AdminClientsPage } from './pages/admin/AdminClientsPage';
+import { AdminClientDetailPage } from './pages/admin/AdminClientDetailPage';
 import { AdminDocsBrowserPage } from './pages/admin/AdminDocsBrowserPage';
+import { AdminAuditPage } from './pages/admin/AdminAuditPage';
+import { AdminAlertsPage } from './pages/admin/AdminAlertsPage';
 import { RoleGuard } from './components/admin/RoleGuard';
 import { LegacyAdminRedirect, LegacyContaRedirect } from './components/routing/LegacyPortalRedirects';
 import { PORTAL_LOGIN } from './lib/portal-routes';
@@ -66,9 +71,13 @@ export default function App() {
             <Route element={<AdminShell />}>
               <Route path="inicio" element={<AdminDashboardPage />} />
               <Route path="contatos" element={<AdminContactsPage />} />
+              <Route path="clientes" element={<RoleGuard roles={['admin', 'comercial']}><AdminClientsPage /></RoleGuard>} />
+              <Route path="clientes/:id" element={<RoleGuard roles={['admin', 'comercial']}><AdminClientDetailPage /></RoleGuard>} />
               <Route path="processos" element={<RoleGuard roles={['admin', 'comercial']}><AdminProcessesPage /></RoleGuard>} />
               <Route path="processos/:id" element={<RoleGuard roles={['admin', 'comercial']}><AdminProcessDetailPage /></RoleGuard>} />
               <Route path="arquivos" element={<RoleGuard roles={['admin', 'comercial']}><AdminDocsBrowserPage /></RoleGuard>} />
+              <Route path="auditoria" element={<RoleGuard roles={['admin', 'comercial']}><AdminAuditPage /></RoleGuard>} />
+              <Route path="alertas" element={<RoleGuard roles={['admin', 'comercial']}><AdminAlertsPage /></RoleGuard>} />
               <Route path="site" element={<RoleGuard roles={['admin', 'editor']}><AdminSitePage /></RoleGuard>} />
               <Route path="condicoes" element={<RoleGuard roles={['admin', 'editor']}><AdminConditionsPage /></RoleGuard>} />
               <Route path="guia" element={<RoleGuard roles={['admin', 'editor']}><AdminGuiaPage /></RoleGuard>} />
@@ -80,7 +89,7 @@ export default function App() {
             </Route>
           </Route>
 
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </CmsProvider>
     </AccessibilityProvider>

@@ -76,7 +76,7 @@ export function WhyAndradeSection() {
                   value={item.description}
                   onChange={(v) => updateItem(item.id, { description: v })}
                   as="p"
-                  className="text-text-secondary text-xs leading-relaxed"
+                  className="text-text-secondary text-sm leading-relaxed"
                   multiline
                 />
               </div>

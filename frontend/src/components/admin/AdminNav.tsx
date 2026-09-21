@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import {
   BarChart3,
+  Bell,
   BookOpen,
   ClipboardList,
   Cloud,
@@ -10,7 +11,9 @@ import {
   Inbox,
   LayoutDashboard,
   Pencil,
+  ScrollText,
   Settings,
+  UserCircle,
   Users,
 } from 'lucide-react';
 
@@ -21,13 +24,16 @@ const NAV: {
   to: string;
   label: string;
   icon: typeof LayoutDashboard;
-  badgeKey?: 'contacts';
+  badgeKey?: 'contacts' | 'alerts';
   roles: UserRole[];
 }[] = [
   { to: PORTAL_STAFF.home, label: 'Início', icon: LayoutDashboard, roles: ['admin', 'editor', 'comercial'] },
   { to: PORTAL_STAFF.contacts, label: 'Contatos', icon: Inbox, badgeKey: 'contacts', roles: ['admin', 'editor', 'comercial'] },
+  { to: PORTAL_STAFF.alerts, label: 'Alertas', icon: Bell, badgeKey: 'alerts', roles: ['admin', 'comercial'] },
+  { to: PORTAL_STAFF.clients, label: 'Clientes', icon: UserCircle, roles: ['admin', 'comercial'] },
   { to: PORTAL_STAFF.processes, label: 'Processos PCD', icon: ClipboardList, roles: ['admin', 'comercial'] },
   { to: PORTAL_STAFF.files, label: 'Arquivos', icon: FolderOpen, roles: ['admin', 'comercial'] },
+  { to: PORTAL_STAFF.audit, label: 'Histórico', icon: ScrollText, roles: ['admin', 'comercial'] },
   { to: PORTAL_STAFF.site, label: 'Editar site', icon: Pencil, roles: ['admin', 'editor'] },
   { to: PORTAL_STAFF.conditions, label: 'Condições PCD', icon: HeartPulse, roles: ['admin', 'editor'] },
   { to: PORTAL_STAFF.guia, label: 'Guia PCD', icon: BookOpen, roles: ['admin', 'editor'] },
@@ -40,11 +46,12 @@ const NAV: {
 
 interface AdminNavProps {
   newContacts?: number;
+  unreadAlerts?: number;
   role?: AuthRole;
   onNavigate?: () => void;
 }
 
-export function AdminNav({ newContacts = 0, role: userRole = 'comercial', onNavigate }: AdminNavProps) {
+export function AdminNav({ newContacts = 0, unreadAlerts = 0, role: userRole = 'comercial', onNavigate }: AdminNavProps) {
   return (
     <nav className="space-y-1">
       {NAV.filter((item) => userRole === 'cliente' ? false : item.roles.includes(userRole as UserRole)).map(({ to, label, icon: Icon, badgeKey }) => (
@@ -65,6 +72,11 @@ export function AdminNav({ newContacts = 0, role: userRole = 'comercial', onNavi
           {badgeKey === 'contacts' && newContacts > 0 && (
             <span className="bg-accent text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[1.25rem] text-center">
               {newContacts > 99 ? '99+' : newContacts}
+            </span>
+          )}
+          {badgeKey === 'alerts' && unreadAlerts > 0 && (
+            <span className="bg-amber-400 text-amber-950 text-xs font-bold px-2 py-0.5 rounded-full min-w-[1.25rem] text-center">
+              {unreadAlerts > 99 ? '99+' : unreadAlerts}
             </span>
           )}
         </NavLink>

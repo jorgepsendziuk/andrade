@@ -135,7 +135,7 @@ export function AboutSection() {
                 value={data.historyTitle}
                 onChange={(v) => updateSection('quem-somos', { historyTitle: v })}
                 as="h3"
-                className="font-display font-bold text-brand-800 text-xs uppercase tracking-widest mb-4"
+                className="font-display font-bold text-brand-800 text-sm uppercase tracking-widest mb-4"
               />
               <div className="space-y-3.5">
                 {data.historyParagraphs.map((p, i) => (
@@ -151,7 +151,7 @@ export function AboutSection() {
                     className={`leading-relaxed text-justify ${
                       i === 0
                         ? 'text-brand-800 text-sm md:text-[15px] font-medium'
-                        : 'text-text-secondary text-xs md:text-sm'
+                        : 'text-text-secondary text-sm md:text-base'
                     }`}
                     multiline
                   />

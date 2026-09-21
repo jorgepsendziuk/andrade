@@ -416,7 +416,7 @@ export function StartProcessPage() {
         {step === 'senha' && (
           <div className="bg-white rounded-2xl p-6 shadow-card border border-brand-100 space-y-4">
             <h2 className="font-display font-bold text-lg text-brand-800">Criar senha do portal</h2>
-            <p className="text-sm text-slate-600">Use esta senha para acompanhar seu processo em /entrar. Se esquecer, use &quot;Esqueci minha senha&quot; na tela de login.</p>
+            <p className="text-sm text-slate-600">Use esta senha para acompanhar seu processo. Você também receberá um e-mail com o link de acesso e para definir ou alterar a senha, se precisar.</p>
             <label className="text-sm block">Senha (mín. 8 caracteres)
               <input type="password" className="input-field mt-1" value={form.password} onChange={(e) => set('password', e.target.value)} />
             </label>

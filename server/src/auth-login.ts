@@ -8,6 +8,7 @@ import {
   verifyClientPassword,
 } from './clients-store.js';
 import { signToken } from './auth.js';
+import { normalizeAuthEmail } from './auth-email.js';
 
 export type AuthRole = UserRole | 'cliente';
 
@@ -26,18 +27,21 @@ export async function authenticateUser(
   email: string,
   password: string
 ): Promise<{ token: string; user: AuthUserPublic } | null> {
-  const normalized = email.trim().toLowerCase();
+  const normalized = normalizeAuthEmail(email);
+  const pwd = password.trim();
+  if (!pwd) return null;
 
   const admin = await findUserByEmail(normalized);
-  if (admin) {
-    if (admin.active === false || !(await verifyPassword(admin, password))) return null;
+  const client = await findClientByEmail(normalized);
+  const staffOk = Boolean(admin && admin.active !== false && (await verifyPassword(admin, pwd)));
+  const clientOk = Boolean(client && client.active !== false && (await verifyClientPassword(client, pwd)));
+
+  if (admin && admin.active !== false && (staffOk || clientOk)) {
     const payload = { id: admin.id, email: admin.email, name: admin.name, role: admin.role as AuthRole };
     return { token: signToken(payload), user: { ...toPublicUser(admin), role: admin.role } };
   }
 
-  const client = await findClientByEmail(normalized);
-  if (client) {
-    if (client.active === false || !(await verifyClientPassword(client, password))) return null;
+  if (clientOk && client) {
     const payload = { id: client.id, email: client.email, name: client.name, role: 'cliente' as AuthRole };
     return { token: signToken(payload), user: { ...toPublicClient(client), role: 'cliente' } };
   }

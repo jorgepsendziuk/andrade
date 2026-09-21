@@ -27,7 +27,7 @@ function VideoPlayOverlay({ label }: { label?: string }) {
         <Play size={22} className="text-brand-600 ml-1" fill="currentColor" />
       </div>
       {label && (
-        <p className="mt-2 text-white text-[10px] md:text-xs font-semibold drop-shadow-lg text-center px-2 leading-tight">
+        <p className="mt-2 text-white text-sm font-semibold drop-shadow-lg text-center px-2 leading-tight">
           {label}
         </p>
       )}
@@ -160,7 +160,7 @@ export function HeroSection() {
   const row2Box = `${heroBox} aspect-[693/362] w-full`;
 
   return (
-    <section id="inicio" className="pt-16 md:pt-[72px]">
+    <section id="inicio">
       <div className="hero-gradient px-3 md:px-4 py-3 md:py-5">
         <div className="max-w-6xl mx-auto space-y-3 md:space-y-4">
           {/* Linha 1: mascote | G1 | Pescuma — proporção G1, sem bordas */}
@@ -207,7 +207,7 @@ export function HeroSection() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent pointer-events-none" />
               <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 text-white pointer-events-none">
                 <h2 className="font-bold text-sm md:text-lg leading-tight">{mosaic.sonhosTitle}</h2>
-                <p className="text-[10px] md:text-xs text-white/90 mt-1 leading-snug line-clamp-2">
+                <p className="text-sm text-white/90 mt-1 leading-snug line-clamp-2">
                   {mosaic.sonhosSubtitle}
                 </p>
               </div>
@@ -237,7 +237,7 @@ export function HeroSection() {
 
           <a
             href={mosaic.ctaLink}
-            className="flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-600 text-white py-3 md:py-3.5 font-bold uppercase tracking-widest text-xs md:text-sm transition-colors rounded-lg shadow-md"
+            className="flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-600 text-white py-3 md:py-3.5 font-bold uppercase tracking-widest text-sm md:text-base transition-colors rounded-lg shadow-md"
           >
             <Megaphone size={18} />
             {mosaic.ctaText}

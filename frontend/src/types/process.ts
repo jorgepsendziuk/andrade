@@ -67,8 +67,16 @@ export interface ClientPublic {
   termsConsentAt?: string;
   active: boolean;
   storageSlug?: string;
+  lastSelfEditAt?: string;
+  lastSelfEditFields?: string[];
+  lastSelfEditAlertId?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ClientListItem extends ClientPublic {
+  processCount: number;
+  activeProcessId?: string;
 }
 
 export interface ProcessRecord {
@@ -121,6 +129,7 @@ export interface ProcessListItem extends ProcessRecord {
   clientEmail: string;
   clientPhone?: string;
   clientStorageSlug?: string;
+  clientLastSelfEditAt?: string;
   progressPercent?: number;
 }
 
@@ -160,6 +169,78 @@ export interface DocsBrowseResult {
     mimeType: string;
   }[];
 }
+
+export type AuditAction =
+  | 'view'
+  | 'download'
+  | 'upload'
+  | 'delete'
+  | 'login'
+  | 'consent'
+  | 'create'
+  | 'update'
+  | 'password_reset';
+
+export interface AuditChange {
+  field: string;
+  from?: unknown;
+  to?: unknown;
+}
+
+export interface AuditLogRecord {
+  id: string;
+  action: AuditAction;
+  resourceType: string;
+  resourceId?: string;
+  objectName?: string;
+  userId: string;
+  userRole: string;
+  userEmail?: string;
+  ip?: string;
+  summary?: string;
+  changes?: AuditChange[];
+  createdAt: string;
+}
+
+export type StaffAlertType = 'client_self_edit' | 'process_self_edit';
+
+export interface StaffAlert {
+  id: string;
+  type: StaffAlertType;
+  title: string;
+  summary: string;
+  clientId: string;
+  clientName: string;
+  processId?: string;
+  changes: AuditChange[];
+  unread: boolean;
+  createdAt: string;
+  readAt?: string;
+  readBy?: string;
+  readByEmail?: string;
+}
+
+export const CLIENT_FIELD_LABELS: Record<string, string> = {
+  name: 'Nome',
+  email: 'E-mail',
+  cpf: 'CPF',
+  rg: 'RG',
+  rgEstado: 'UF do RG',
+  rgOrgaoEmissor: 'Órgão emissor',
+  rgDataEmissao: 'Data de emissão do RG',
+  phone: 'Telefone',
+  endereco: 'Endereço',
+  numero: 'Número',
+  complemento: 'Complemento',
+  bairro: 'Bairro',
+  cep: 'CEP',
+  cidade: 'Cidade',
+  uf: 'UF',
+  genero: 'Gênero',
+  representante: 'Representante legal',
+  active: 'Cadastro ativo',
+  vehicle: 'Veículo',
+};
 
 export const FILE_TYPE_LABELS: Record<FileTypeCode, string> = {
   cnh: 'CNH',

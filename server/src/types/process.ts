@@ -106,6 +106,9 @@ export interface ClientRecord {
   termsConsentAt?: string;
   active: boolean;
   storageSlug?: string;
+  lastSelfEditAt?: string;
+  lastSelfEditFields?: string[];
+  lastSelfEditAlertId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -133,6 +136,9 @@ export interface ClientPublic {
   termsConsentAt?: string;
   active: boolean;
   storageSlug?: string;
+  lastSelfEditAt?: string;
+  lastSelfEditFields?: string[];
+  lastSelfEditAlertId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -183,9 +189,26 @@ export interface ConductorRecord {
   updatedAt: string;
 }
 
+export type AuditAction =
+  | 'view'
+  | 'download'
+  | 'upload'
+  | 'delete'
+  | 'login'
+  | 'consent'
+  | 'create'
+  | 'update'
+  | 'password_reset';
+
+export interface AuditChange {
+  field: string;
+  from?: unknown;
+  to?: unknown;
+}
+
 export interface AuditLogRecord {
   id: string;
-  action: 'view' | 'download' | 'upload' | 'delete' | 'login' | 'consent';
+  action: AuditAction;
   resourceType: string;
   resourceId?: string;
   objectName?: string;
@@ -193,7 +216,27 @@ export interface AuditLogRecord {
   userRole: string;
   userEmail?: string;
   ip?: string;
+  summary?: string;
+  changes?: AuditChange[];
   createdAt: string;
+}
+
+export type StaffAlertType = 'client_self_edit' | 'process_self_edit';
+
+export interface StaffAlert {
+  id: string;
+  type: StaffAlertType;
+  title: string;
+  summary: string;
+  clientId: string;
+  clientName: string;
+  processId?: string;
+  changes: AuditChange[];
+  unread: boolean;
+  createdAt: string;
+  readAt?: string;
+  readBy?: string;
+  readByEmail?: string;
 }
 
 export interface DocsFolderEntry {

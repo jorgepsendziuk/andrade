@@ -39,10 +39,10 @@ export function CookieBanner() {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0">
-          <button type="button" onClick={() => accept('essential')} className="btn-secondary text-xs py-2 px-4">
+          <button type="button" onClick={() => accept('essential')} className="btn-secondary py-2 px-4">
             Apenas essenciais
           </button>
-          <button type="button" onClick={() => accept('analytics')} className="btn-primary text-xs py-2 px-4">
+          <button type="button" onClick={() => accept('analytics')} className="btn-primary py-2 px-4">
             Aceitar todos
           </button>
         </div>

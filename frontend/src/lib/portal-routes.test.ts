@@ -10,6 +10,10 @@ describe('mapLegacyAdminPath', () => {
     expect(mapLegacyAdminPath('/admin/processos')).toBe('/portal/processos');
   });
 
+  it('mapeia /admin/auditoria para /portal/auditoria', () => {
+    expect(mapLegacyAdminPath('/admin/auditoria')).toBe('/portal/auditoria');
+  });
+
   it('preserva subrotas com parâmetros', () => {
     expect(mapLegacyAdminPath('/admin/processos/abc-123')).toBe('/portal/processos/abc-123');
   });

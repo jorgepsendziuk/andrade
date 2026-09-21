@@ -204,11 +204,11 @@ export function ContactSection() {
                   />
                 </div>
                 {error && (
-                  <p className="text-red-600 text-xs" role="alert">
+                  <p className="text-red-600 text-sm" role="alert">
                     {error}
                   </p>
                 )}
-                <label className="flex items-start gap-2 text-xs text-slate-600 cursor-pointer">
+                <label className="flex items-start gap-2 text-sm text-slate-600 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={lgpdConsent}

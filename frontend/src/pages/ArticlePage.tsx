@@ -7,21 +7,35 @@ import { fetchGuiaArticle } from '../lib/api';
 import type { GuiaArticle } from '../types/site';
 import { WhatsAppLink } from '../components/ui/WhatsAppLink';
 import { ArrowRight } from 'lucide-react';
-import { buildArticleSchema, buildBreadcrumbSchema } from '../lib/seo';
+import { buildArticleSchema, buildBreadcrumbSchema, buildFaqSchema } from '../lib/seo';
+
+declare global {
+  interface Window {
+    __GUIA_ARTICLE__?: GuiaArticle;
+  }
+}
+
+function readBootstrappedArticle(slug?: string): GuiaArticle | null {
+  const boot = window.__GUIA_ARTICLE__;
+  if (!boot || !slug) return null;
+  if (boot.slug && boot.slug !== slug) return null;
+  return boot;
+}
 
 export function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
-  const [article, setArticle] = useState<GuiaArticle | null>(null);
-  const [loading, setLoading] = useState(true);
+  const bootstrapped = readBootstrappedArticle(slug);
+  const [article, setArticle] = useState<GuiaArticle | null>(bootstrapped);
+  const [loading, setLoading] = useState(!bootstrapped);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    if (!slug) return;
+    if (!slug || bootstrapped) return;
     fetchGuiaArticle(slug)
       .then(setArticle)
       .catch(() => setError(true))
       .finally(() => setLoading(false));
-  }, [slug]);
+  }, [slug, bootstrapped]);
 
   const pageTitle = article
     ? `${article.title} | Guia PCD — Andrade Isenções`
@@ -29,12 +43,13 @@ export function ArticlePage() {
 
   const jsonLd = useMemo(() => {
     if (!article || !slug) return null;
-    return [
+    const schemas: Record<string, unknown>[] = [
       buildArticleSchema({
         title: article.title,
         description: article.metaDescription,
         path: `/guia/${slug}`,
         publishedAt: article.publishedAt,
+        updatedAt: article.updatedAt,
       }),
       buildBreadcrumbSchema([
         { name: 'Início', path: '/' },
@@ -42,6 +57,8 @@ export function ArticlePage() {
         { name: article.title },
       ]),
     ];
+    if (article.faq && article.faq.length > 0) schemas.push(buildFaqSchema(article.faq));
+    return schemas;
   }, [article, slug]);
 
   if (loading) {
@@ -77,7 +94,7 @@ export function ArticlePage() {
       <article className="py-10 md:py-14" itemScope itemType="https://schema.org/Article">
         <div className="max-w-6xl mx-auto px-4 grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <nav aria-label="Trilha de navegação" className="text-xs text-text-secondary mb-6">
+            <nav aria-label="Trilha de navegação" className="text-sm text-text-secondary mb-6">
               <ol className="flex flex-wrap items-center gap-1 list-none p-0 m-0">
                 <li><Link to="/" className="hover:text-brand-600">Início</Link></li>
                 <li aria-hidden="true">/</li>
@@ -93,7 +110,7 @@ export function ArticlePage() {
 
             <div className="prose prose-sm max-w-none space-y-4" itemProp="articleBody">
               {article.content.map((paragraph, i) => (
-                <p key={i} className="text-text-secondary text-sm leading-relaxed">{paragraph}</p>
+                <p key={i} className="text-text-secondary text-base leading-relaxed">{paragraph}</p>
               ))}
             </div>
           </div>
@@ -101,7 +118,7 @@ export function ArticlePage() {
           <aside className="space-y-6">
             <div className="bg-brand-800 rounded-2xl p-6 text-white sticky top-24">
               <h2 className="font-display font-bold text-lg mb-3">Precisa de ajuda?</h2>
-              <p className="text-brand-100 text-xs mb-4">
+              <p className="text-brand-100 text-sm mb-4">
                 Nossa equipe especializada pode analisar seu caso e orientar sobre os benefícios aplicáveis.
               </p>
               <WhatsAppLink className="btn-primary w-full">

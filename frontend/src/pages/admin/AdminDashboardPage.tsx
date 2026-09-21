@@ -18,8 +18,13 @@ import {
   BarChart3,
   Database,
   Clock,
+  Bell,
+  UserCircle,
 } from 'lucide-react';
 import { fetchAdminStats } from '../../lib/api';
+import { fetchAdminAlerts, fetchAdminAlertsCount, fetchAdminClients } from '../../lib/portal-api';
+import type { ClientListItem, StaffAlert } from '../../types/process';
+import { PORTAL_STAFF } from '../../lib/portal-routes';
 import type { AdminStats } from '../../types/user';
 import { SeoHead } from '../../components/seo/SeoHead';
 import { useAdminUser } from '../../components/admin/AdminShell';
@@ -132,13 +137,28 @@ export function AdminDashboardPage() {
   const user = useAdminUser();
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [alerts, setAlerts] = useState<StaffAlert[]>([]);
+  const [alertCount, setAlertCount] = useState(0);
+  const [ownClient, setOwnClient] = useState<ClientListItem | null>(null);
 
   useEffect(() => {
     fetchAdminStats()
       .then(setStats)
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, []);
+    if (user?.role === 'admin' || user?.role === 'comercial') {
+      fetchAdminAlerts({ unread: true, limit: 5 }).then(setAlerts).catch(() => {});
+      fetchAdminAlertsCount().then(setAlertCount).catch(() => {});
+    }
+    if (user?.email && (user.role === 'admin' || user.role === 'comercial')) {
+      fetchAdminClients(user.email)
+        .then((clients) => {
+          const match = clients.find((c) => c.email.toLowerCase() === user.email.toLowerCase());
+          setOwnClient(match ?? null);
+        })
+        .catch(() => setOwnClient(null));
+    }
+  }, [user?.role, user?.email]);
 
   const c = stats?.contacts;
   const ga4 = stats?.integrations.ga4;
@@ -169,6 +189,34 @@ export function AdminDashboardPage() {
           )}
         </div>
 
+        {ownClient && (
+          <Link
+            to={PORTAL_STAFF.client(ownClient.id)}
+            className="block rounded-xl border border-brand-200 bg-white px-4 py-3 hover:border-brand-400 hover:bg-brand-50/50"
+          >
+            <p className="inline-flex items-center gap-2 text-sm font-semibold text-brand-800">
+              <UserCircle size={16} className="text-brand-600" />
+              Seu cadastro de cliente
+            </p>
+            <p className="text-sm text-slate-500 mt-1">
+              {ownClient.name} — edite seus dados ou os de outros clientes em Clientes.
+            </p>
+          </Link>
+        )}
+
+        {alertCount > 0 && (
+          <Link
+            to={PORTAL_STAFF.alerts}
+            className="block rounded-xl border-2 border-amber-400 bg-amber-50 px-4 py-3 hover:bg-amber-100"
+          >
+            <p className="inline-flex items-center gap-2 text-sm font-extrabold uppercase tracking-wide text-amber-900">
+              <Bell size={16} />
+              {alertCount} alerta{alertCount > 1 ? 's' : ''} — cliente alterou cadastro
+            </p>
+            <p className="text-sm text-amber-800 mt-1">{alerts[0]?.title}</p>
+          </Link>
+        )}
+
         {user?.mustChangePassword && (
           <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl text-sm flex items-start gap-2">
             <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
@@ -188,6 +236,14 @@ export function AdminDashboardPage() {
           <>
             {/* Métricas principais */}
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <StatCard
+                label="Alertas pendentes"
+                value={alertCount}
+                sub="edições feitas pelo cliente"
+                icon={Bell}
+                to={PORTAL_STAFF.alerts}
+                accent={alertCount > 0}
+              />
               <StatCard
                 label="Contatos novos"
                 value={c?.new ?? '—'}

@@ -46,6 +46,42 @@ export async function sendContactEmail(payload: {
 export async function sendPortalWelcomeEmail(payload: {
   name: string;
   email: string;
+  loginUrl?: string;
+  resetUrl?: string;
+}): Promise<{ sent: boolean; error: string | null }> {
+  const config = await getResolvedEmailSettings();
+  const configError = validateEmailConfig(config);
+  if (configError) {
+    return { sent: false, error: configError };
+  }
+
+  const loginLine = payload.loginUrl
+    ? `\nAcesse o portal: ${payload.loginUrl}\nUse o e-mail ${payload.email} e a senha que você definiu no cadastro.\n`
+    : '\nAcesse o portal em /entrar com o e-mail e a senha que você definiu no cadastro.\n';
+  const resetLine = payload.resetUrl
+    ? `\nSe precisar definir ou alterar sua senha, use este link (válido por 1 hora):\n${payload.resetUrl}\n`
+    : '\nSe esquecer a senha, use "Esqueci minha senha" na tela de login.\n';
+
+  try {
+    const transporter = await createTransporter(config);
+    await transporter.sendMail({
+      from: config.smtpFrom || config.smtpUser,
+      to: payload.email,
+      subject: 'Bem-vindo ao portal Andrade Isenções',
+      text: `Olá, ${payload.name}!\n\nSeu cadastro foi realizado com sucesso.${loginLine}${resetLine}\nEquipe Andrade Consultoria e Isenções`,
+    });
+    return { sent: true, error: null };
+  } catch (err) {
+    console.error('portal welcome email error', err);
+    return { sent: false, error: mapMailError(err).message };
+  }
+}
+
+export async function sendPortalAccessEmail(payload: {
+  name: string;
+  email: string;
+  loginUrl: string;
+  resetUrl: string;
 }): Promise<{ sent: boolean; error: string | null }> {
   const config = await getResolvedEmailSettings();
   const configError = validateEmailConfig(config);
@@ -58,12 +94,12 @@ export async function sendPortalWelcomeEmail(payload: {
     await transporter.sendMail({
       from: config.smtpFrom || config.smtpUser,
       to: payload.email,
-      subject: 'Bem-vindo ao portal Andrade Isenções',
-      text: `Olá, ${payload.name}!\n\nSeu cadastro foi realizado com sucesso. Acesse o portal em /entrar com o e-mail e a senha que você definiu no cadastro.\n\nSe esquecer a senha, use "Esqueci minha senha" na tela de login.\n\nEquipe Andrade Consultoria e Isenções`,
+      subject: 'Acesso ao portal — Andrade Isenções',
+      text: `Olá, ${payload.name}!\n\nSeu processo foi registrado no Portal Andrade Isenções.\n\nPara acessar o portal, defina sua senha pelo link abaixo (válido por 1 hora):\n${payload.resetUrl}\n\nDepois de definir a senha, entre em:\n${payload.loginUrl}\n\nUse o e-mail ${payload.email} para fazer login.\n\nEquipe Andrade Consultoria e Isenções`,
     });
     return { sent: true, error: null };
   } catch (err) {
-    console.error('portal welcome email error', err);
+    console.error('portal access email error', err);
     return { sent: false, error: mapMailError(err).message };
   }
 }

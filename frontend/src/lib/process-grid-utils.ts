@@ -20,13 +20,13 @@ export interface ProcessGridFilters {
 }
 
 export function formatCpf(cpf: string): string {
-  const d = cpf.replace(/\D/g, '');
+  const d = (cpf ?? '').replace(/\D/g, '');
   if (d.length !== 11) return cpf;
   return d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 }
 
 export function formatCep(cep: string): string {
-  const d = cep.replace(/\D/g, '');
+  const d = (cep ?? '').replace(/\D/g, '');
   if (d.length !== 8) return cep;
   return d.replace(/(\d{5})(\d{3})/, '$1-$2');
 }
@@ -54,18 +54,25 @@ export function formatDateShort(iso: string): string {
 }
 
 export function filterProcesses(items: ProcessListItem[], filters: ProcessGridFilters): ProcessListItem[] {
-  const q = filters.search.trim().toLowerCase();
+  const q = (filters.search ?? '').trim().toLowerCase();
+  const qDigits = q.replace(/\D/g, '');
   return items.filter((p) => {
     if (filters.status !== 'all' && p.status !== filters.status) return false;
     if (filters.step !== 'all' && p.currentStep !== filters.step) return false;
     if (filters.modality !== 'all' && p.modality !== filters.modality) return false;
     if (!q) return true;
+
+    const name = (p.clientName ?? '').toLowerCase();
+    const email = (p.clientEmail ?? '').toLowerCase();
+    const phoneDigits = (p.clientPhone ?? '').replace(/\D/g, '');
+
     return (
-      p.clientName.toLowerCase().includes(q) ||
-      p.clientCpf.includes(q.replace(/\D/g, '')) ||
-      p.clientEmail.toLowerCase().includes(q) ||
+      name.includes(q) ||
+      email.includes(q) ||
       p.id.toLowerCase().includes(q) ||
-      (p.clientPhone ?? '').includes(q)
+      (qDigits.length > 0 && p.clientCpf.includes(qDigits)) ||
+      (qDigits.length > 0 && phoneDigits.includes(qDigits)) ||
+      (qDigits.length === 0 && (p.clientPhone ?? '').toLowerCase().includes(q))
     );
   });
 }

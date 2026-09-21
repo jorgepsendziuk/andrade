@@ -7,6 +7,7 @@ import { stripUndefined } from './firestore-utils.js';
 import { dataFile } from './data-paths.js';
 import type { AdminUser, AdminUserPublic, UserRole } from './types/user.js';
 import { toPublicUser } from './types/user.js';
+import { normalizeAuthEmail } from './auth-email.js';
 
 const USERS_FILE = dataFile('admin-users.json');
 const COLLECTION = 'admin_users';
@@ -25,7 +26,7 @@ function writeFileUsers(users: AdminUser[]) {
 }
 
 export async function findUserByEmail(email: string): Promise<AdminUser | null> {
-  const normalized = email.trim().toLowerCase();
+  const normalized = normalizeAuthEmail(email);
   if (useFirestore) {
     const db = await getFirestore();
     const snap = await db.collection(COLLECTION).where('email', '==', normalized).limit(1).get();
@@ -119,21 +120,26 @@ export async function updatePassword(id: string, newPassword: string): Promise<b
   const user = await findUserById(id);
   if (!user) return false;
 
-  const updated: AdminUser = {
-    ...user,
-    passwordHash: bcrypt.hashSync(newPassword, 10),
-    mustChangePassword: false,
-    updatedAt: new Date().toISOString(),
-  };
+  const passwordHash = bcrypt.hashSync(newPassword, 10);
+  const updatedAt = new Date().toISOString();
 
   if (useFirestore) {
     const db = await getFirestore();
-    await db.collection(COLLECTION).doc(id).set(stripUndefined(updated));
+    await db.collection(COLLECTION).doc(id).update({
+      passwordHash,
+      mustChangePassword: false,
+      updatedAt,
+    });
   } else {
     const users = readFileUsers();
     const idx = users.findIndex((u) => u.id === id);
     if (idx === -1) return false;
-    users[idx] = updated;
+    users[idx] = {
+      ...users[idx],
+      passwordHash,
+      mustChangePassword: false,
+      updatedAt,
+    };
     writeFileUsers(users);
   }
   return true;

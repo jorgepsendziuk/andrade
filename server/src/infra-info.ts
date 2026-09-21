@@ -21,6 +21,7 @@ const FIRESTORE_COLLECTIONS = [
   { name: 'process_files', description: 'Metadados de documentos anexados' },
   { name: 'conductors', description: 'Condutores cadastrados por processo' },
   { name: 'audit_logs', description: 'Trilha de auditoria LGPD' },
+  { name: 'staff_alerts', description: 'Alertas da equipe sobre edições do cliente' },
 ] as const;
 
 const SECRET_NAMES = ['SMTP_PASS', 'JWT_SECRET', 'GA4_SERVICE_ACCOUNT_JSON', 'BACKUP_CRON_SECRET'] as const;

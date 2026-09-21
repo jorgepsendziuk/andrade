@@ -77,7 +77,7 @@ export function MediaSection() {
             className="card-vivid flex flex-col p-4 md:p-5 group hover:-translate-y-0.5 min-h-[240px] md:min-h-[280px]"
           >
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-brand-600 bg-brand-50 px-2 py-1 rounded">
+              <span className="text-sm font-bold uppercase tracking-widest text-brand-600 bg-brand-50 px-2 py-1 rounded">
                 Matéria no G1
               </span>
               <ExternalLink
@@ -94,7 +94,7 @@ export function MediaSection() {
                 loading="lazy"
               />
             </div>
-            <p className="text-text-secondary text-xs leading-relaxed text-center group-hover:text-brand-700 transition-colors mt-auto pt-2 border-t border-brand-50">
+            <p className="text-text-secondary text-sm leading-relaxed text-center group-hover:text-brand-700 transition-colors mt-auto pt-2 border-t border-brand-50">
               Escritório de MT facilita o direito à mobilidade para público PCD
             </p>
           </a>
@@ -121,7 +121,7 @@ export function MediaSection() {
               <p className="text-white font-display font-bold text-sm text-center leading-snug">
                 Pescuma &amp; Andrade
               </p>
-              <p className="text-white/80 text-[10px] uppercase tracking-wider mt-1">Assista agora</p>
+              <p className="text-white/85 text-sm uppercase tracking-wider mt-1">Assista agora</p>
             </div>
           </button>
         </div>

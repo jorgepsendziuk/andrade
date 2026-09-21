@@ -371,6 +371,11 @@ export function AdminProcessesPage() {
                         >
                           {p.clientName}
                         </Link>
+                        {p.clientLastSelfEditAt && (
+                          <span className="inline-flex mt-1 text-[10px] font-extrabold uppercase tracking-wide text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded">
+                            Editou cadastro
+                          </span>
+                        )}
                         <p className="text-xs text-slate-400 truncate max-w-[200px]">{p.clientEmail}</p>
                       </td>
                       <td className="px-3 py-3 hidden md:table-cell text-slate-600 whitespace-nowrap">

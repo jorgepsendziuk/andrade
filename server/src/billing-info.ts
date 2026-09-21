@@ -35,6 +35,7 @@ const GCP_SERVICE_TO_ID: Record<string, string> = {
   'Networking': 'load-balancer',
   'Cloud Build': 'cloud-build',
   'Artifact Registry': 'cloud-build',
+  'Compute Engine': 'compute-engine',
   'BigQuery': 'billing-export',
   'Analytics Hub': 'ga4-api',
 };
@@ -48,6 +49,7 @@ const SERVICE_LABELS: Record<string, string> = {
   'load-balancer': 'Load Balancer + SSL (legado)',
   'firebase-hosting': 'Firebase Hosting',
   'cloud-build': 'Cloud Build + Artifact Registry',
+  'compute-engine': 'Compute Engine',
   'ga4-api': 'Google Analytics Data API',
   'billing-export': 'BigQuery (exportação de faturamento)',
   backup: 'Backup diário (Cloud Storage Nearline)',
@@ -73,22 +75,50 @@ function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
-function billingTableId(accountId: string): string {
-  return `gcp_billing_export_v1_${accountId.replace(/-/g, '_')}`;
+function billingTableIds(accountId: string): string[] {
+  const suffix = accountId.replace(/-/g, '_');
+  return [
+    `gcp_billing_export_v1_${suffix}`,
+    `gcp_billing_export_resource_v1_${suffix}`,
+  ];
 }
 
-async function queryBillingExport(
+function parseBillingRows(rows: { f: { v: string }[] }[]): BillingServiceCost[] {
+  if (!rows.length) return [];
+
+  const currency = rows[0]?.f[1]?.v || 'USD';
+  const byId = new Map<string, BillingServiceCost>();
+
+  for (const row of rows) {
+    const serviceName = row.f[0]?.v ?? 'Outros';
+    const cost = Number(row.f[2]?.v ?? 0);
+    const serviceId = GCP_SERVICE_TO_ID[serviceName] ?? 'other';
+    const existing = byId.get(serviceId);
+    if (existing) {
+      existing.amount = round2(existing.amount + cost);
+      existing.details?.push(`${serviceName}: ${currency} ${cost.toFixed(2)}`);
+    } else {
+      byId.set(serviceId, {
+        serviceId,
+        label: SERVICE_LABELS[serviceId] ?? serviceName,
+        amount: round2(cost),
+        currency,
+        source: 'billing-export',
+        details: [`${serviceName}: ${currency} ${cost.toFixed(2)}`],
+      });
+    }
+  }
+
+  return [...byId.values()];
+}
+
+async function runBillingQuery(
+  client: Awaited<ReturnType<GoogleAuth['getClient']>>,
   projectId: string,
   dataset: string,
-  billingAccountId: string,
+  table: string,
   filterProjectId: string
 ): Promise<BillingServiceCost[] | null> {
-  const auth = new GoogleAuth({
-    scopes: ['https://www.googleapis.com/auth/bigquery.readonly'],
-  });
-  const client = await auth.getClient();
-  const table = billingTableId(billingAccountId);
-
   const query = `
     SELECT
       service.description AS service_name,
@@ -103,57 +133,51 @@ async function queryBillingExport(
     ORDER BY total_cost DESC
   `;
 
-  try {
-    const res = await client.request<{ rows?: { f: { v: string }[] }[] }>({
-      url: `https://bigquery.googleapis.com/bigquery/v2/projects/${projectId}/queries`,
-      method: 'POST',
-      data: {
-        query,
-        useLegacySql: false,
-        parameterMode: 'NAMED',
-        queryParameters: [
-          {
-            name: 'filterProject',
-            parameterType: { type: 'STRING' },
-            parameterValue: { value: filterProjectId },
-          },
-        ],
-      },
-    });
+  const res = await client.request<{ rows?: { f: { v: string }[] }[] }>({
+    url: `https://bigquery.googleapis.com/bigquery/v2/projects/${projectId}/queries`,
+    method: 'POST',
+    data: {
+      query,
+      useLegacySql: false,
+      parameterMode: 'NAMED',
+      queryParameters: [
+        {
+          name: 'filterProject',
+          parameterType: { type: 'STRING' },
+          parameterValue: { value: filterProjectId },
+        },
+      ],
+    },
+  });
 
-    const rows = res.data.rows ?? [];
-    if (!rows.length) return null;
+  const rows = res.data.rows ?? [];
+  if (!rows.length) return null;
+  return parseBillingRows(rows);
+}
 
-    const currency = rows[0]?.f[1]?.v || 'USD';
-    const byId = new Map<string, BillingServiceCost>();
+async function queryBillingExport(
+  projectId: string,
+  dataset: string,
+  billingAccountId: string,
+  filterProjectId: string
+): Promise<BillingServiceCost[] | null> {
+  const auth = new GoogleAuth({
+    scopes: ['https://www.googleapis.com/auth/bigquery.readonly'],
+  });
+  const client = await auth.getClient();
 
-    for (const row of rows) {
-      const serviceName = row.f[0]?.v ?? 'Outros';
-      const cost = Number(row.f[2]?.v ?? 0);
-      const serviceId = GCP_SERVICE_TO_ID[serviceName] ?? 'other';
-      const existing = byId.get(serviceId);
-      if (existing) {
-        existing.amount = round2(existing.amount + cost);
-        existing.details?.push(`${serviceName}: ${currency} ${cost.toFixed(2)}`);
-      } else {
-        byId.set(serviceId, {
-          serviceId,
-          label: SERVICE_LABELS[serviceId] ?? serviceName,
-          amount: round2(cost),
-          currency,
-          source: 'billing-export',
-          details: [`${serviceName}: ${currency} ${cost.toFixed(2)}`],
-        });
-      }
+  for (const table of billingTableIds(billingAccountId)) {
+    try {
+      const services = await runBillingQuery(client, projectId, dataset, table, filterProjectId);
+      if (services?.length) return services;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      if (message.includes('Not found') || message.includes('notFound')) continue;
+      console.warn(`billing export query failed (${table})`, message);
     }
-
-    return [...byId.values()];
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    if (message.includes('Not found') || message.includes('notFound')) return null;
-    console.warn('billing export query failed', message);
-    return null;
   }
+
+  return null;
 }
 
 async function fetchMonitoringSum(

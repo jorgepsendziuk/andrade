@@ -105,7 +105,7 @@ export function HeroCommercialSection() {
               value={data.eyebrow}
               onChange={(v) => updateSection('hero-commercial', { eyebrow: v })}
               as="p"
-              className="text-accent font-bold text-[10px] md:text-xs uppercase tracking-[0.25em] mb-3"
+              className="text-accent font-bold text-sm uppercase tracking-[0.2em] mb-3"
             />
             <EditableText
               value={data.headline}
@@ -124,7 +124,7 @@ export function HeroCommercialSection() {
               value={data.tagline}
               onChange={(v) => updateSection('hero-commercial', { tagline: v })}
               as="p"
-              className="text-white/80 text-xs mb-4"
+              className="text-white/85 text-sm mb-4"
             />
             <div className="flex flex-col sm:flex-row gap-2.5 [text-shadow:none]">
               <EditableCta
@@ -132,7 +132,7 @@ export function HeroCommercialSection() {
                 href={data.primaryCtaLink}
                 onTextChange={(v) => updateSection('hero-commercial', { primaryCta: v })}
                 onHrefChange={(v) => updateSection('hero-commercial', { primaryCtaLink: v })}
-                className="btn-primary justify-center text-xs inline-flex items-center gap-2"
+                className="btn-primary justify-center inline-flex items-center gap-2"
               >
                 <ShieldCheck size={16} />
                 {data.primaryCta}
@@ -142,13 +142,13 @@ export function HeroCommercialSection() {
                 href={data.secondaryCtaLink}
                 onTextChange={(v) => updateSection('hero-commercial', { secondaryCta: v })}
                 onHrefChange={(v) => updateSection('hero-commercial', { secondaryCtaLink: v })}
-                className="btn-secondary !border-white !text-white hover:!bg-white/15 justify-center text-xs backdrop-blur-sm inline-flex items-center gap-2"
+                className="btn-secondary !border-white !text-white hover:!bg-white/15 justify-center backdrop-blur-sm inline-flex items-center gap-2"
               >
                 {data.secondaryCta}
               </EditableCta>
             </div>
             {data.trustPills && data.trustPills.length > 0 && (
-              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-4 text-[10px] md:text-xs text-white/90">
+              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-4 text-sm text-white/90">
                 {data.trustPills.map((pill, i) => (
                   <span key={i} className="flex items-center gap-1">
                     <span className="text-accent">✓</span>
@@ -192,7 +192,7 @@ export function HeroCommercialSection() {
                         {isTextOnly ? (
                           <TrustTextLabel
                             text={item.label}
-                            className="font-display font-bold text-xs md:text-sm text-brand-800 leading-snug"
+                            className="font-display font-bold text-sm md:text-base text-brand-800 leading-snug"
                           />
                         ) : (
                           <>
@@ -216,7 +216,7 @@ export function HeroCommercialSection() {
                                 updateSection('trust-bar', { items });
                               }}
                               as="p"
-                              className="text-text-secondary text-[10px] md:text-xs font-medium leading-snug"
+                              className="text-text-secondary text-sm font-medium leading-snug"
                             />
                           </>
                         )}

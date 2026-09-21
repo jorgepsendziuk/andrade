@@ -71,7 +71,7 @@ export function EligibilitySection() {
                 <div className="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center mx-auto mb-2 group-hover:bg-accent transition-colors shadow-md">
                   <Icon size={18} className="text-white" />
                 </div>
-                <span className="text-[10px] font-bold text-brand-800 leading-tight block">
+                <span className="text-sm font-bold text-brand-800 leading-tight block">
                   <EditableText
                     value={card.label}
                     onChange={(v) => {

@@ -5,6 +5,7 @@ import { randomUUID } from 'crypto';
 import { getFirestore, useFirestore } from './firestore-client.js';
 import { stripUndefined } from './firestore-utils.js';
 import { dataFile } from './data-paths.js';
+import { normalizeAuthEmail } from './auth-email.js';
 
 export type PasswordResetAccountType = 'cliente' | 'staff';
 
@@ -54,7 +55,7 @@ export async function createPasswordResetToken(input: {
   const record: PasswordResetToken = {
     id: randomUUID(),
     tokenHash: hashToken(token),
-    email: input.email.trim().toLowerCase(),
+    email: normalizeAuthEmail(input.email),
     userId: input.userId,
     accountType: input.accountType,
     expiresAt: new Date(now.getTime() + TOKEN_TTL_MS).toISOString(),

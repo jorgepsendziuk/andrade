@@ -54,6 +54,21 @@ export async function findActiveProcessByClientId(clientId: string): Promise<Pro
   );
 }
 
+export async function listProcessesByClientId(clientId: string, limit = 100): Promise<ProcessRecord[]> {
+  if (useFirestore) {
+    const db = await getFirestore();
+    const snap = await db.collection(COLLECTION).where('clientId', '==', clientId).limit(limit).get();
+    return snap.docs
+      .map((d) => normalizeProcessRecord(d.data() as ProcessRecord))
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+  return readFileProcesses()
+    .map(normalizeProcessRecord)
+    .filter((p) => p.clientId === clientId)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .slice(0, limit);
+}
+
 export async function listProcesses(limit = 200): Promise<ProcessRecord[]> {
   if (useFirestore) {
     const db = await getFirestore();

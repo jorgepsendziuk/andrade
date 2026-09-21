@@ -7,18 +7,19 @@ import {
   createClient,
   findClientById,
   toPublicClient,
-  updateClient,
 } from './clients-store.js';
 import {
   createProcess,
   findActiveProcessByClientId,
   findProcessById,
+  updateProcess,
 } from './processes-store.js';
 import {
   createProcessFile,
   listProcessFiles,
 } from './process-files-store.js';
-import { logAudit } from './audit-store.js';
+import { listAuditLogs, logAudit } from './audit-store.js';
+import { recordClientSelfEdit } from './alerts-store.js';
 import {
   buildFileObjectName,
   buildStorageContext,
@@ -31,6 +32,10 @@ import {
 } from './docs-store.js';
 import type { FileTypeCode, LegalRepresentative } from './types/process.js';
 import { sendPortalWelcomeEmail } from './mail-service.js';
+import { applyClientPatch, CLIENT_AUDIT_FIELDS, parseLegalRepresentative } from './client-patch.js';
+import { diffRecords, summarizeChanges } from './audit-diff.js';
+import { buildClientPasswordResetUrl } from './auth-password-reset.js';
+import { getAdminSettings } from './settings-store.js';
 
 const docUpload = multer({
   storage: multer.memoryStorage(),
@@ -180,7 +185,19 @@ export function registerPortalRoutes(app: Express) {
         ip: req.ip,
       });
 
-      await sendPortalWelcomeEmail({ name: client.name, email: client.email }).catch(() => {});
+      const settings = await getAdminSettings();
+      const siteUrl = settings.integrations.siteUrl.replace(/\/$/, '');
+      const loginUrl = `${siteUrl}/entrar`;
+      const resetUrl = await buildClientPasswordResetUrl(client);
+      const welcome = await sendPortalWelcomeEmail({
+        name: client.name,
+        email: client.email,
+        loginUrl,
+        resetUrl,
+      });
+      if (!welcome.sent) {
+        console.error('portal welcome email failed', client.email, welcome.error);
+      }
 
       const { authenticateUser } = await import('./auth-login.js');
       const auth = await authenticateUser(email, password);
@@ -217,22 +234,113 @@ export function registerPortalRoutes(app: Express) {
       return res.status(403).json({ error: 'Acesso restrito.' });
     }
     try {
-      const { phone, endereco, numero, complemento, bairro, cep, cidade, uf } = req.body as Record<string, string>;
-      const updated = await updateClient(req.user.id, {
-        phone,
-        endereco,
-        numero,
-        complemento,
-        bairro,
-        cep,
-        cidade,
-        uf,
-      });
+      const before = await findClientById(req.user.id);
+      if (!before) return res.status(404).json({ error: 'Cliente não encontrado.' });
+      const updated = await applyClientPatch(
+        req.user.id,
+        { ...req.body, representante: parseLegalRepresentative(req.body?.representante) },
+        { allowIdentity: false, allowActive: false }
+      );
       if (!updated) return res.status(404).json({ error: 'Cliente não encontrado.' });
+      const changes = diffRecords(
+        before as unknown as Record<string, unknown>,
+        updated as unknown as Record<string, unknown>,
+        [...CLIENT_AUDIT_FIELDS]
+      );
+      if (changes.length) {
+        await logAudit({
+          action: 'update',
+          resourceType: 'client',
+          resourceId: before.id,
+          userId: req.user.id,
+          userRole: req.user.role,
+          userEmail: req.user.email,
+          ip: req.ip,
+          summary: `Cliente atualizou: ${summarizeChanges(changes)}`,
+          changes,
+        });
+        await recordClientSelfEdit({
+          type: 'client_self_edit',
+          client: updated,
+          changes,
+        });
+      }
       res.json(updated);
     } catch (err) {
       console.error('portal update error', err);
-      res.status(500).json({ error: 'Falha ao atualizar.' });
+      const message = err instanceof Error ? err.message : 'Falha ao atualizar.';
+      res.status(400).json({ error: message });
+    }
+  });
+
+  app.patch('/api/portal/process', authMiddleware, async (req: AuthRequest, res: Response) => {
+    if (req.user?.role !== 'cliente') {
+      return res.status(403).json({ error: 'Acesso restrito.' });
+    }
+    try {
+      const process = await findActiveProcessByClientId(req.user.id);
+      if (!process) return res.status(404).json({ error: 'Nenhum processo ativo.' });
+      const vehicle = req.body?.vehicle as Record<string, string> | undefined;
+      if (!vehicle || typeof vehicle !== 'object') {
+        return res.status(400).json({ error: 'Informe os dados do veículo.' });
+      }
+      const cleanVehicle = Object.fromEntries(
+        Object.entries(vehicle).filter(([, v]) => String(v ?? '').trim())
+      );
+      const updated = await updateProcess(process.id, {
+        vehicle: Object.keys(cleanVehicle).length ? cleanVehicle : undefined,
+      });
+      if (!updated) return res.status(404).json({ error: 'Processo não encontrado.' });
+      const changes = diffRecords(
+        process as unknown as Record<string, unknown>,
+        updated as unknown as Record<string, unknown>,
+        ['vehicle']
+      );
+      if (changes.length) {
+        await logAudit({
+          action: 'update',
+          resourceType: 'process',
+          resourceId: process.id,
+          userId: req.user.id,
+          userRole: req.user.role,
+          userEmail: req.user.email,
+          ip: req.ip,
+          summary: `Cliente atualizou veículo: ${summarizeChanges(changes)}`,
+          changes,
+        });
+        const client = await findClientById(req.user.id);
+        if (client) {
+          await recordClientSelfEdit({
+            type: 'process_self_edit',
+            client,
+            processId: process.id,
+            changes,
+          });
+        }
+      }
+      res.json(updated);
+    } catch (err) {
+      console.error('portal process update error', err);
+      res.status(500).json({ error: 'Falha ao atualizar processo.' });
+    }
+  });
+
+  app.get('/api/portal/audit', authMiddleware, async (req: AuthRequest, res: Response) => {
+    if (req.user?.role !== 'cliente') {
+      return res.status(403).json({ error: 'Acesso restrito.' });
+    }
+    try {
+      const process = await findActiveProcessByClientId(req.user.id);
+      const logs = await listAuditLogs({ limit: 400 });
+      const own = logs.filter(
+        (log) =>
+          log.userId === req.user!.id ||
+          log.resourceId === req.user!.id ||
+          (process && log.resourceId === process.id)
+      );
+      res.json(own.slice(0, 100));
+    } catch (err) {
+      res.status(500).json({ error: 'Falha ao carregar auditoria.' });
     }
   });
 

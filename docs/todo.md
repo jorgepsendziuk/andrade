@@ -34,5 +34,41 @@ identificar os dados e aplicar lgpd, termos de uso, cookies no site e sistema, m
 
 
 
+stakeholder claims:
+planejar, executar e ir marcando nesse arquivo o andamento, sem muito verboso ou enfeitado.
+
+
+
+## SEO /guia/:slug
+
+- [x] 1. HTTP 200 com SSR no HTML inicial (`server/src/public-page-html.ts` + rota `GET /guia/:slug`)
+- [x] 2. `<title>` exclusivo por artigo
+- [x] 3. Meta description individual
+- [x] 4. Canonical individual
+- [x] 5. H1 no HTML inicial
+- [x] 6. Conteúdo completo no HTML inicial (parágrafos, links, CTA, condições relacionadas; FAQ só se existir no CMS)
+- [x] 7. Open Graph individual
+- [x] 8. Schema Article (headline, description, datePublished, dateModified, author, publisher, mainEntityOfPage)
+- [x] 9. Schema BreadcrumbList
+- [x] 10. FAQ Schema (quando o artigo tiver `faq[]`)
+- [x] 11. Sitemap com todas as URLs `/guia/:slug` e `lastmod` por `publishedAt`/`updatedAt`
+- [x] 12. Robots `index,follow` (não bloqueado no robots.txt)
+- [x] 13. Slug inexistente → 404 + noindex
+- [ ] 14. 301 de artigos duplicados (`GUIA_REDIRECTS` vazio — aguardando decisão de URL oficial)
+- [x] 15. Mesmo HTML para Google e visitante; React hidrata via `window.__GUIA_ARTICLE__`
+
+### Prioridade stakeholder
+- [x] 1. SSR/prerender `/guia/:slug`
+- [x] 2. title + meta description
+- [x] 3. canonical
+- [x] 4. H1 + conteúdo no HTML inicial
+- [x] 5. sitemap atualizado
+- [x] 6. Schema Article + Breadcrumb
+- [x] 7. 301 `/detalhe/` (já em produção)
+- [ ] 8. consolidação de artigos duplicados (pendente decisão)
+
+
+
+
 
 
