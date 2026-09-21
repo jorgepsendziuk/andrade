@@ -207,7 +207,8 @@ app.get('/api/guia/:slug', async (req, res) => {
 app.get('/robots.txt', (req, res) => {
   const host = requestHostname(req.headers);
   res.set('Content-Type', 'text/plain; charset=utf-8');
-  res.set('Cache-Control', 'public, max-age=3600');
+  res.set('Cache-Control', 'public, max-age=3600, s-maxage=3600');
+  res.removeHeader('X-Robots-Tag');
   res.send(buildRobotsTxt(host));
 });
 

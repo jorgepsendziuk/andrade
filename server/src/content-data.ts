@@ -98,7 +98,23 @@ function sitemapLastmod(value: unknown, fallback: string): string {
   return /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : fallback;
 }
 
+function escapeXmlText(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+const SITEMAP_CACHE_TTL_MS = 5 * 60 * 1000;
+let sitemapCache: { xml: string; expiresAt: number } | null = null;
+
 export async function buildSitemapXml(): Promise<string> {
+  const now = Date.now();
+  if (sitemapCache && sitemapCache.expiresAt > now) {
+    return sitemapCache.xml;
+  }
   const siteUrl = (process.env.SITE_URL || 'https://andradeisencoes.com.br').replace(/\/$/, '');
   const today = new Date().toISOString().split('T')[0];
 
@@ -149,16 +165,18 @@ export async function buildSitemapXml(): Promise<string> {
   const body = urls
     .map(
       (u) => `  <url>
-    <loc>${u.loc}</loc>
-    <lastmod>${u.lastmod}</lastmod>
-    <changefreq>${u.changefreq}</changefreq>
-    <priority>${u.priority}</priority>
+    <loc>${escapeXmlText(u.loc)}</loc>
+    <lastmod>${escapeXmlText(u.lastmod)}</lastmod>
+    <changefreq>${escapeXmlText(u.changefreq)}</changefreq>
+    <priority>${escapeXmlText(u.priority)}</priority>
   </url>`
     )
     .join('\n');
 
-  return `<?xml version="1.0" encoding="UTF-8"?>
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${body}
 </urlset>`;
+  sitemapCache = { xml, expiresAt: now + SITEMAP_CACHE_TTL_MS };
+  return xml;
 }
