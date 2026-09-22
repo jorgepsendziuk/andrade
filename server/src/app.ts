@@ -10,7 +10,6 @@ import {
   readCondition,
   readGuiaArticles,
   readGuiaArticle,
-  buildSitemapXml,
   saveCondition,
   deleteCondition,
   saveGuiaArticle,
@@ -69,6 +68,7 @@ import {
   renderGuiaArticlePage,
   renderGuiaNotFoundHtml,
 } from './public-page-html.js';
+import { getSitemapXmlForRequest } from './sitemap.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.join(__dirname, '../data');
@@ -216,15 +216,8 @@ app.get(['/api/sitemap.xml', '/sitemap.xml'], async (_req, res) => {
   res.set('Content-Type', 'application/xml; charset=utf-8');
   res.set('Cache-Control', 'public, max-age=300, s-maxage=300');
   res.removeHeader('X-Robots-Tag');
-  try {
-    res.send(await buildSitemapXml());
-  } catch (err) {
-    console.error('sitemap error', err);
-    res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://andradeisencoes.com.br/</loc></url>
-</urlset>`);
-  }
+  const xml = await getSitemapXmlForRequest();
+  res.status(200).send(xml);
 });
 
 app.get('/isencao-pcd/:slug', async (req, res, next) => {

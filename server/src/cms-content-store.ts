@@ -84,6 +84,10 @@ async function listFromFirestore(collection: string, fallback: Record<string, un
     await bootstrapFirestoreCollection(collection, fallback);
     return fallback;
   }
+  return parseFirestoreDocs(snap);
+}
+
+function parseFirestoreDocs(snap: { docs: Array<{ data: () => Record<string, unknown> }> }): Record<string, unknown>[] {
   return snap.docs.flatMap((d) => {
     try {
       const parsed = JSON.parse(String(d.data().json)) as Record<string, unknown>;
@@ -92,6 +96,37 @@ async function listFromFirestore(collection: string, fallback: Record<string, un
       return [];
     }
   });
+}
+
+/** Leitura rápida para sitemap: sem bootstrap nem gravações de sanitização. */
+async function listFromFirestoreForSitemap(
+  collection: string,
+  fallback: Record<string, unknown>[]
+): Promise<Record<string, unknown>[]> {
+  try {
+    const db = await getFirestore();
+    const snap = await db.collection(collection).get();
+    if (snap.empty) return fallback;
+    return parseFirestoreDocs(snap);
+  } catch (err) {
+    console.error(`sitemap firestore list ${collection}`, err);
+    return fallback;
+  }
+}
+
+export async function listConditionsForSitemap(): Promise<Record<string, unknown>[]> {
+  const fromFiles = readConditionsFromFiles();
+  if (useFirestore) return listFromFirestoreForSitemap(CONDITIONS_COLLECTION, fromFiles);
+  return fromFiles;
+}
+
+export async function listGuiaArticlesForSitemap(): Promise<Record<string, unknown>[]> {
+  const fromFiles = readGuiaFromFiles();
+  if (useFirestore) {
+    const items = await listFromFirestoreForSitemap(GUIA_COLLECTION, fromFiles);
+    return items.sort((a, b) => String(b.publishedAt ?? '').localeCompare(String(a.publishedAt ?? '')));
+  }
+  return fromFiles;
 }
 
 async function getFromFirestore(collection: string, slug: string, fallback: Record<string, unknown> | null) {
